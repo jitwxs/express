@@ -1,6 +1,10 @@
-package com.example.express.filter;
+package com.example.express.security.validate.code;
 
+import com.example.express.domain.enums.ResponseErrorCodeEnum;
+import com.example.express.security.SecurityConstants;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.DisabledException;
+import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -13,25 +17,31 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public class VerifyFilter extends OncePerRequestFilter {
+/**
+ * 验证码登陆过滤器
+ * @author jitwxs
+ * @since 2019/1/9 0:01
+ */
+@Slf4j
+@Component
+public class ValidateCodeFilter extends OncePerRequestFilter {
     private static final PathMatcher pathMatcher = new AntPathMatcher();
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         if(isProtectedUrl(request)) {
-            String verifyCode = request.getParameter("verifyCode");
+            String verifyCode = request.getParameter(SecurityConstants.VALIDATE_CODE_PARAMETER);
             if(!validateVerify(verifyCode)) {
                 //手动设置异常
-                request.getSession().setAttribute("SPRING_SECURITY_LAST_EXCEPTION",new DisabledException("验证码输入错误"));
+                request.getSession().setAttribute("SPRING_SECURITY_LAST_EXCEPTION",new DisabledException(ResponseErrorCodeEnum.VERIFY_CODE_ERROR.getMsg()));
                 // 转发到错误Url
-                request.getRequestDispatcher("/login/error").forward(request,response);
+                request.getRequestDispatcher(SecurityConstants.VALIDATE_CODE_ERR_URL).forward(request,response);
             } else {
                 filterChain.doFilter(request,response);
             }
         } else {
             filterChain.doFilter(request,response);
         }
-
     }
 
     private boolean validateVerify(String inputVerify) {
@@ -42,12 +52,15 @@ public class VerifyFilter extends OncePerRequestFilter {
         String validateCode = ((String) request.getSession().getAttribute("validateCode")).toLowerCase();
         inputVerify = inputVerify.toLowerCase();
 
-//        System.out.println("验证码：" + validateCode + "用户输入：" + inputVerify);
+//        log.info("验证码：{}, 用户输入：{}", validateCode, inputVerify);
         return validateCode.equals(inputVerify);
     }
 
-    // 拦截 /login的POST请求
+    /**
+     * 拦截登陆请求
+     */
     private boolean isProtectedUrl(HttpServletRequest request) {
-        return "POST".equals(request.getMethod()) && pathMatcher.match("/login", request.getServletPath());
+        return "POST".equals(request.getMethod()) &&
+                pathMatcher.match(SecurityConstants.LOGIN_PROCESSING_URL_FORM, request.getServletPath());
     }
 }

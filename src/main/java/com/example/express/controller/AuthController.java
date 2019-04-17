@@ -5,22 +5,20 @@ import com.example.express.domain.bean.SysUser;
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
 import com.example.express.domain.enums.SysRoleEnum;
 import com.example.express.domain.vo.RegistryVO;
+import com.example.express.security.SecurityConstants;
 import com.example.express.service.SysUserService;
 import com.example.express.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @RestController
-@RequestMapping("/auth")
 public class AuthController {
     @Autowired
     private SysUserService sysUserService;
@@ -28,21 +26,29 @@ public class AuthController {
     private PasswordEncoder passwordEncoder;
 
     /**
-     * 登陆失败
+     * 获取短信验证码
+     * @date 2019/4/17 22:40
      */
-    @RequestMapping("/login/error")
-    public ResponseResult loginError(HttpServletRequest request) {
-        AuthenticationException exception = (AuthenticationException)request.getSession().
-                getAttribute("SPRING_SECURITY_LAST_EXCEPTION");
+    @GetMapping(SecurityConstants.VALIDATE_CODE_URL_PREFIX + "/sms")
+    public String sms(String mobile, HttpSession session) {
+        int code = (int) Math.ceil(Math.random() * 9000 + 1000);
 
-        return ResponseResult.failure(ResponseErrorCodeEnum.SYSTEM_ERROR.getCode(), exception.toString());
+        Map<String, String> map = new HashMap<>(16);
+        map.put("mobile", mobile);
+        map.put("code", String.valueOf(code));
+
+        session.setAttribute("smsCode", map);
+
+        log.info("{}：为 {} 设置短信验证码：{}", session.getId(), mobile, code);
+
+        return "发送成功";
     }
 
     /**
      * 用户注册
      * @date 2019/4/17 0:06
      */
-    @PostMapping("/register")
+    @PostMapping("/auth/register")
     public ResponseResult register(@RequestBody RegistryVO registryVO) {
         // 校验type
         SysRoleEnum roleEnum = SysRoleEnum.getByName(registryVO.getType());

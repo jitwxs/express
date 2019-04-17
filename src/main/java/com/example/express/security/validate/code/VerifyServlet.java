@@ -1,4 +1,4 @@
-package com.example.express.servlet;
+package com.example.express.security.validate.code;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletException;
@@ -11,10 +11,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Random;
 
-/**
- * @author jitwxs
- * @date 2018/3/29 20:35
- */
 public class VerifyServlet extends HttpServlet {
 
     private static final long serialVersionUID = -5051097528828603895L;

@@ -29,6 +29,17 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
+    public SysUser getByTel(String tel) {
+        List<SysUser> userList = sysUserMapper.selectList(new QueryWrapper<SysUser>().eq("tel", tel));
+
+        if(CollectionUtils.isNotEmpty(userList)) {
+            return userList.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
     public boolean isExist(String username) {
         return getByName(username) != null;
     }

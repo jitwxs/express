@@ -5,9 +5,9 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.example.express.domain.enums.SysRoleEnum;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Builder;
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Date;
 
@@ -23,7 +23,8 @@ public class SysUser {
     /**
      * 用户角色
      */
-    @Value("role_id")
+    @TableField("role_id")
+    @JsonValue
     private SysRoleEnum role;
     /**
      * 身份证号

@@ -1,4 +1,4 @@
-package com.example.express.security;
+package com.example.express.security.authentication;
 
 import com.example.express.domain.bean.SysUser;
 import com.example.express.service.SysUserService;
@@ -15,27 +15,30 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
+ * 默认 UserDetailService，通过用户名读取信息
  * @author jitwxs
- * @date 2018/3/30 9:17
+ * @since 2019/1/8 23:34
  */
-@Service("userDetailsService")
-public class CustomUserDetailsServiceImpl implements UserDetailsService {
+@Service
+public class DefaultUserDetailsServiceImpl implements UserDetailsService {
     @Autowired
-    private SysUserService sysUserService;
+    private SysUserService userService;
 
     @Override
-    public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Collection<GrantedAuthority> authorities = new ArrayList<>();
+        // 从数据库中取出用户信息
+        SysUser user = userService.getByName(username);
 
-        SysUser sysUser = sysUserService.getByName(s);
-        if(sysUser == null) {
+        // 判断用户是否存在
+        if (user == null) {
             throw new UsernameNotFoundException("用户名不存在");
         }
 
         // 添加权限
-        authorities.add(new SimpleGrantedAuthority(sysUser.getRole().getName()));
+        authorities.add(new SimpleGrantedAuthority(user.getRole().getName()));
 
         // 返回UserDetails实现类
-        return new User(sysUser.getUsername(), sysUser.getPassword(), authorities);
+        return new User(user.getUsername(), user.getPassword(), authorities);
     }
 }

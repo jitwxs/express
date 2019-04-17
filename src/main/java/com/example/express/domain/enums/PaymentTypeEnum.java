@@ -2,6 +2,7 @@ package com.example.express.domain.enums;
 
 import com.baomidou.mybatisplus.core.enums.IEnum;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 /**
  * 支付方式枚举
