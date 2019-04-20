@@ -95,6 +95,7 @@
 
 <script th:src="@{/assets/js/jquery.min.js}"></script>
 <script th:src="@{/assets/layer/layer.js}"></script>
+<script th:src="@{/assets/js/http.js}"></script>
 <script th:src="@{/assets/js/bootstrap.js}"></script>
 <script>
     $(function () {
@@ -110,26 +111,17 @@
 
     function mouseover(obj) { obj.style.cursor = "pointer"; }
 
+    // 发送短信
     function sendMsg() {
-        var mobile = $("#telphone").val();
-
-        $.ajax({
-            type: 'get',
-            async: true,
-            url: '/auth/code/sms?mobile=' + mobile,
-            dataType: 'json',
-            data: null,
-            success: function (data) {
-                if(data.code === 0) {
-                    layer.msg("短信发送成功", {icon: 1});
-                } else {
-                    console.log(data.msg)
-                    layer.msg(data.msg, {icon: 2});
-                }
-            },
-            error: function (error) {
-                layer.msg('系统错误', {icon: 2});
+        let url = '/auth/code/sms?mobile=' + $("#telphone").val();
+        sendJson(HTTP.GET, url, null, false, function (res) {
+            if (res.code === 0) {
+                layer.msg("短信发送成功", {icon: 1});
+            } else {
+                layer.msg(data.msg, {icon: 2});
             }
+        }, function () {
+            layer.msg("未知错误",{icon:2});
         });
     }
 

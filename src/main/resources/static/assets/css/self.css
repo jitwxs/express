@@ -1,0 +1,31 @@
+.ml10 {
+    margin-left: 10px;
+}
+.pt10 {
+    padding-top: 10px;
+}
+.dis_change_textarea{
+    resize:none;
+}
+
+.pay-qrcode {
+    width: 200px;
+    height: 200px;
+}
+
+.red-span {
+    color:red;
+}
+
+/* jquery validate 验证 */
+input.error { border: 1px solid red; }
+textarea.error { border: 1px solid red; }
+label.error {
+    padding-left: 16px;
+
+    padding-bottom: 2px;
+
+    font-weight: bold;
+
+    color: #EA5200;
+}
