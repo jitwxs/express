@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>首页 - 快递代拿系统</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <link rel="stylesheet" th:href="@{/assets/css/bootstrap.css}"/>
+    <link rel="stylesheet" th:href="@{/assets/css/bootstrap-table.css}"/>
+    <link rel="stylesheet" th:href="@{/assets/css/self.css}"/>
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- 头部 -->
+        <nav th:replace="/user/module/nav::html"></nav>
+        <!-- 主体 -->
+        <div class="row">
+            <!-- 左侧菜单 -->
+            <div th:replace="/user/module/sidebar::html"></div>
+        </div>
+    </div>
+</body>
+</html>

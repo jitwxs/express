@@ -5,18 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>登录</title>
-    <!--<link th:href="@{/assets/css/bootstrap.css}" rel="stylesheet">-->
-    <!--<link th:href="@{/assets/css/login.css}" rel="stylesheet">-->
-
-    <link href="../static/assets/css/bootstrap.css" rel="stylesheet">
-    <link href="../static/assets/css/login.css" rel="stylesheet">
+    <link th:href="@{/assets/css/bootstrap.css}" rel="stylesheet">
+    <link th:href="@{/assets/css/login.css}" rel="stylesheet">
 </head>
 <body>
 <div class="container">
     <div class="row">
-        <div class="col-md-6  col-lg-6" >
+        <div class="col-md-6 col-sm-6 col-lg-6 col-xs-6" >
         </div>
-        <div class="col-md-6 col-sm-12 col-lg-6 col-xs-12 left">
+        <div class="col-md-6 col-sm-6 col-lg-6 col-xs-6 left">
             <div class="main">
                 <ul id="myTab" class="nav nav-tabs">
                     <li class="active"><a href="#namePW" data-toggle="tab">用户名登陆</a></li>
@@ -39,10 +36,10 @@
                                     <label for="verifyCode">验证码</label>
                                 </div>
                                 <div class="row" >
-                                    <div class="col-md-6 col-sm-12 col-lg-6 col-xs-12" >
+                                    <div class="col-md-6 col-sm-6 col-lg-6 col-xs-6 " >
                                         <input type="text" class="form-control" name="verifyCode" id="verifyCode" placeholder="请输入验证码">
                                     </div>
-                                    <div class="col-md-6 col-sm-12 col-lg-6 col-xs-12 ">
+                                    <div class="col-md-6 col-sm-6 col-lg-6 col-xs-3 ">
                                         <img src="/auth/code/getVerifyCode" title="看不清，请点我" onclick="refresh(this)" onmouseover="mouseover(this)" >
                                     </div>
                                 </div>
@@ -71,11 +68,11 @@
                             <div class="form-group">
                                 <label for="telCode">验证码</label>
                                 <div class="row" >
-                                    <div class="col-md-6 col-sm-12 col-lg-6 col-xs-12 " >
+                                    <div class="col-md-6 col-sm-6 col-lg-6 col-xs-6 " >
                                         <input type="text" class="form-control" id="telCode" name="smsCode" placeholder="请输入验证码">
                                     </div>
-                                    <div class="col-md-6 col-sm-12 col-lg-6 col-xs-12 telCode">
-                                        <button type="button" class="btn btn-info" id="getTelCode" onclick="sendMsg()" >获取验证码</button>
+                                    <div class="col-md-6 col-sm-6 col-lg-6 col-xs-6">
+                                        <button type="button" class="btn btn-info" id="getTelCode" onclick="sendMsg()">获取验证码</button>
                                     </div>
                                 </div>
                             </div>
@@ -84,10 +81,9 @@
                     </div>
                     <div class="tab-pane fade" id="face">
                             <div class="capture">
-                                <video id="video" autoplay></video>
+                                <video id="video" width="480" height="320" autoplay></video>
                                 <canvas id="canvas" width="480" height="320" style="display: none;"></canvas>
                             </div>
-                        <!--<img src="./body_default.png" id="img" width="480" height="320" style="margin-left: 20px;">-->
                     </div>
                 </div>
 
@@ -97,13 +93,10 @@
 </div>
 <input type="hidden" id="messageInfo" th:value="${message}">
 
-<!--<script th:src="@{/assets/js/jquery.min.js}"></script>-->
-<!--<script th:src="@{/assets/layer/layer.js}"></script>-->
-<!--<script th:src="@{/assets/js/bootstrap.js}"></script>-->
-
-<script src="../static/assets/js/jquery.min.js"></script>
-<script src="../static/assets/layer/layer.js"></script>
-<script src="../static/assets/js/bootstrap.js"></script>
+<script th:src="@{/assets/js/jquery.min.js}"></script>
+<script th:src="@{/assets/layer/layer.js}"></script>
+<script th:src="@{/assets/js/http.js}"></script>
+<script th:src="@{/assets/js/bootstrap.js}"></script>
 <script>
     $(function () {
         let text = $("#messageInfo").val();
@@ -121,6 +114,7 @@
 
     function mouseover(obj) { obj.style.cursor = "pointer"; }
 
+    // 发送短信
     function sendMsg() {
         var mobile = $("#telphone").val();
         timer=setInterval(function(){
@@ -134,48 +128,26 @@
                 send.innerText =times+'秒后重试';
                 send.disabled=true;
             }
-        },1000);
-        // $.ajax({
-        //     type: 'get',
-        //     async: true,
-        //     url: '/auth/code/sms?mobile=' + mobile,
-        //     dataType: 'json',
-        //     data: null,
-        //     success: function (data) {
-        //         if(data.code === 0) {
-        //             layer.msg("短信发送成功", {icon: 1});
-        //         } else {
-        //             console.log(data.msg)
-        //             layer.msg(data.msg, {icon: 2});
-        //         }
-        //     },
-        //     error: function (error) {
-        //         layer.msg('系统错误', {icon: 2});
-        //     }
-        // });
+        });
     }
 
     // 切换tab页
     $(function(){
         $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
             // 获取已激活的标签页的名称
-            let activeTab = $(e.target).text();
+            var activeTab = $(e.target).text();
+            console.log(activeTab)
             // 获取前一个激活的标签页的名称
             if (activeTab == "人脸登录") {
                 test();
-            } else {
-                if(streams) {
-                    streams.stop();
-                    videoTimer = null;
-                }
             }
-            let previousTab = $(e.relatedTarget).text();
+            var previousTab = $(e.relatedTarget).text();
             $(".active-tab span").html(activeTab);
             $(".previous-tab span").html(previousTab);
         });
     });
     // 获取摄像头使用权限
-    let file ,streams;
+    var file ,streams;
     //访问用户媒体设备的兼容方法
     function getUserMedia(constraints, success, error) {
         if (navigator.mediaDevices.getUserMedia) {
@@ -192,78 +164,66 @@
             navigator.getUserMedia(constraints, success, error);
         }
     }
-    let video = document.getElementById('video');
-    let canvas = document.getElementById('canvas');
-    let context = canvas.getContext('2d');
+    var video = document.getElementById('video');
+    var canvas = document.getElementById('canvas');
+    var context = canvas.getContext('2d');
 
     function success(stream) {
         //兼容webkit核心浏览器
-        let CompatibleURL = window.URL || window.webkitURL;
+        var CompatibleURL = window.URL || window.webkitURL;
         //将视频流设置为video元素的源
         streams = stream.getTracks()[0];
         //video.src = CompatibleURL.createObjectURL(stream);
         video.srcObject = stream;
         video.play();
-        sendImg();
     }
 
     function error(error) {
         console.log(`访问用户媒体设备失败${error.name}, ${error.message}`);
     }
 
-
-    function test(){
-        if (navigator.mediaDevices.getUserMedia || navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia) {
-            //调用用户媒体设备, 访问摄像头
-            getUserMedia({video : {width: 480, height: 320}}, success, error);
-        } else {
-            alert('不支持访问用户媒体');
-        }
+    if (navigator.mediaDevices.getUserMedia || navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia) {
+        //调用用户媒体设备, 访问摄像头
+        getUserMedia({video : {width: 480, height: 320}}, success, error);
+    } else {
+        alert('不支持访问用户媒体');
     }
-    function sendImg(){
+    function test(){
+        var filename = 'aa.png';
+        context.drawImage(video, 0, 0, 480, 320);
+        var image = canvas.toDataURL('image/png');
+        var arr = image.split(','), mime = arr[0].match(/:(.*?);/)[1],
+            bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+        while (n--) {
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        file = new File([u8arr], filename, {type: midme});
+        console.log(file);
+        var formData = new FormData();
+        formData.append("file",file);
+        // $.ajax({
+        //     type: "POST", // 数据提交类型
+        //     url: "***********", // 发送地址
+        //     data: formData, //发送数据
+        //     async: true, // 是否异步
+        //     processData: false, //processData 默认为false，当设置为true的时候,jquery ajax 提交的时候不会序列化 data，而是直接使用data
+        //     contentType: false,
+        //     success:function(data){
+        //         if(data.code === 200){
+        //             // console.log(`${data.message}`);
+        //                streams.stop();//结束关闭流
+        //         }else{
+        //             // console.log(`${data.message}`);
+        //         }
+        //     },
+        //     error:function(e){
+        //         // self.$message.warning(`${e}`);
+        //         //console.log("不成功"+e);
+        //     }
+        // });
         setTimeout(function () {
-            let filename = 'aa.png';
-            context.drawImage(video, 0, 0, 480, 320);
-            let image = canvas.toDataURL('image/png');
-
-            // let imgdd = document.getElementById("img");
-            //设置属性和src
-            //img.id = "imgBoxxx";
-            // imgdd.src = image;
-
-            let arr = image.split(','), mime = arr[0].match(/:(.*?);/)[1],
-                bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
-            while (n--) {
-                u8arr[n] = bstr.charCodeAt(n);
-            }
-            file = new File([u8arr], filename, {type: mime});
-            let formData = new FormData();
-            formData.append("file",file);
-            // $.ajax({
-            //     type: "POST", // 数据提交类型
-            //     url: "***********", // 发送地址
-            //     data: formData, //发送数据
-            //     async: true, // 是否异步
-            //     processData: false, //processData 默认为false，当设置为true的时候,jquery ajax 提交的时候不会序列化 data，而是直接使用data
-            //     contentType: false,
-            //     success:function(data){
-            //         if(data.code === 200){
-            //             // console.log(`${data.message}`);
-            //                streams.stop();//结束关闭流
-            //         }else{
-            //             // console.log(`${data.message}`);
-            //         }
-            //     },
-            //     error:function(e){
-            //         // self.$message.warning(`${e}`);
-            //         //console.log("不成功"+e);
-            //     }
-            // });
-            videoTimer = setTimeout(function () {
-                streams.stop();//结束关闭流
-            },20000);
-
-        },500);
+            streams.stop();//结束关闭流
+        },2000);
 
     }
 </script>
