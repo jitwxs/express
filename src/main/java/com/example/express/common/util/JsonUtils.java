@@ -1,4 +1,4 @@
-package com.example.express.util;
+package com.example.express.common.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;

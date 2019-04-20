@@ -2,8 +2,10 @@ package com.example.express.domain;
 
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class ResponseResult {
@@ -20,7 +22,7 @@ public class ResponseResult {
     }
 
     public static ResponseResult failure(ResponseErrorCodeEnum errorCode) {
-        return new ResponseResult(errorCode.getCode(), errorCode.getMsg(), null);
+        return failure(errorCode.getCode(), errorCode.getMsg());
     }
 
     public static ResponseResult failure(int code, String msg) {
@@ -29,5 +31,14 @@ public class ResponseResult {
 
     public static ResponseResult failure(ResponseErrorCodeEnum errorCode, Object data) {
         return new ResponseResult(errorCode.getCode(), errorCode.getMsg(), data);
+    }
+
+    public static ResponseResult failure(ResponseErrorCodeEnum errorCode, Object[] params) {
+        return failure(errorCode, params, null);
+    }
+
+    public static ResponseResult failure(ResponseErrorCodeEnum errorCode, Object[] params, Object data) {
+        String msg = String.format(errorCode.getMsg(), params);
+        return new ResponseResult(errorCode.getCode(), msg, data);
     }
 }

@@ -1,4 +1,4 @@
-package com.example.express.util;
+package com.example.express.common.util;
 
 import java.util.Random;
 import java.util.UUID;

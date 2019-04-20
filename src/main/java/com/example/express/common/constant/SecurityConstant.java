@@ -1,11 +1,10 @@
-package com.example.express.security;
+package com.example.express.common.constant;
 
 /**
  * Security 相关常量
- * @author jitwxs
  * @since 2019/1/8 23:50
  */
-public class SecurityConstants {
+public class SecurityConstant {
     /**
      * 无权限或登录失败，被引导跳转的 Url
      */
@@ -18,11 +17,6 @@ public class SecurityConstants {
      * 登陆成功后，被引导跳转的 Url
      */
     public static final String LOGIN_SUCCESS_URL = "/";
-    /**
-     * Session 过期被引导跳转的 Url
-     */
-    public static final String INVALID_SESSION_URL = "/auth/session/invalid";
-
     /**
      * 用户名密码登录请求处理url
      */

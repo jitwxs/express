@@ -1,6 +1,8 @@
 package com.example.express.security;
 
-import com.example.express.security.authentication.*;
+import com.example.express.common.constant.SecurityConstant;
+import com.example.express.security.authentication.DefaultAuthenticationFailureHandler;
+import com.example.express.security.authentication.DefaultUserDetailsServiceImpl;
 import com.example.express.security.validate.code.ValidateCodeSecurityConfig;
 import com.example.express.security.validate.mobile.SmsCodeAuthenticationSecurityConfig;
 import com.example.express.security.validate.third.ThidLoginAuthenticationSecurityConfig;
@@ -14,8 +16,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
@@ -31,8 +31,6 @@ import javax.sql.DataSource;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-    @Autowired
-    private DefaultLogoutSuccessHandler logoutSuccessHandler;
     @Autowired
     private DefaultUserDetailsServiceImpl userDetailService;
     @Autowired
@@ -55,11 +53,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public SessionRegistry sessionRegistry() {
-        return new SessionRegistryImpl();
     }
 
     /**
@@ -92,26 +85,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 // 设置登陆页
                 .formLogin()
                     // 没有权限时跳转的Url
-                    .loginPage(SecurityConstants.UN_AUTHENTICATION_URL)
+                    .loginPage(SecurityConstant.UN_AUTHENTICATION_URL)
                     // 默认登陆Url
-                    .loginProcessingUrl(SecurityConstants.LOGIN_PROCESSING_URL_FORM)
+                    .loginProcessingUrl(SecurityConstant.LOGIN_PROCESSING_URL_FORM)
                     // 设置登陆成功/失败处理逻辑
-                    .defaultSuccessUrl(SecurityConstants.LOGIN_SUCCESS_URL)
+                    .defaultSuccessUrl(SecurityConstant.LOGIN_SUCCESS_URL)
                     .failureHandler(defaultAuthenticationFailureHandler)
                     .permitAll().and()
                 .logout()
-                    .logoutUrl(SecurityConstants.LOGOUT_URL)
-                    .logoutSuccessHandler(logoutSuccessHandler)
+                    .logoutUrl(SecurityConstant.LOGOUT_URL)
                     .deleteCookies("JSESSIONID").and()
-                .sessionManagement()
-                    .invalidSessionUrl(SecurityConstants.INVALID_SESSION_URL)
-                    // 单用户最大session数
-                    .maximumSessions(1)
-                    // 当达到maximumSessions时，是否保留已经登录的用户
-                    .maxSessionsPreventsLogin(false)
-                    // 当达到maximumSessions时，旧用户被踢出后的操作
-                    .expiredSessionStrategy(new DefaultExpiredSessionStrategy())
-                    .sessionRegistry(sessionRegistry()).and().and()
                 .rememberMe()
                     .tokenRepository(persistentTokenRepository())
                     // 有效时间：单位s
@@ -120,9 +103,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                     // 如果有允许匿名的url，填在下面
                     .antMatchers(
-                            SecurityConstants.VALIDATE_CODE_URL_PREFIX + "/*",
-                            SecurityConstants.THIRD_LOGIN_URL_PREFIX + "/*",
-                            SecurityConstants.QQ_CALLBACK_URL).permitAll()
+                            SecurityConstant.VALIDATE_CODE_URL_PREFIX + "/*",
+                            SecurityConstant.THIRD_LOGIN_URL_PREFIX + "/*").permitAll()
                     .anyRequest()
                     .authenticated().and()
                 // 关闭CSRF跨域

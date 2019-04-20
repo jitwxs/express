@@ -1,7 +1,7 @@
 package com.example.express.controller;
 
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
-import com.example.express.security.SecurityConstants;
+import com.example.express.common.constant.SecurityConstant;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Controller;
@@ -16,24 +16,15 @@ public class PageController {
     /**
      * 跳转到登陆成功页
      */
-    @RequestMapping(SecurityConstants.LOGIN_SUCCESS_URL)
+    @RequestMapping(SecurityConstant.LOGIN_SUCCESS_URL)
     public String showSuccessPage() {
         return "home";
     }
 
     /**
-     * 处理 session 过期
-     */
-    @RequestMapping(SecurityConstants.INVALID_SESSION_URL)
-    public String invalid(ModelMap map) {
-        map.put("message", ResponseErrorCodeEnum.SESSION_EXPIRE.getMsg());
-        return "login";
-    }
-
-    /**
      * 处理验证码错误
      */
-    @RequestMapping(SecurityConstants.VALIDATE_CODE_ERR_URL)
+    @RequestMapping(SecurityConstant.VALIDATE_CODE_ERR_URL)
     public String codeError(ModelMap map) {
         map.put("message", ResponseErrorCodeEnum.VERIFY_CODE_ERROR.getMsg());
         return "login";
@@ -42,7 +33,7 @@ public class PageController {
     /**
      * 跳转到登录页
      */
-    @RequestMapping(SecurityConstants.UN_AUTHENTICATION_URL)
+    @RequestMapping(SecurityConstant.UN_AUTHENTICATION_URL)
     public String showAuthenticationPage(HttpServletRequest request, ModelMap map) {
         AuthenticationException exception =
                 (AuthenticationException)request.getSession()

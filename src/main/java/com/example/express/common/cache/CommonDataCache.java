@@ -1,4 +1,4 @@
-package com.example.express.cache;
+package com.example.express.common.cache;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

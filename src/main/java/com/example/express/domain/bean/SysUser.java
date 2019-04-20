@@ -79,22 +79,22 @@ public class SysUser implements UserDetails, CredentialsContainer {
      */
     @Override
     public boolean isAccountNonExpired() {
-        return hasDelete == 1;
+        return hasDelete == 0;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return false;
+        return true;
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.example.express.util;
+package com.example.express.common.util;
 
 import org.apache.http.*;
 import org.apache.http.client.ClientProtocolException;

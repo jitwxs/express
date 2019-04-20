@@ -1,18 +1,21 @@
 package com.example.express.controller;
 
+import com.example.express.common.constant.SecurityConstant;
+import com.example.express.common.constant.SessionKeyConstant;
+import com.example.express.common.util.HttpClientUtils;
+import com.example.express.common.util.JsonUtils;
+import com.example.express.common.util.RandomUtils;
+import com.example.express.common.util.StringUtils;
 import com.example.express.domain.ResponseResult;
 import com.example.express.domain.bean.SysUser;
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
 import com.example.express.domain.enums.SysRoleEnum;
 import com.example.express.domain.enums.ThirdLoginTypeEnum;
 import com.example.express.domain.vo.RegistryVO;
-import com.example.express.security.SecurityConstants;
 import com.example.express.security.validate.third.ThirdLoginAuthenticationToken;
 import com.example.express.service.OAuthService;
+import com.example.express.service.SmsService;
 import com.example.express.service.SysUserService;
-import com.example.express.util.HttpClientUtils;
-import com.example.express.util.JsonUtils;
-import com.example.express.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,7 +27,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
@@ -34,6 +36,8 @@ public class AuthController {
     private SysUserService sysUserService;
     @Autowired
     private OAuthService oAuthService;
+    @Autowired
+    private SmsService smsService;
     @Autowired
     private AuthenticationManager authenticationManager;
     @Autowired
@@ -45,33 +49,57 @@ public class AuthController {
     private String qqAppId;
     @Value("${project.third-login.qq.app-key}")
     private String qqAppKey;
+    @Value("${project.sms.interval-seconds}")
+    private String smsIntervalSeconds;
 
     /**
      * 获取短信验证码
      * @date 2019/4/17 22:40
      */
-    @GetMapping(SecurityConstants.VALIDATE_CODE_URL_PREFIX + "/sms")
-    public String sms(String mobile, HttpSession session) {
-        int code = (int) Math.ceil(Math.random() * 9000 + 1000);
+    @GetMapping(SecurityConstant.VALIDATE_CODE_URL_PREFIX + "/sms")
+    public ResponseResult sendSms(String mobile, HttpSession session) {
+        if(StringUtils.isBlank(mobile)) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
+        }
+        if(!StringUtils.isValidTel(mobile)) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.TEL_NOT_LEGAL);
+        }
 
-        Map<String, String> map = new HashMap<>(16);
-        map.put("mobile", mobile);
-        map.put("code", String.valueOf(code));
+        // 手机号是否注册
+        if(!sysUserService.checkExistByTel(mobile)) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.TEL_NOT_EXIST);
+        }
 
-        session.setAttribute("smsCode", map);
+        // 如果Session中验证信息非空，判断是否超过间隔时间
+        Long lastTimestamp = (Long) session.getAttribute(SessionKeyConstant.SMS_TIMESTAMP);
+        // 间隔秒数
+        long intervalSeconds = Long.parseLong(smsIntervalSeconds);
+        if (lastTimestamp != null) {
+            long waitSeconds = (System.currentTimeMillis() - lastTimestamp) / 1000;
+            if (waitSeconds < intervalSeconds) {
+                ResponseResult.failure(ResponseErrorCodeEnum.SMS_SEND_INTERVAL_TOO_SHORT, new Object[]{String.valueOf(intervalSeconds/60)});
+            }
+        }
 
-        log.info("{}：为 {} 设置短信验证码：{}", session.getId(), mobile, code);
+        // 发送验证码
+        String verifyCode = RandomUtils.number(6);
+        ResponseErrorCodeEnum codeEnum = smsService.send(mobile, verifyCode, String.valueOf(intervalSeconds / 60));
+        if(codeEnum == ResponseErrorCodeEnum.SUCCESS) {
+            session.setAttribute(SessionKeyConstant.SMS_TEL, mobile);
+            session.setAttribute(SessionKeyConstant.SMS_CODE, verifyCode);
+            session.setAttribute(SessionKeyConstant.SMS_TIMESTAMP, String.valueOf(System.currentTimeMillis()));
+        }
 
-        return "发送成功";
+        return ResponseResult.failure(codeEnum);
     }
 
     /**
      * QQ登陆
      */
-    @RequestMapping(SecurityConstants.QQ_LOGIN_URL)
+    @RequestMapping(SecurityConstant.QQ_LOGIN_URL)
     public void qqLogin(HttpServletResponse response) throws Exception {
         // QQ回调URL
-        String qqCallbackUrl = serverAddress + SecurityConstants.QQ_CALLBACK_URL;
+        String qqCallbackUrl = serverAddress + SecurityConstant.QQ_CALLBACK_URL;
         // QQ认证服务器地址
         String url = "https://graph.qq.com/oauth2.0/authorize";
         // 生成并保存state，忽略该参数有可能导致CSRF攻击
@@ -89,7 +117,7 @@ public class AuthController {
      * @param code 授权码
      * @param state 应与发送时一致
      */
-    @RequestMapping(SecurityConstants.QQ_CALLBACK_URL)
+    @RequestMapping(SecurityConstant.QQ_CALLBACK_URL)
     public void qqCallback(String code, String state, HttpServletResponse response) throws Exception {
         // 验证state，如果不一致，可能被CSRF攻击
         if(!oAuthService.checkState(state)) {
@@ -99,7 +127,7 @@ public class AuthController {
         // 2、向QQ认证服务器申请令牌
         String url = "https://graph.qq.com/oauth2.0/token";
         // QQ回调URL
-        String qqCallbackUrl = serverAddress + SecurityConstants.QQ_CALLBACK_URL;
+        String qqCallbackUrl = serverAddress + SecurityConstant.QQ_CALLBACK_URL;
         // 传递参数grant_type、code、redirect_uri、client_id
         String param = String.format("grant_type=authorization_code&code=%s&redirect_uri=%s&client_id=%s&client_secret=%s",
                 code, qqCallbackUrl, qqAppId, qqAppKey);
@@ -135,7 +163,7 @@ public class AuthController {
         Authentication authentication = authenticationManager.authenticate(token);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         // 跳转首页
-        response.sendRedirect(SecurityConstants.LOGIN_SUCCESS_URL);
+        response.sendRedirect(SecurityConstant.LOGIN_SUCCESS_URL);
     }
 
     /**
@@ -164,7 +192,7 @@ public class AuthController {
             return ResponseResult.failure(ResponseErrorCodeEnum.ROLE_ERROR);
         }
         // 校验用户名是否存在
-        if (sysUserService.isExist(registryVO.getUsername())) {
+        if (sysUserService.checkExistByUsername(registryVO.getUsername())) {
             return ResponseResult.failure(ResponseErrorCodeEnum.USERNAME_EXIST_ERROR);
         }
         // 校验type

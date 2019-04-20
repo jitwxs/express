@@ -1,7 +1,7 @@
 package com.example.express.security.validate.code;
 
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
-import com.example.express.security.SecurityConstants;
+import com.example.express.common.constant.SecurityConstant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.stereotype.Component;
@@ -30,12 +30,12 @@ public class ValidateCodeFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         if(isProtectedUrl(request)) {
-            String verifyCode = request.getParameter(SecurityConstants.VALIDATE_CODE_PARAMETER);
+            String verifyCode = request.getParameter(SecurityConstant.VALIDATE_CODE_PARAMETER);
             if(!validateVerify(verifyCode)) {
                 //手动设置异常
                 request.getSession().setAttribute("SPRING_SECURITY_LAST_EXCEPTION",new DisabledException(ResponseErrorCodeEnum.VERIFY_CODE_ERROR.getMsg()));
                 // 转发到错误Url
-                request.getRequestDispatcher(SecurityConstants.VALIDATE_CODE_ERR_URL).forward(request,response);
+                request.getRequestDispatcher(SecurityConstant.VALIDATE_CODE_ERR_URL).forward(request,response);
             } else {
                 filterChain.doFilter(request,response);
             }
@@ -61,6 +61,6 @@ public class ValidateCodeFilter extends OncePerRequestFilter {
      */
     private boolean isProtectedUrl(HttpServletRequest request) {
         return "POST".equals(request.getMethod()) &&
-                pathMatcher.match(SecurityConstants.LOGIN_PROCESSING_URL_FORM, request.getServletPath());
+                pathMatcher.match(SecurityConstant.LOGIN_PROCESSING_URL_FORM, request.getServletPath());
     }
 }

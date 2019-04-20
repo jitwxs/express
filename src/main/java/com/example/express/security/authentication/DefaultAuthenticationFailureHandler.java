@@ -1,6 +1,6 @@
 package com.example.express.security.authentication;
 
-import com.example.express.security.SecurityConstants;
+import com.example.express.common.constant.SecurityConstant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.DefaultRedirectStrategy;
@@ -26,6 +26,6 @@ public class DefaultAuthenticationFailureHandler implements AuthenticationFailur
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
         request.getSession().setAttribute("SPRING_SECURITY_LAST_EXCEPTION", exception);
-        this.redirectStrategy.sendRedirect(request, response, SecurityConstants.UN_AUTHENTICATION_URL);
+        this.redirectStrategy.sendRedirect(request, response, SecurityConstant.UN_AUTHENTICATION_URL);
     }
 }

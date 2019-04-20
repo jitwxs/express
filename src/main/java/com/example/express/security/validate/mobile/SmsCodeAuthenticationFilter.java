@@ -1,6 +1,6 @@
 package com.example.express.security.validate.mobile;
 
-import com.example.express.security.SecurityConstants;
+import com.example.express.common.constant.SecurityConstant;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -20,7 +20,7 @@ public class SmsCodeAuthenticationFilter extends AbstractAuthenticationProcessin
     /**
      * form表单中手机号码的字段name
      */
-    public static final String SPRING_SECURITY_FORM_MOBILE_KEY = SecurityConstants.LOGIN_MOBILE_PARAMETER;
+    public static final String SPRING_SECURITY_FORM_MOBILE_KEY = SecurityConstant.LOGIN_MOBILE_PARAMETER;
 
     private String mobileParameter = SPRING_SECURITY_FORM_MOBILE_KEY;
     /**
@@ -30,7 +30,7 @@ public class SmsCodeAuthenticationFilter extends AbstractAuthenticationProcessin
 
     public SmsCodeAuthenticationFilter() {
         // 短信登录的请求
-        super(new AntPathRequestMatcher(SecurityConstants.LOGIN_PROCESSING_URL_MOBILE, "POST"));
+        super(new AntPathRequestMatcher(SecurityConstant.LOGIN_PROCESSING_URL_MOBILE, "POST"));
     }
 
     @Override

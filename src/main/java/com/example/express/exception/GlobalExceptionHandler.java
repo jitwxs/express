@@ -2,7 +2,7 @@ package com.example.express.exception;
 
 import com.example.express.domain.ResponseResult;
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
-import com.example.express.util.HttpClientUtils;
+import com.example.express.common.util.HttpClientUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;

@@ -17,10 +17,11 @@ public enum ResponseErrorCodeEnum {
     THIRD_LOGIN_ERROR(1005, "三方登陆失败"),
     USER_NOT_EXIST(1006, "用户不存在"),
 
+    SMS_SEND_INTERVAL_TOO_SHORT(1988, "短信发送间隔不足%s分钟"),
     SMS_EXPIRE(1989, "短信验证码失效，请重新发送"),
     SEND_SMS_ERROR(1990, "发送短信失败"),
     PASSWORD_ERROR(1991, "密码输入错误，请检查用户名和密码"),
-    TEL_NOT_EXIST(1992, "该手机号码尚未注册"),
+    TEL_NOT_EXIST(1992, "该手机号码尚未注册，请先注册再登录"),
     SMS_TEL_NOT_MATCH(1993, "申请的手机号码与登录手机号码不匹配"),
     SMS_CODE_NOT_EXIST(1994, "请先获取短信验证码"),
     VERIFY_CODE_ERROR(1995, "验证码输入错误"),

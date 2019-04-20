@@ -1,4 +1,4 @@
-package com.example.express.util;
+package com.example.express.common.util;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

@@ -9,7 +9,7 @@ import com.example.express.domain.enums.ThirdLoginTypeEnum;
 import com.example.express.exception.CustomException;
 import com.example.express.mapper.SysUserMapper;
 import com.example.express.service.SysUserService;
-import com.example.express.util.CollectionUtils;
+import com.example.express.common.util.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,7 +49,12 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    public boolean isExist(String username) {
+    public boolean checkExistByTel(String mobile) {
+        return getByTel(mobile) != null;
+    }
+
+    @Override
+    public boolean checkExistByUsername(String username) {
         return getByName(username) != null;
     }
 

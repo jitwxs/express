@@ -18,9 +18,13 @@ public interface SysUserService extends IService<SysUser> {
      */
     SysUser getByThirdLogin(String thirdLoginId, ThirdLoginTypeEnum thirdLoginTypeEnum);
     /**
-     * 判断用户名是否存在
+     * 根据用户名判断用户是否存在
      */
-    boolean isExist(String username);
+    boolean checkExistByUsername(String username);
+    /**
+     * 根据手机号判断用户是否存在
+     */
+    boolean checkExistByTel(String mobile);
     /**
      * 三方登陆逻辑
      */
