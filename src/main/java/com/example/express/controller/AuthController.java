@@ -49,8 +49,8 @@ public class AuthController {
     private String qqAppId;
     @Value("${project.third-login.qq.app-key}")
     private String qqAppKey;
-    @Value("${project.sms.interval-seconds}")
-    private String smsIntervalSeconds;
+    @Value("${project.sms.interval-min}")
+    private String smsIntervalMins;
 
     /**
      * 获取短信验证码
@@ -72,24 +72,18 @@ public class AuthController {
 
         // 如果Session中验证信息非空，判断是否超过间隔时间
         Long lastTimestamp = (Long) session.getAttribute(SessionKeyConstant.SMS_TIMESTAMP);
-        // 间隔秒数
-        long intervalSeconds = Long.parseLong(smsIntervalSeconds);
+        // 间隔分钟
+        int intervalMins = Integer.parseInt(smsIntervalMins);
         if (lastTimestamp != null) {
             long waitSeconds = (System.currentTimeMillis() - lastTimestamp) / 1000;
-            if (waitSeconds < intervalSeconds) {
-                ResponseResult.failure(ResponseErrorCodeEnum.SMS_SEND_INTERVAL_TOO_SHORT, new Object[]{String.valueOf(intervalSeconds/60)});
+            if (waitSeconds < intervalMins * 60) {
+                ResponseResult.failure(ResponseErrorCodeEnum.SMS_SEND_INTERVAL_TOO_SHORT, new Object[]{smsIntervalMins});
             }
         }
 
         // 发送验证码
         String verifyCode = RandomUtils.number(6);
-        ResponseErrorCodeEnum codeEnum = smsService.send(mobile, verifyCode, String.valueOf(intervalSeconds / 60));
-        if(codeEnum == ResponseErrorCodeEnum.SUCCESS) {
-            session.setAttribute(SessionKeyConstant.SMS_TEL, mobile);
-            session.setAttribute(SessionKeyConstant.SMS_CODE, verifyCode);
-            session.setAttribute(SessionKeyConstant.SMS_TIMESTAMP, String.valueOf(System.currentTimeMillis()));
-        }
-
+        ResponseErrorCodeEnum codeEnum = smsService.send(session, mobile, verifyCode);
         return ResponseResult.failure(codeEnum);
     }
 

@@ -1,7 +1,7 @@
 package com.example.express.security.validate.mobile;
 
 import com.example.express.security.authentication.DefaultAuthenticationFailureHandler;
-import com.example.express.security.authentication.MobileUserDetailsServiceImpl;
+import com.example.express.security.authentication.SmsUserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
@@ -13,20 +13,21 @@ import org.springframework.stereotype.Component;
 @Component
 public class SmsCodeAuthenticationSecurityConfig extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
     @Autowired
-    private MobileUserDetailsServiceImpl userDetailsService;
+    private SmsUserDetailsServiceImpl userDetailsService;
     @Autowired
     private DefaultAuthenticationFailureHandler defaultAuthenticationFailureHandler;
+    @Autowired
+    private SmsCodeAuthenticationProvider provider;
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
         SmsCodeAuthenticationFilter filter = new SmsCodeAuthenticationFilter();
         filter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
 
-        SmsCodeAuthenticationProvider smsCodeAuthenticationProvider = new SmsCodeAuthenticationProvider();
-        smsCodeAuthenticationProvider.setUserDetailsService(userDetailsService);
+        provider.setUserDetailsService(userDetailsService);
         filter.setAuthenticationFailureHandler(defaultAuthenticationFailureHandler);
 
-        http.authenticationProvider(smsCodeAuthenticationProvider)
+        http.authenticationProvider(provider)
                 .addFilterAfter(filter, UsernamePasswordAuthenticationFilter.class);
     }
 }
