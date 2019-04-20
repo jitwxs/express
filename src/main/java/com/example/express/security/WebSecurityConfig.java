@@ -3,9 +3,11 @@ package com.example.express.security;
 import com.example.express.security.authentication.*;
 import com.example.express.security.validate.code.ValidateCodeSecurityConfig;
 import com.example.express.security.validate.mobile.SmsCodeAuthenticationSecurityConfig;
+import com.example.express.security.validate.third.ThidLoginAuthenticationSecurityConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -38,9 +40,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private SmsCodeAuthenticationSecurityConfig smsCodeAuthenticationSecurityConfig;
     @Autowired
+    private ThidLoginAuthenticationSecurityConfig thidLoginAuthenticationSecurityConfig;
+    @Autowired
     private DefaultAuthenticationFailureHandler defaultAuthenticationFailureHandler;
     @Autowired
     private DataSource dataSource;
+
+    @Bean
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
+    }
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -78,6 +88,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 // 添加关于验证码登录的配置
                 .apply(validateCodeSecurityConfig).and()
                 .apply(smsCodeAuthenticationSecurityConfig).and()
+                .apply(thidLoginAuthenticationSecurityConfig).and()
                 // 设置登陆页
                 .formLogin()
                     // 没有权限时跳转的Url
@@ -108,7 +119,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .userDetailsService(userDetailService).and()
                 .authorizeRequests()
                     // 如果有允许匿名的url，填在下面
-                    .antMatchers(SecurityConstants.VALIDATE_CODE_URL_PREFIX + "/*").permitAll()
+                    .antMatchers(
+                            SecurityConstants.VALIDATE_CODE_URL_PREFIX + "/*",
+                            SecurityConstants.THIRD_LOGIN_URL_PREFIX + "/*",
+                            SecurityConstants.QQ_CALLBACK_URL).permitAll()
                     .anyRequest()
                     .authenticated().and()
                 // 关闭CSRF跨域

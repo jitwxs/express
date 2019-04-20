@@ -1,5 +1,6 @@
 package com.example.express.domain.bean;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
@@ -14,10 +15,10 @@ import java.util.Date;
  */
 @Data
 public class OrderInfo {
-    @TableId
+    @TableId(type = IdType.ID_WORKER)
     private Long id;
 
-    private Long userId;
+    private String userId;
     /**
      * 快递单号
      */

@@ -1,7 +1,8 @@
-package com.example.express.config;
+package com.example.express.exception;
 
-import com.example.express.domain.bean.ResponseResult;
+import com.example.express.domain.ResponseResult;
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
+import com.example.express.util.HttpClientUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -32,12 +33,15 @@ public class GlobalExceptionHandler {
         return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR.getCode(), sb.toString());
     }
 
-    /**
-     * 全局异常
-     */
-    @ExceptionHandler(value = Exception.class)
-    public ResponseResult exception(Exception e) {
-        log.error("系统错误，错误栈：", e);
-        return ResponseResult.failure(ResponseErrorCodeEnum.SYSTEM_ERROR.getCode(), e.getMessage());
+    @ExceptionHandler(value = CustomException.class)
+    public ResponseResult customException(CustomException e) {
+        log.error("错误，错误栈：{}", HttpClientUtils.getStackTraceAsString(e));
+        return ResponseResult.failure(e.getCode(), e.getMessage());
     }
+
+//    @ExceptionHandler(value = Exception.class)
+//    public ResponseResult exception(Exception e) {
+//        log.error("系统错误，错误栈：{}", HttpClientUtils.getStackTraceAsString(e));
+//        return ResponseResult.failure(ResponseErrorCodeEnum.SYSTEM_ERROR.getCode(), e.getMessage());
+//    }
 }

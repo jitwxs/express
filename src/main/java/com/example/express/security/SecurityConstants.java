@@ -46,6 +46,18 @@ public class SecurityConstants {
     public static final String VALIDATE_CODE_PARAMETER = "verifyCode";
 
     /**
+     * 三方登陆相关 Url 前缀
+     */
+     public static final String THIRD_LOGIN_URL_PREFIX = "/auth/third-login";
+     /**
+      * QQ 登陆
+      */
+     public static final String QQ_LOGIN_URL = THIRD_LOGIN_URL_PREFIX + "/qq";
+     /**
+      * QQ 登陆回调 URL
+      */
+     public static final String QQ_CALLBACK_URL = THIRD_LOGIN_URL_PREFIX + "/qqCallback";
+    /**
      * 验证码相关 Url 前缀
      * 包括图形验证码图片、短信验证码接口等等...
      */

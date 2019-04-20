@@ -13,7 +13,12 @@ public enum ResponseErrorCodeEnum {
     ROLE_ERROR(1001, "角色错误"),
     USERNAME_EXIST_ERROR(1002, "用户名已经被使用"),
     TEL_NOT_LEGAL(1003, "手机号码不合法"),
+    REGISTRY_ERROR(1004, "注册失败"),
+    THIRD_LOGIN_ERROR(1005, "三方登陆失败"),
+    USER_NOT_EXIST(1006, "用户不存在"),
 
+    SMS_EXPIRE(1989, "短信验证码失效，请重新发送"),
+    SEND_SMS_ERROR(1990, "发送短信失败"),
     PASSWORD_ERROR(1991, "密码输入错误，请检查用户名和密码"),
     TEL_NOT_EXIST(1992, "该手机号码尚未注册"),
     SMS_TEL_NOT_MATCH(1993, "申请的手机号码与登录手机号码不匹配"),

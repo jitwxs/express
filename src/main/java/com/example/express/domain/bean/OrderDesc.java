@@ -1,5 +1,6 @@
 package com.example.express.domain.bean;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
@@ -18,12 +19,12 @@ public class OrderDesc {
     /**
      * 订单ID
      */
-    @TableId
+    @TableId(type = IdType.ID_WORKER)
     private Long orderId;
     /**
      * 代取人ID
      */
-    private Long courierId;
+    private String courierId;
     /**
      * 订单状态
      */

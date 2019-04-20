@@ -38,7 +38,6 @@ public class DefaultUserDetailsServiceImpl implements UserDetailsService {
         // 添加权限
         authorities.add(new SimpleGrantedAuthority(user.getRole().getName()));
 
-        // 返回UserDetails实现类
-        return new User(user.getUsername(), user.getPassword(), authorities);
+        return user;
     }
 }

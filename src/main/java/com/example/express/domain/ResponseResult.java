@@ -1,4 +1,4 @@
-package com.example.express.domain.bean;
+package com.example.express.domain;
 
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
 import lombok.AllArgsConstructor;
