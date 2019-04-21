@@ -2,13 +2,12 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>首页 - 快递代拿系统</title>
+    <title>仪表盘 - 快递代拿系统</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
 
-    <link rel="stylesheet" th:href="@{/assets/css/bootstrap.css}"/>
-    <link rel="stylesheet" th:href="@{/assets/css/bootstrap-table.css}"/>
-    <link rel="stylesheet" th:href="@{/assets/css/self.css}"/>
+    <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}"/>
+    <!--<link rel="stylesheet" th:href="@{/assets/css/self.css}"/>-->
 </head>
 <body>
     <div class="container-fluid">
@@ -20,5 +19,10 @@
             <div th:replace="/user/module/sidebar::html"></div>
         </div>
     </div>
+
+
+<script th:src="@{/assets/js/jquery.min.js}"></script>
+<script th:src="@{/assets/layer/layer.js}"></script>
+<script th:src="@{/assets/js/bootstrap.min.js}"></script>
 </body>
 </html>

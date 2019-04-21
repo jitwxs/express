@@ -12,24 +12,18 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @Controller
-public class PageController {
+public class PageController extends BaseController {
     /**
      * 跳转到登陆成功页
      */
     @RequestMapping(SecurityConstant.LOGIN_SUCCESS_URL)
-    public String showSuccessPage(@AuthenticationPrincipal SysUser sysUser) {
-        switch (sysUser.getRole()) {
-            case USER:
-                return "user/home";
-            case ADMIN:
-                return "admin/home";
-            case COURIER:
-                return "courier/home";
-            default:
-                return "user/home";
-        }
+    public void showSuccessPage(@AuthenticationPrincipal SysUser sysUser, HttpServletResponse response) throws IOException {
+        String homePage = getHomePage(sysUser.getRole());
+        response.sendRedirect("/" + homePage);
     }
 
     /**

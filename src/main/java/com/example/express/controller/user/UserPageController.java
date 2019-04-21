@@ -1,6 +1,10 @@
 package com.example.express.controller.user;
 
+import com.example.express.controller.BaseController;
+import com.example.express.domain.bean.SysUser;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
@@ -9,12 +13,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @Controller
 @RequestMapping("/user")
-public class UserPageController {
+public class UserPageController extends BaseController {
     /**
      * 仪表盘页面
      */
     @RequestMapping("/dashboard")
-    public String showDashboardPage() {
+    public String showDashboardPage(@AuthenticationPrincipal SysUser sysUser, ModelMap map) {
+        initModelMap(map, sysUser);
         return "user/dashboard";
     }
     /**
@@ -44,5 +49,10 @@ public class UserPageController {
     @RequestMapping("/setting")
     public String showSettingPage() {
         return "user/setting";
+    }
+
+    private void initModelMap(ModelMap map, SysUser sysUser) {
+        map.put("username", getUsername(sysUser));
+        map.put("homeUrl", getHomePage(sysUser.getRole()));
     }
 }
