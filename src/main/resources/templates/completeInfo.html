@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Title</title>
+    <link th:href="@{/assets/css/bootstrap.min.css}" href="../static/assets/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+
+        .main{
+            width: 30vw;
+            min-height:40vh;
+            margin: 5vh auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 7px;
+        }
+        .container{
+            width: 100%;
+            height: 100vh;
+            background: #2848af url("../static/assets/img/index1.png")right top no-repeat;
+            background-size: cover;
+            /*font-size: 1rem;*/
+            text-align: center;
+            vertical-align: middle;
+        }
+        .tab-content{
+            margin-top: 5vh;
+            text-align: left;
+        }
+        .title{
+            margin-top: 15vh;
+            color: white;
+        }
+
+
+        @media only screen and (max-width: 800px){
+            html{
+                font-size: 10px;
+            }
+            .main{
+                width: 80vw;
+                min-height:40vh;
+                margin: 5vh auto;
+                background-color: white;
+                padding: 20px;
+                border-radius: 7px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h3 class="title">请选择要申请的角色类型</h3>
+    <div class="main">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">普通用户</a></li>
+            <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">配送员</a></li>
+        </ul>
+        <!-- Tab panes -->
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="home">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label for="school" class="col-sm-2 control-label">学校</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="school" name="school" placeholder="学校">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="studentNumber" class="col-sm-2 control-label">学号</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="studentNumber" name="studentNumber" placeholder="学号">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="names" class="col-sm-2 control-label">姓名</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="names" name="names" placeholder="姓名">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="man" class="col-sm-2 control-label" >性别</label>
+                        <div class="col-sm-9">
+                            <label class="radio-inline">
+                                <input type="radio"  value="male" name="sex" id="man">男性
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio"  value="female" name="sex">女性
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-2 col-sm-9">
+                            <button type="submit" class="btn btn-success btn-block">提交信息</button>
+                        </div>
+                    </div>
+                </form>
+
+
+            </div>
+            <div role="tabpanel" class="tab-pane" id="profile">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label for="schools" class="col-sm-2 control-label">学校</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="schools" name="schools" placeholder="学校">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="studentNumbers" class="col-sm-2 control-label">学号</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="studentNumbers" name="studentNumber" placeholder="学号">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="named" class="col-sm-2 control-label">姓名</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="named" name="named" placeholder="姓名">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="identity" class="col-sm-2 control-label">身份证号</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="identity" name="identity" placeholder="身份证号">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="mans" class="col-sm-2 control-label" >性别</label>
+                        <div class="col-sm-9">
+                            <label class="radio-inline">
+                            <input type="radio"  value="male" name="sex" id="mans">男性
+                            </label>
+                            <label class="radio-inline">
+                            <input type="radio"  value="female" name="sex">女性
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-2 col-sm-9">
+                            <button type="submit" class="btn btn-success btn-block">提交信息</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+</div>
+
+
+
+<script th:src="@{/assets/js/jquery.min.js}" src="../static/assets/js/jquery.min.js"></script>
+<script th:src="@{/assets/layer/layer.js}" src="../static/assets/layer/layer.js"></script>
+<script th:src="@{/assets/js/bootstrap.min.js}" src="../static/assets/js/bootstrap.min.js"></script>
+<script></script>
+</body>
+</html>
