@@ -1,8 +1,8 @@
 package com.example.express.controller;
 
+import com.example.express.common.constant.SecurityConstant;
 import com.example.express.domain.bean.SysUser;
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
-import com.example.express.common.constant.SecurityConstant;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -53,6 +53,16 @@ public class PageController extends BaseController {
 
         request.getSession().removeAttribute("SPRING_SECURITY_LAST_EXCEPTION");
         return "login";
+    }
+
+    /**
+     * 跳转到信息补全页面
+     * @author jitwxs
+     * @date 2019/4/21 22:14
+     */
+    @RequestMapping("/completeInfo")
+    public String showCompleteInfoPage() {
+        return "completeInfo";
     }
 
     @GetMapping("/register")

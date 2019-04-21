@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>登录</title>
+    <title>登录 - 快递代拿系统</title>
     <link th:href="@{/assets/css/bootstrap.min.css}" href="../static/assets/css/bootstrap.min.css" rel="stylesheet">
     <link th:href="@{/assets/css/login.css}" href="../static/assets/css/login.css" rel="stylesheet">
 </head>
@@ -15,6 +15,9 @@
         </div>
         <div class="col-md-6 col-sm-12 col-lg-6 col-xs-12 left">
             <div class="main">
+                <div class="mt10 pull-right">
+                    <a href="/register"><i class="glyphicon glyphicon-forward"></i>立即注册</a>
+                </div>
                 <ul id="myTab" class="nav nav-tabs">
                     <li class="active"><a href="#namePW" data-toggle="tab">用户名登陆</a></li>
                     <li><a href="#phone" data-toggle="tab">短信验证登录</a></li>
@@ -93,6 +96,8 @@
 </div>
 <input type="hidden" id="messageInfo" th:value="${message}">
 
+<script th:src="@{/assets/js/http.js}" src="../static/assets/js/http.js"></script>
+<script th:src="@{/assets/js/express.js}" src="../static/assets/js/express.js"></script>
 <script th:src="@{/assets/js/jquery.min.js}" src="../static/assets/js/jquery.min.js"></script>
 <script th:src="@{/assets/layer/layer.js}" src="../static/assets/layer/layer.js"></script>
 <script th:src="@{/assets/js/bootstrap.min.js}" src="../static/assets/js/bootstrap.min.js"></script>
@@ -114,24 +119,31 @@
     function mouseover(obj) { obj.style.cursor = "pointer"; }
 
     function sendMsg() {
-        timer=setInterval(function(){
-            times--;
-            if(times<=0){
-                send.value='发送验证码';
-                clearInterval(timer);
-                times=60;
-                send.disabled=false;    //是否可点击
-            }else{
-                send.innerText =times+'秒后重试';
-                send.disabled=true;
-            }
-        },1000);
+        let tel = $("#telphone").val();
+        if(!isPoneAvailable(tel)) {
+            layer.msg("手机号码不合法", {icon: 7});
+            return false;
+        }
 
-        sendJson(HTTP.GET, '/auth/code/sms?mobile=' + $("#telphone").val(), null, false, function (res) {
+        sendJson(HTTP.GET, '/auth/code/sms?mobile=' + tel, null, false, function (res) {
                 if (res.code === 0) {
                     layer.msg("短信发送成功", {icon: 1});
+
+                    // 定时器
+                    timer=setInterval(function(){
+                        times--;
+                        if(times<=0){
+                            send.value='发送验证码';
+                            clearInterval(timer);
+                            times=60;
+                            send.disabled=false;    //是否可点击
+                        }else{
+                            send.innerText =times+'秒后重试';
+                            send.disabled=true;
+                        }
+                    },1000);
                 } else {
-                    layer.msg(data.msg, {icon: 2});
+                    layer.msg(res.msg, {icon: 2});
                 }
             },
             function () {

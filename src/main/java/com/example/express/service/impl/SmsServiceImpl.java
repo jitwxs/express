@@ -76,7 +76,7 @@ public class SmsServiceImpl implements SmsService {
         String sessionTimestamp = (String)session.getAttribute(SessionKeyConstant.SMS_TIMESTAMP);
 
         // 是否存在
-        if(StringUtils.isBlank(sessionTel) || com.example.express.common.util.StringUtils.isBlank(sessionCode) || com.example.express.common.util.StringUtils.isBlank(sessionTimestamp)) {
+        if(StringUtils.isAnyBlank(sessionTel, sessionCode, sessionTimestamp)) {
             cleanSmsSession(session);
             return ResponseErrorCodeEnum.SMS_CODE_NOT_EXIST;
         }

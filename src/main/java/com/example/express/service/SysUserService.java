@@ -1,8 +1,11 @@
 package com.example.express.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.example.express.domain.ResponseResult;
 import com.example.express.domain.bean.SysUser;
 import com.example.express.domain.enums.ThirdLoginTypeEnum;
+
+import javax.servlet.http.HttpSession;
 
 public interface SysUserService extends IService<SysUser> {
     /**
@@ -29,4 +32,16 @@ public interface SysUserService extends IService<SysUser> {
      * 三方登陆逻辑
      */
     SysUser thirdLogin(String thirdLoginId, ThirdLoginTypeEnum thirdLoginTypeEnum);
+    /**
+     * 根据用户名注册
+     * @author jitwxs
+     * @date 2019/4/22 0:39
+     */
+    ResponseResult registryByUsername(String username, String password);
+    /**
+     * 根据手机号注册
+     * @author jitwxs
+     * @date 2019/4/22 0:39
+     */
+    ResponseResult registryBTel(String tel, String code, HttpSession session);
 }

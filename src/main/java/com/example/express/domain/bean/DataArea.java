@@ -6,15 +6,21 @@ import com.example.express.domain.enums.DataAreaLevelEnum;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Data;
 
+import java.io.Serializable;
+
 /**
  * 行政区域数据
  * @author xiangsheng.wu
  * @date 2019年04月21日 12:44
  */
 @Data
-public class DataArea {
+public class DataArea implements Serializable {
     @TableId
     private Integer id;
+    /**
+     * 父ID
+     */
+    private Integer parentId;
     /**
      * 名称
      */
@@ -45,6 +51,5 @@ public class DataArea {
      */
     @TableLogic
     private Integer status;
-
 }
 

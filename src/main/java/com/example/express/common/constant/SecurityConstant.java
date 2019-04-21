@@ -8,7 +8,7 @@ public class SecurityConstant {
     /**
      * 无权限或登录失败，被引导跳转的 Url
      */
-    public static final String UN_AUTHENTICATION_URL = "/auth/index";
+    public static final String UN_AUTHENTICATION_URL = "/index";
     /**
      * 退出登录的 Url
      */

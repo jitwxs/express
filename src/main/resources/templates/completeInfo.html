@@ -4,159 +4,277 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Title</title>
+    <title>账号申请 - 快递代拿系统</title>
     <link th:href="@{/assets/css/bootstrap.min.css}" href="../static/assets/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-
-        .main{
-            width: 30vw;
-            min-height:40vh;
-            margin: 5vh auto;
-            background-color: white;
-            padding: 20px;
-            border-radius: 7px;
-        }
-        .container{
-            width: 100%;
-            height: 100vh;
-            background: #2848af url("../static/assets/img/index1.png")right top no-repeat;
-            background-size: cover;
-            /*font-size: 1rem;*/
-            text-align: center;
-            vertical-align: middle;
-        }
-        .tab-content{
-            margin-top: 5vh;
-            text-align: left;
-        }
-        .title{
-            margin-top: 15vh;
-            color: white;
-        }
-
-
-        @media only screen and (max-width: 800px){
-            html{
-                font-size: 10px;
-            }
-            .main{
-                width: 80vw;
-                min-height:40vh;
-                margin: 5vh auto;
-                background-color: white;
-                padding: 20px;
-                border-radius: 7px;
-            }
-        }
-    </style>
+    <link th:href="@{/assets/css/completeInfo.css}" href="../static/assets/css/completeInfo.css" rel="stylesheet">
+    <link th:href="@{/assets/css/express.css}" href="../static/assets/css/express.css" rel="stylesheet">
 </head>
 <body>
 <div class="container">
-    <h3 class="title">请选择要申请的角色类型</h3>
+    <h3 class="title">请选择要申请的账号类型</h3>
     <div class="main">
         <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">普通用户</a></li>
-            <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">配送员</a></li>
+            <li role="presentation" class="active"><a href="#user" aria-controls="home" role="tab" data-toggle="tab">普通用户</a></li>
+            <li role="presentation"><a href="#courier" aria-controls="profile" role="tab" data-toggle="tab">配送员</a></li>
         </ul>
         <!-- Tab panes -->
         <div class="tab-content">
-            <div role="tabpanel" class="tab-pane active" id="home">
-                <form class="form-horizontal">
+            <div role="tabpanel" class="tab-pane active" id="user">
+                <form class="form-horizontal" id="userCompleteInfoForm">
+                    <input type="hidden" name="role" value="3">
                     <div class="form-group">
-                        <label for="school" class="col-sm-2 control-label">学校</label>
-                        <div class="col-sm-9">
-                            <input type="text" class="form-control" id="school" name="school" placeholder="学校">
+                        <label for="input_school1" class="col-sm-2 control-label">学校</label>
+                        <div class="col-sm-4">
+                            <select name="input_province" id="input_province1" class="form-control">
+                                <option value="">--请选择--</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-5">
+                            <select id="input_school1" name="school" class="form-control">
+                                <option value=""></option>
+                            </select>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="studentNumber" class="col-sm-2 control-label">学号</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" id="studentNumber" name="studentNumber" placeholder="学号">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="names" class="col-sm-2 control-label">姓名</label>
-                        <div class="col-sm-9">
-                            <input type="text" class="form-control" id="names" name="names" placeholder="姓名">
+                            <input type="text" class="form-control" id="studentNumber" name="studentIdCard">
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="man" class="col-sm-2 control-label" >性别</label>
                         <div class="col-sm-9">
                             <label class="radio-inline">
-                                <input type="radio"  value="male" name="sex" id="man">男性
+                                <input type="radio" id="man" value="1" name="sex" checked>男性
                             </label>
                             <label class="radio-inline">
-                                <input type="radio"  value="female" name="sex">女性
+                                <input type="radio"  value="0" name="sex">女性
                             </label>
                         </div>
                     </div>
                     <div class="form-group">
                         <div class="col-sm-offset-2 col-sm-9">
-                            <button type="submit" class="btn btn-success btn-block">提交信息</button>
+                            <button type="submit" class="btn btn-success btn-block">提交申请</button>
                         </div>
                     </div>
                 </form>
-
-
             </div>
-            <div role="tabpanel" class="tab-pane" id="profile">
-                <form class="form-horizontal">
+            <div role="tabpanel" class="tab-pane" id="courier">
+                <form class="form-horizontal" id="courierCompleteInfoForm">
+                    <input type="hidden" name="role" value="2">
                     <div class="form-group">
-                        <label for="schools" class="col-sm-2 control-label">学校</label>
-                        <div class="col-sm-9">
-                            <input type="text" class="form-control" id="schools" name="schools" placeholder="学校">
+                        <label for="input_school2" class="col-sm-2 control-label">学校</label>
+                        <div class="col-sm-4">
+                            <select name="input_province" id="input_province2" class="form-control">
+                                <option value="">--请选择--</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-5">
+                            <select id="input_school2" name="school" class="form-control">
+                                <option value=""></option>
+                            </select>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="studentNumbers" class="col-sm-2 control-label">学号</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" id="studentNumbers" name="studentNumber" placeholder="学号">
+                            <input type="text" class="form-control" id="studentNumbers" name="studentIdCard">
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="named" class="col-sm-2 control-label">姓名</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" id="named" name="named" placeholder="姓名">
+                            <input type="text" class="form-control" id="named" name="realName">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="identity" class="col-sm-2 control-label">身份证号</label>
+                        <label for="identity" class="col-sm-2 control-label">身份证</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" id="identity" name="identity" placeholder="身份证号">
+                            <input type="text" class="form-control" id="identity" name="idCard">
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="mans" class="col-sm-2 control-label" >性别</label>
                         <div class="col-sm-9">
                             <label class="radio-inline">
-                            <input type="radio"  value="male" name="sex" id="mans">男性
+                            <input type="radio"  value="1" name="sex" id="mans" checked>男性
                             </label>
                             <label class="radio-inline">
-                            <input type="radio"  value="female" name="sex">女性
+                            <input type="radio"  value="0" name="sex">女性
                             </label>
                         </div>
                     </div>
                     <div class="form-group">
                         <div class="col-sm-offset-2 col-sm-9">
-                            <button type="submit" class="btn btn-success btn-block">提交信息</button>
+                            <button type="submit" class="btn btn-success btn-block">提交申请</button>
                         </div>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-
-
 </div>
 
-</div>
-
-
-
+<script th:src="@{/assets/js/http.js}" src="../static/assets/js/http.js"></script>
 <script th:src="@{/assets/js/jquery.min.js}" src="../static/assets/js/jquery.min.js"></script>
+<script th:src="@{/assets/js/jquery.validate.min.js}" src="../static/assets/js/jquery.validate.min.js"></script>
 <script th:src="@{/assets/layer/layer.js}" src="../static/assets/layer/layer.js"></script>
 <script th:src="@{/assets/js/bootstrap.min.js}" src="../static/assets/js/bootstrap.min.js"></script>
-<script></script>
+<script>
+    $(function () {
+        // 加载省份数据
+        sendJson(HTTP.GET, "/api/v1/public/area/0/child", null, false, function (res) {
+            if (res.code === 0) {
+                let html = '', data = res.data;
+                for(let i = 0; i<data.length; i++) {
+                    html += '<option value="'+data[i].id+'">'+data[i].name+'</option>\n';
+                }
+                $("#input_province1").html(html);
+                $("#input_province2").html(html);
+
+                // 加载高校数据
+                sendJson(HTTP.GET, "/api/v1/public/school/province/" + data[0].id, null, false, function (res) {
+                    if (res.code === 0) {
+                        let html = '', data = res.data;
+                        for(let i = 0; i<data.length; i++) {
+                            html += '<option value="'+data[i].id+'">'+data[i].name+'</option>\n';
+                        }
+                        $("#input_school1").html(html);
+                        $("#input_school2").html(html);
+                    } else {
+                        layer.msg(res.msg, {icon: 2});
+                    }
+                }, function () {
+                    layer.msg("未知错误", {icon: 2});
+                });
+            } else {
+                layer.msg(res.msg, {icon: 2});
+            }
+        }, function () {
+            layer.msg("未知错误", {icon: 2});
+        });
+
+    });
+
+    $("#input_province1").change(function () {
+        // 加载高校数据
+        let id = $("#input_province1").val();
+        sendJson(HTTP.GET, "/api/v1/public/school/province/" + id, null, false, function (res) {
+            if (res.code === 0) {
+                let html = '', data = res.data;
+                for(let i = 0; i<data.length; i++) {
+                    html += '<option value="'+data[i].id+'">'+data[i].name+'</option>\n';
+                }
+                $("#input_school1").html(html);
+            } else {
+                layer.msg(res.msg, {icon: 2});
+            }
+        }, function () {
+            layer.msg("未知错误", {icon: 2});
+        });
+    });
+    $("#input_province2").change(function () {
+        // 加载高校数据
+        let id = $("#input_province2").val();
+        sendJson(HTTP.GET, "/api/v1/public/school/province/" + id, null, false, function (res) {
+            if (res.code === 0) {
+                let html = '', data = res.data;
+                for(let i = 0; i<data.length; i++) {
+                    html += '<option value="'+data[i].id+'">'+data[i].name+'</option>\n';
+                }
+                $("#input_school2").html(html);
+            } else {
+                layer.msg(res.msg, {icon: 2});
+            }
+        }, function () {
+            layer.msg("未知错误", {icon: 2});
+        });
+    });
+
+    $().ready(function() {
+        $("#userCompleteInfoForm").validate({
+            rules: {
+                school: {
+                    required: true,
+                    number: true
+                },
+                studentIdCard: {
+                    required: true,
+                    number: true
+                }
+            },
+            messages: {
+                school: {
+                    required: "学校不能为空",
+                    disNum: "学校选择错误"
+                },
+                studentIdCard: {
+                    required: "学号不能为空",
+                    number: "学号必须为纯数字"
+                }
+            },
+            submitHandler: function (form) {
+                sendJson(HTTP.POST, "/auth/complete-info", $("#userCompleteInfoForm").serialize() , false, function (res) {
+                    if (res.code === 0) {
+                        layer.msg("申请普通用户成功，即将重新登陆", {icon: 1});
+                        setTimeout("new function(){window.location.href='/logout'}","3000");
+                    } else {
+                        layer.msg(res.msg, {icon: 2});
+                    }
+                }, function () {
+                    layer.msg("未知错误", {icon: 2});
+                });
+            }
+        });
+
+        $("#courierCompleteInfoForm").validate({
+            rules: {
+                school: {
+                    required: true,
+                    number: true
+                },
+                studentIdCard: {
+                    required: true,
+                    number: true
+                },
+                realName: {
+                    required: true
+                },
+                idCard: {
+                    required: true
+                }
+            },
+            messages: {
+                school: {
+                    required: "学校不能为空",
+                    disNum: "学校选择错误"
+                },
+                studentIdCard: {
+                    required: "学号不能为空",
+                    number: "学号必须为纯数字"
+                },
+                realName: {
+                    required: "姓名不能为空"
+                },
+                idCard: {
+                    required: "身份证号为空"
+                }
+            },
+            submitHandler: function (form) {
+                sendJson(HTTP.POST, "/auth/complete-info", $("#courierCompleteInfoForm").serialize() , false, function (res) {
+                    if (res.code === 0) {
+                        layer.msg("申请配送员成功，即将重新登陆！", {icon: 1});
+                        setTimeout("new function(){window.location.href='/logout'}","3000");
+                    } else {
+                        layer.msg(res.msg, {icon: 2});
+                    }
+                }, function () {
+                    layer.msg("未知错误", {icon: 2});
+                });
+            }
+        });
+    });
+
+</script>
 </body>
 </html>

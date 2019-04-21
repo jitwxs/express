@@ -1,0 +1,40 @@
+.main{
+    width: 30vw;
+    min-height:40vh;
+    margin: 5vh auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 7px;
+}
+.container{
+    width: 100%;
+    height: 100vh;
+    background: #2848af url("../img/index1.png")right top no-repeat;
+    background-size: cover;
+    /*font-size: 1rem;*/
+    text-align: center;
+    vertical-align: middle;
+}
+.tab-content{
+    margin-top: 5vh;
+    text-align: left;
+}
+.title{
+    margin-top: 15vh;
+    color: white;
+}
+
+
+@media only screen and (max-width: 800px){
+    html{
+        font-size: 10px;
+    }
+    .main{
+        width: 80vw;
+        min-height:40vh;
+        margin: 5vh auto;
+        background-color: white;
+        padding: 20px;
+        border-radius: 7px;
+    }
+}

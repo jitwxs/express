@@ -11,6 +11,7 @@ import java.util.Arrays;
  */
 @Getter
 public enum SysRoleEnum implements IEnum<Integer> {
+    DIS_FORMAL(-1, "DIS_FORMAL"),
     ADMIN(1, "ROLE_ADMIN"),
     COURIER(2, "ROLE_COURIER"),
     USER(3, "ROLE_USER");
@@ -27,6 +28,10 @@ public enum SysRoleEnum implements IEnum<Integer> {
     @Override
     public Integer getValue() {
         return this.type;
+    }
+
+    public static SysRoleEnum getByType(int type) {
+        return Arrays.stream(values()).filter(e -> e.getType() == type).findFirst().orElse(null);
     }
 
     public static SysRoleEnum getByName(String name) {

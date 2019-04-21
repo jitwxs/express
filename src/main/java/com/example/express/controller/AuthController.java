@@ -2,17 +2,15 @@ package com.example.express.controller;
 
 import com.example.express.common.constant.SecurityConstant;
 import com.example.express.common.constant.SessionKeyConstant;
-import com.example.express.common.util.HttpClientUtils;
-import com.example.express.common.util.JsonUtils;
-import com.example.express.common.util.RandomUtils;
-import com.example.express.common.util.StringUtils;
+import com.example.express.common.util.*;
 import com.example.express.domain.ResponseResult;
 import com.example.express.domain.bean.SysUser;
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
+import com.example.express.domain.enums.SexEnum;
 import com.example.express.domain.enums.SysRoleEnum;
 import com.example.express.domain.enums.ThirdLoginTypeEnum;
-import com.example.express.domain.vo.RegistryVO;
 import com.example.express.security.validate.third.ThirdLoginAuthenticationToken;
+import com.example.express.service.DataSchoolService;
 import com.example.express.service.OAuthService;
 import com.example.express.service.SmsService;
 import com.example.express.service.SysUserService;
@@ -21,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -38,6 +37,8 @@ public class AuthController {
     private OAuthService oAuthService;
     @Autowired
     private SmsService smsService;
+    @Autowired
+    private DataSchoolService dataSchoolService;
     @Autowired
     private AuthenticationManager authenticationManager;
     @Autowired
@@ -62,12 +63,7 @@ public class AuthController {
             return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
         }
         if(!StringUtils.isValidTel(mobile)) {
-            return ResponseResult.failure(ResponseErrorCodeEnum.TEL_NOT_LEGAL);
-        }
-
-        // 手机号是否注册
-        if(!sysUserService.checkExistByTel(mobile)) {
-            return ResponseResult.failure(ResponseErrorCodeEnum.TEL_NOT_EXIST);
+            return ResponseResult.failure(ResponseErrorCodeEnum.TEL_INVALID);
         }
 
         // 如果Session中验证信息非空，判断是否超过间隔时间
@@ -176,34 +172,90 @@ public class AuthController {
 
     /**
      * 用户注册
+     * @param type 注册类型 1：用户名密码；2：短信验证码；3：人脸
      * @date 2019/4/17 0:06
      */
     @PostMapping("/auth/register")
-    public ResponseResult register(@RequestBody RegistryVO registryVO) {
-        // 校验type
-        SysRoleEnum roleEnum = SysRoleEnum.getByName(registryVO.getType());
-        if (roleEnum == null) {
-            return ResponseResult.failure(ResponseErrorCodeEnum.ROLE_ERROR);
+    public ResponseResult register(Integer type, String username, String password,
+                                   String tel, String code, HttpSession session) {
+        if(type == null) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
         }
-        // 校验用户名是否存在
-        if (sysUserService.checkExistByUsername(registryVO.getUsername())) {
-            return ResponseResult.failure(ResponseErrorCodeEnum.USERNAME_EXIST_ERROR);
+        switch (type) {
+            case 1:
+                if(StringUtils.isAnyBlank(username, password)) {
+                    return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
+                }
+                return sysUserService.registryByUsername(username, password);
+            case 2:
+                if(StringUtils.isAnyBlank(tel, code)) {
+                    return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
+                }
+                if(!StringUtils.isValidTel(tel)) {
+                    return ResponseResult.failure(ResponseErrorCodeEnum.TEL_INVALID);
+                }
+                return sysUserService.registryBTel(tel, code, session);
+            case 3:
+                // TODO 人脸注册
+                return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
+            default:
+                return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
         }
-        // 校验type
-        if(!StringUtils.isValidTel(registryVO.getTel())) {
-            return ResponseResult.failure(ResponseErrorCodeEnum.TEL_NOT_LEGAL);
+    }
+
+    /**
+     * 信息补全
+     * @author jitwxs
+     * @date 2019/4/21 21:07
+     */
+    @PostMapping("/auth/complete-info")
+    public ResponseResult completeInfo(Integer role, Integer school, Integer sex, String studentIdCard, String realName, String idCard,
+                                       @AuthenticationPrincipal SysUser sysUser) {
+        if(role == null || school == null || sex == null || StringUtils.isBlank(studentIdCard)) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
         }
 
-        SysUser sysUser = SysUser.builder()
-                .username(registryVO.getUsername())
-                .password(passwordEncoder.encode(registryVO.getPassword()))
-                .tel(registryVO.getTel())
-                .role(roleEnum).build();
+        // 仅支持申请普通用户、配送员
+        SysRoleEnum roleEnum = SysRoleEnum.getByType(role);
+        if(roleEnum != SysRoleEnum.USER && roleEnum != SysRoleEnum.COURIER) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
+        }
+        sysUser.setRole(roleEnum);
 
-        if(sysUserService.save(sysUser)) {
-            return ResponseResult.success();
-        } else {
+        // 校验 schoolId
+        if(!dataSchoolService.isExist(school)) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.SCHOOL_INVALID);
+        }
+        sysUser.setSchoolId(school);
+        sysUser.setStudentIdCard(studentIdCard);
+
+        // 校验性别
+        SexEnum sexEnum = SexEnum.getByType(sex);
+        if(sexEnum == null) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
+        }
+        sysUser.setSex(sexEnum);
+
+        // 配送员必填真实姓名、身份证号
+        if(roleEnum == SysRoleEnum.COURIER) {
+            if(StringUtils.isAnyBlank(realName, idCard)) {
+                return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
+            }
+            if(!IDValidateUtils.check(idCard)) {
+                return ResponseResult.failure(ResponseErrorCodeEnum.ID_CARD_INVALID);
+            }
+            if(StringUtils.containsSpecial(realName) || StringUtils.containsNumber(realName)) {
+                return ResponseResult.failure(ResponseErrorCodeEnum.REAL_NAME_INVALID);
+            }
+
+            sysUser.setIdCard(idCard);
+            sysUser.setRealName(realName);
+        }
+
+        if(!sysUserService.updateById(sysUser)) {
             return ResponseResult.failure(ResponseErrorCodeEnum.OPERATION_ERROR);
         }
+
+        return ResponseResult.success();
     }
 }

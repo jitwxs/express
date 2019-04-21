@@ -1,9 +1,7 @@
 package com.example.express.domain.bean;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.baomidou.mybatisplus.annotation.*;
+import com.example.express.domain.enums.SexEnum;
 import com.example.express.domain.enums.SysRoleEnum;
 import com.example.express.domain.enums.ThirdLoginTypeEnum;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -15,9 +13,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 
 @Data
 @Builder
@@ -35,6 +33,15 @@ public class SysUser implements UserDetails, CredentialsContainer {
     @JsonValue
     private SysRoleEnum role;
     /**
+     * 性别
+     */
+    @JsonValue
+    private SexEnum sex;
+    /**
+     * 真实姓名
+     */
+    private String realName;
+    /**
      * 身份证号
      */
     private String idCard;
@@ -44,6 +51,14 @@ public class SysUser implements UserDetails, CredentialsContainer {
     private String studentIdCard;
 
     private String tel;
+    /**
+     * 星级
+     */
+    private String star;
+    /**
+     * 学校
+     */
+    private Integer schoolId;
     /**
      * 三方登陆类型
      */
@@ -60,12 +75,13 @@ public class SysUser implements UserDetails, CredentialsContainer {
     @TableLogic
     private Integer hasDelete;
 
+    @TableField(fill = FieldFill.INSERT)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date createDate;
+    private LocalDateTime createDate;
 
-    @TableField(update = "now()")
+    @TableField(fill = FieldFill.UPDATE)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date updateDate;
+    private LocalDateTime updateDate;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

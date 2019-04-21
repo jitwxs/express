@@ -2,24 +2,32 @@ package com.example.express.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.example.express.common.util.CollectionUtils;
+import com.example.express.domain.ResponseResult;
 import com.example.express.domain.bean.SysUser;
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
 import com.example.express.domain.enums.SysRoleEnum;
 import com.example.express.domain.enums.ThirdLoginTypeEnum;
 import com.example.express.exception.CustomException;
 import com.example.express.mapper.SysUserMapper;
+import com.example.express.service.SmsService;
 import com.example.express.service.SysUserService;
-import com.example.express.common.util.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpSession;
 import java.util.List;
 
 @Service
 public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> implements SysUserService {
     @Autowired
     private SysUserMapper sysUserMapper;
+    @Autowired
+    private SmsService smsService;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public SysUser getByName(String username) {
@@ -76,13 +84,47 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         return sysUser;
     }
 
+    @Transactional(rollbackFor = CustomException.class)
+    @Override
+    public ResponseResult registryByUsername(String username, String password) {
+        if(checkExistByUsername(username)) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.USERNAME_EXIST_ERROR);
+        }
+
+        SysUser user = SysUser.builder()
+                .username(username)
+                .password(passwordEncoder.encode(password))
+                .role(SysRoleEnum.DIS_FORMAL).build();
+
+        if(!this.retBool(sysUserMapper.insert(user))) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.REGISTER_ERROR);
+        }
+        return ResponseResult.success();
+    }
+
+    @Override
+    public ResponseResult registryBTel(String tel, String code, HttpSession session) {
+        ResponseErrorCodeEnum codeEnum = smsService.check(session, tel, code);
+        if(codeEnum != ResponseErrorCodeEnum.SUCCESS) {
+            return ResponseResult.failure(codeEnum);
+        }
+
+        SysUser user = SysUser.builder()
+                .tel(tel)
+                .role(SysRoleEnum.DIS_FORMAL).build();
+
+        if(!this.retBool(sysUserMapper.insert(user))) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.REGISTER_ERROR);
+        }
+        return ResponseResult.success();
+    }
+
     private boolean registryByThirdLogin(String thirdLoginId, ThirdLoginTypeEnum thirdLoginTypeEnum) {
         SysUser user = SysUser.builder()
                 .thirdLogin(thirdLoginTypeEnum)
                 .thirdLoginId(thirdLoginId)
-                .role(SysRoleEnum.USER).build();
-        int i = sysUserMapper.insert(user);
+                .role(SysRoleEnum.DIS_FORMAL).build();
 
-        return i == 1;
+        return this.retBool(sysUserMapper.insert(user));
     }
 }

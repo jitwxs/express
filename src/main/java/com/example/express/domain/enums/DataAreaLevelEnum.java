@@ -12,7 +12,7 @@ public enum DataAreaLevelEnum implements IEnum<Integer> {
     PROVINCE(1, "省/直辖市"),
     CITY(2, "地级市"),
     COUNTY(3, "区县"),
-    TOWN(3, "镇/街");
+    TOWN(4, "镇/街");
 
     private int level;
 

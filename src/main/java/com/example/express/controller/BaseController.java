@@ -13,6 +13,8 @@ public class BaseController {
      */
     public String getHomePage(SysRoleEnum roleEnum) {
         switch (roleEnum) {
+            case DIS_FORMAL:
+                return "completeInfo";
             case USER:
                 return "user/dashboard";
             case ADMIN:

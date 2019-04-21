@@ -103,8 +103,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                     // 如果有允许匿名的url，填在下面
                     .antMatchers(
-                            SecurityConstant.VALIDATE_CODE_URL_PREFIX + "/*",
-                            SecurityConstant.THIRD_LOGIN_URL_PREFIX + "/*").permitAll()
+                            SecurityConstant.VALIDATE_CODE_URL_PREFIX + "/*", SecurityConstant.THIRD_LOGIN_URL_PREFIX + "/*",
+                            "/auth/register", "/register",
+                            "/api/v1/public/*").permitAll()
                     .anyRequest()
                     .authenticated().and()
                 // 关闭CSRF跨域
