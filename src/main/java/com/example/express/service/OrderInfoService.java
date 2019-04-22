@@ -11,4 +11,11 @@ public interface OrderInfoService extends IService<OrderInfo> {
      * @param roleEnum ROLE_USER: order表userId；ROLE_COURIER:order表courierId
      */
     boolean isExistUnfinishedOrder(String userId, SysRoleEnum roleEnum);
+    /**
+     * 生成订单 & 订单支付
+     * @author jitwxs
+     * @date 2019/4/23 0:40
+     * @return 订单号
+     */
+    long createOrder(OrderInfo orderInfo, double money, String uid);
 }

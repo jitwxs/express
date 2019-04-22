@@ -21,8 +21,10 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -41,8 +43,6 @@ public class AuthController {
     private DataSchoolService dataSchoolService;
     @Autowired
     private AuthenticationManager authenticationManager;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     @Value("${server.addr}")
     private String serverAddress;
@@ -52,6 +52,31 @@ public class AuthController {
     private String qqAppKey;
     @Value("${project.sms.interval-min}")
     private String smsIntervalMins;
+
+    /**
+     * 验证图形验证码
+     * @author jitwxs
+     * @since 2018/5/2 0:02
+     */
+    @PostMapping(SecurityConstant.VALIDATE_CODE_URL_PREFIX + "/check-img")
+    public ResponseResult checkVerifyCode(String code, HttpSession session) {
+        if(StringUtils.isBlank(code)) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
+        }
+
+        Object systemCode = session.getAttribute("validateCode");
+        if(systemCode == null) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.SYSTEM_ERROR);
+        }
+
+        String validateCode = ((String)systemCode).toLowerCase();
+
+        if(!validateCode.equals(code.toLowerCase())) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.VERIFY_CODE_ERROR);
+        }
+
+        return ResponseResult.success();
+    }
 
     /**
      * 获取短信验证码

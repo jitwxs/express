@@ -17,4 +17,12 @@ public class SessionKeyConstant {
      * 发送短信验证码的时间
      */
     public static String SMS_TIMESTAMP = "SMS_TIMESTAMP";
+    /**
+     * 最新订单数据
+     */
+    public static String SESSION_LATEST_EXPRESS = "SESSION_LATEST_EXPRESS";
+    /**
+     * 最新支付数据
+     */
+    public static String SESSION_LATEST_PAYMENT = "SESSION_LATEST_PAYMENT";
 }

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>仪表盘 - 快递代拿系统</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}" href="../../static/assets/css/bootstrap.min.css"/>
+    <link rel="stylesheet" th:href="@{/assets/css/express.css}" href="../../static/assets/css/express.css"/>
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- 头部 -->
+        <nav th:replace="/user/module/nav::html"></nav>
+        <!-- 主体 -->
+        <div class="row">
+            <!-- 左侧菜单 -->
+            <div th:replace="/user/module/sidebar::html"></div>
+            <!-- 支付主体 -->
+            <div class="col-md-10">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h4>订单信息</h4>
+                        <form class="form-horizontal">
+                            <div class="form-group">
+                                <label for="expressName" class="col-sm-2 control-label">姓名</label>
+                                <div class="col-sm-10">
+                                    <p class="form-control-static" id="expressName" th:text="${order.recName}"></p>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="expressTel" class="col-sm-2 control-label">联系电话</label>
+                                <div class="col-sm-10">
+                                    <p class="form-control-static" id="expressTel" th:text="${order.recTel}"></p>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="expressAddress" class="col-sm-2 control-label">配送地址</label>
+                                <div class="col-sm-10">
+                                    <p class="form-control-static" id="expressAddress" th:text="${order.recAddress}"></p>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="expressCompany" class="col-sm-2 control-label">快递公司</label>
+                                <div class="col-sm-10">
+                                    <p class="form-control-static" id="expressCompany" th:text="${order.company}"></p>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="expressOdd" class="col-sm-2 control-label">快递单号</label>
+                                <div class="col-sm-10">
+                                    <p class="form-control-static" id="expressOdd" th:text="${order.odd}"></p>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="expressRemark" class="col-sm-2 control-label">备注</label>
+                                <div class="col-sm-10">
+                                    <p class="form-control-static" id="expressRemark" th:text="${order.remark}"></p>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div  class="col-sm-6">
+                        <h4>价格计算</h4>
+                        <blockquote class="pt10">
+                            <p>< 500g/件：2元；< 1kg/件：3元；> 1kg/kg：4元</p>
+                        </blockquote>
+                        <h4>预估价格： <span class="red-span" lang="totalPrice">0.00</span> 元</h4>
+                        <form class="form-horizontal" id="packageForm">
+                        </form>
+                        <div class="col-sm-offset-2 col-sm-10">
+                            <button type="button" class="btn btn-default" onclick="addPackage()">添加包裹</button>
+                            <button type="button" class="btn btn-default" onclick="deletePackage()">删除包裹</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <h4>支付方式（在线方式至少付款0.01元）</h4>
+                    <form class="form-inline col-sm-4" id="alipayForm" action="/order/alipay" method="post">
+                        <input type="hidden" id="alipayMoney" name="money">
+                        <button class="btn btn-info" type="button" onclick="alipay()">支付宝支付</button>
+                    </form>
+                    <form class="form-inline col-sm-4" id="wechatForm" action="#" method="post">
+                        <button class="btn btn-default" type="button" disabled>微信支付</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/assets/js/http.js}" src="../../static/assets/js/http.js"></script>
+    <script th:src="@{/assets/js/express.js}" src="../../static/assets/js/express.js"></script>
+    <script th:src="@{/assets/js/jquery.min.js}" src="../../static/assets/js/jquery.min.js"></script>
+    <script th:src="@{/assets/js/jquery.validate.min.js}" src="../../static/assets/js/jquery.validate.min.js"></script>
+    <script th:src="@{/assets/layer/layer.js}" src="../../static/assets/layer/layer.js"></script>
+    <script th:src="@{/assets/js/bootstrap.min.js}" src="../../static/assets/js/bootstrap.min.js"></script>
+    <script>
+        var total=0;
+        $(function () {
+            $("#order-sidebar").addClass('active');
+        });
+
+        function addPackage() {
+            var html = '<div class="form-group">\n' +
+                '                            <label class="col-sm-3 control-label">预估重量（单位：KG）</label>\n' +
+                '                            <div class="col-sm-9">\n' +
+                '                                <input type="number" class="form-control" name="price" onchange="updatePrice()" onkeyup="updatePrice()">\n' +
+                '                            </div>\n' +
+                '                        </div>';
+            $("#packageForm").append(html);
+        }
+
+        function deletePackage() {
+            $("#packageForm").children().last().remove();
+            updatePrice();
+        }
+
+        // 更新价格
+        function updatePrice() {
+            total = 0;
+            $("input[name='price']").each(function(){
+                var weight = $(this).val();
+                if(weight !== "") {
+                    if(!isNaN(weight)) {
+                        weight = parseFloat(weight);
+                        var tmp = 0;
+                        // 如果小于500g，2元
+                        if(weight < 0.5)
+                            tmp = 2;
+                        else if(weight < 1)
+                            tmp = 3;
+                        else if(weight >= 1)
+                        // 向上取整
+                            tmp = 4 * Math.ceil(weight);
+                        total += tmp;
+                    } else {
+                        // 如果不是数字，将input值修改为空
+                        $(this).val("");
+                    }
+                }
+            });
+            // 两位小数，四舍五入
+            total = total.toFixed(2);
+            $("span[lang='totalPrice']").each(function() {
+                $(this).text(total);
+            });
+        }
+
+        function alipay() {
+            if(total === 0)
+                total = 0.01;
+            $("#alipayMoney").val(total);
+            $("#alipayForm").submit();
+        }
+    </script>
+</body>
+</html>

@@ -26,9 +26,21 @@ public class OrderInfo {
      */
     private String company;
     /**
+     * 收件人
+     */
+    private String recName;
+    /**
+     * 收件电话
+     */
+    private String recTel;
+    /**
      * 收货地址
      */
     private String recAddress;
+    /**
+     * 备注
+     */
+    private String remark;
     /**
      * 代取人ID
      */

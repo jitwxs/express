@@ -17,6 +17,8 @@ public enum ResponseErrorCodeEnum {
     THIRD_LOGIN_ERROR(1005, "三方登陆失败"),
     USER_NOT_EXIST(1006, "用户不存在"),
     EXIST_UNFINISHED_ORDER(1007, "当前存在未完成的订单"),
+    ORDER_CREATE_ERROR(1008, "订单创建失败"),
+    ORDER_PAYMENT_CREATE_ERROR(1008, "订单支付信息创建失败"),
 
     OPERATION_NOT_SUPPORT(1976, "操作不支持"),
     IDCARD_OR_REALNAME_EXIST(1977, "您已绑定实名信息"),

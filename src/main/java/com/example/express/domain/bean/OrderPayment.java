@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.example.express.domain.enums.PaymentStatusEnum;
 import com.example.express.domain.enums.PaymentTypeEnum;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -17,8 +18,9 @@ import java.time.LocalDateTime;
  * @date 2019年04月16日 23:10
  */
 @Data
+@Builder
 public class OrderPayment {
-    @TableId(type = IdType.ID_WORKER)
+    @TableId(type = IdType.INPUT)
     private Long orderId;
     /**
      * 订单状态

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>立即下单 - 快递代拿系统</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}" href="../../static/assets/css/bootstrap.min.css"/>
+    <link rel="stylesheet" th:href="@{/assets/css/express.css}" href="../../static/assets/css/express.css"/>
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- 头部 -->
+        <nav th:replace="/user/module/nav::html"></nav>
+        <!-- 主体 -->
+        <div class="row">
+            <!-- 左侧菜单 -->
+            <div th:replace="/user/module/sidebar::html"></div>
+            <!-- 下单主体 -->
+            <div class="col-md-10">
+                <form class="form-horizontal" id="expressForm" method="post" action="/user/order/place">
+                    <div class="form-group">
+                        <label for="inputName" class="col-sm-1 control-label">取件姓名</label>
+                        <div class="col-sm-11">
+                            <input type="text" class="form-control" id="inputName" name="recName" placeholder="请输入取件姓名">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputTel" class="col-sm-1 control-label">联系电话</label>
+                        <div class="col-sm-11">
+                            <input type="tel" class="form-control" id="inputTel" name="recTel" placeholder="请输入联系电话">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputOdd" class="col-sm-1 control-label">快递单号</label>
+                        <div class="col-sm-11">
+                            <input type="tel" class="form-control" id="inputOdd" name="odd" placeholder="请输入快递单号">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputCompany" class="col-sm-1 control-label">快递公司</label>
+                        <div class="col-sm-11">
+                            <input type="tel" class="form-control" id="inputCompany" name="company" placeholder="请输入快递公司">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputAddress" class="col-sm-1 control-label">收件地址</label>
+                        <div class="col-sm-11">
+                            <textarea class="form-control dis_change_textarea" id="inputAddress" name="recAddress" rows="5"
+                                      placeholder="请输入收件地址"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputRemark" class="col-sm-1 control-label">备注（可选）</label>
+                        <div class="col-sm-11">
+                            <textarea class="form-control dis_change_textarea" id="inputRemark" name="remark" rows="5"
+                                      placeholder="如果有特殊要求，请备注于此"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputVerify" class="col-sm-1 control-label">验证码</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="inputVerify" name="verify" placeholder="请输入验证码">
+                        </div>
+                        <div class="col-sm-5" style="margin-top: 10px">
+                            <img id="verifyCode" src="/auth/code/getVerifyCode" title="看不清，请点我" onclick="refresh(this)"
+                                 onmouseover="mouseover(this)"/>
+                        </div>
+                    </div>
+                    <div class="form-group" style="text-align: center">
+                        <button class="btn btn-primary" type="submit">前往支付</button>
+                        <button class="btn btn-warning" type="reset">重新填写</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/assets/js/http.js}" src="../../static/assets/js/http.js"></script>
+    <script th:src="@{/assets/js/express.js}" src="../../static/assets/js/express.js"></script>
+    <script th:src="@{/assets/js/jquery.min.js}" src="../../static/assets/js/jquery.min.js"></script>
+    <script th:src="@{/assets/js/jquery.validate.min.js}" src="../../static/assets/js/jquery.validate.min.js"></script>
+    <script th:src="@{/assets/layer/layer.js}" src="../../static/assets/layer/layer.js"></script>
+    <script th:src="@{/assets/js/bootstrap.min.js}" src="../../static/assets/js/bootstrap.min.js"></script>
+    <script>
+        $(function () {
+            $("#order-sidebar").addClass('active');
+        });
+
+        function refresh(obj) { obj.src = "/auth/code/getVerifyCode?" + Math.random(); }
+
+        function mouseover(obj) { obj.style.cursor = "pointer"; }
+
+        $().ready(function() {
+            $("#expressForm").validate({
+                rules: {
+                    recName: {
+                        required: true,
+                        maxlength: 64
+                    },
+                    recTel: {
+                        required: true,
+                        minlength: 11
+                    },
+                    recAddress: {
+                        required: true,
+                        maxlength: 255
+                    },
+                    odd: {
+                        required: true,
+                        maxlength: 128
+                    },
+                    company: {
+                        required: true
+                    },
+                    remark: {
+                        maxlength: 255
+                    },
+                    verify: "required"
+                },
+                messages: {
+                    recName: {
+                        required: "取件姓名不能为空",
+                        maxlength: "取件姓名超过限制长度"
+                    },
+                    recTel: {
+                        required: "联系电话不能为空",
+                        minlength: "手机号码不少于11位"
+                    },
+                    recAddress: {
+                        required: "配送地址不能为空",
+                        maxlength: "配送地址超过限制长度"
+                    },
+                    odd: {
+                        required: "快递单号不能为空",
+                        maxlength: "快递单号超过限制长度"
+                    },
+                    company: {
+                        required: "快递公司不能为空"
+                    },
+                    remark: {
+                        maxlength: "憋住超过限制长度"
+                    },
+                    verify: "验证码不能为空"
+                },
+                submitHandler: function (form) {
+                    sendJson("post", "/auth/code/check-img", {"code": $("#inputVerify").val()}, false, function (res) {
+                        if (res.code !== 0) {
+                            layer.msg(res.msg,{icon:2});
+                        } else {
+                            form.submit();
+                        }
+                    }, function () {
+                        layer.msg("未知错误",{icon:2});
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

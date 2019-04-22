@@ -4,6 +4,7 @@ import com.example.express.common.util.StringUtils;
 import com.example.express.domain.bean.SysUser;
 import com.example.express.domain.enums.SysRoleEnum;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 
 @Controller
 public class BaseController {
@@ -32,12 +33,16 @@ public class BaseController {
      * @author jitwxs
      * @date 2019/4/21 1:06
      */
-    public String getUsername(SysUser sysUser) {
+    private String getUsername(SysUser sysUser) {
         if(StringUtils.isNotBlank(sysUser.getUsername())) {
             return sysUser.getUsername();
         } else if(StringUtils.isNotBlank(sysUser.getTel())) {
             return sysUser.getTel();
         }
         return StringUtils.EMPTY;
+    }
+
+    protected void initModelMap(ModelMap map, SysUser sysUser) {
+        map.put("username", getUsername(sysUser));
     }
 }
