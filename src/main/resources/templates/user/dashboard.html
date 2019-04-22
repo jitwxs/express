@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
 
-    <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}"/>
-    <!--<link rel="stylesheet" th:href="@{/assets/css/express.css}"/>-->
+    <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}" href="../../static/assets/css/bootstrap.min.css"/>
+    <link rel="stylesheet" th:href="@{/assets/css/express.css}" href="../../static/assets/css/express.css"/>
 </head>
 <body>
     <div class="container-fluid">
@@ -20,9 +20,15 @@
         </div>
     </div>
 
-
-<script th:src="@{/assets/js/jquery.min.js}"></script>
-<script th:src="@{/assets/layer/layer.js}"></script>
-<script th:src="@{/assets/js/bootstrap.min.js}"></script>
+<script th:src="@{/assets/js/http.js}" src="../../static/assets/js/http.js"></script>
+<script th:src="@{/assets/js/express.js}" src="../../static/assets/js/express.js"></script>
+<script th:src="@{/assets/js/jquery.min.js}" src="../../static/assets/js/jquery.min.js"></script>
+<script th:src="@{/assets/layer/layer.js}" src="../../static/assets/layer/layer.js"></script>
+<script th:src="@{/assets/js/bootstrap.min.js}" src="../../static/assets/js/bootstrap.min.js"></script>
+<script>
+    $(function () {
+        $("#dashboard-sidebar").addClass('active');
+    })
+</script>
 </body>
 </html>

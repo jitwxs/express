@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.express.domain.ResponseResult;
 import com.example.express.domain.bean.SysUser;
 import com.example.express.domain.enums.ThirdLoginTypeEnum;
+import com.example.express.domain.vo.UserInfoVO;
 
 import javax.servlet.http.HttpSession;
 
@@ -20,6 +21,10 @@ public interface SysUserService extends IService<SysUser> {
      * 根据三方登陆查找用户
      */
     SysUser getByThirdLogin(String thirdLoginId, ThirdLoginTypeEnum thirdLoginTypeEnum);
+    /**
+     * 获取用户信息
+     */
+    UserInfoVO getUserInfo(SysUser user);
     /**
      * 根据用户名判断用户是否存在
      */

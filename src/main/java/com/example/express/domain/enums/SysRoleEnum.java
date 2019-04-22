@@ -11,18 +11,21 @@ import java.util.Arrays;
  */
 @Getter
 public enum SysRoleEnum implements IEnum<Integer> {
-    DIS_FORMAL(-1, "DIS_FORMAL"),
-    ADMIN(1, "ROLE_ADMIN"),
-    COURIER(2, "ROLE_COURIER"),
-    USER(3, "ROLE_USER");
+    DIS_FORMAL(-1, "DIS_FORMAL", "非正式用户"),
+    ADMIN(1, "ROLE_ADMIN", "系统管理员"),
+    COURIER(2, "ROLE_COURIER", "配送员"),
+    USER(3, "ROLE_USER", "普通用户");
 
     private int type;
 
     private String name;
 
-    SysRoleEnum(int type, String name) {
+    private String cnName;
+
+    SysRoleEnum(int type, String name, String cnName) {
         this.type = type;
         this.name = name;
+        this.cnName = cnName;
     }
 
     @Override

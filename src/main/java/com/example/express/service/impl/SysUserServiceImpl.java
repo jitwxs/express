@@ -3,13 +3,17 @@ package com.example.express.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.express.common.util.CollectionUtils;
+import com.example.express.common.util.StringUtils;
 import com.example.express.domain.ResponseResult;
+import com.example.express.domain.bean.DataSchool;
 import com.example.express.domain.bean.SysUser;
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
 import com.example.express.domain.enums.SysRoleEnum;
 import com.example.express.domain.enums.ThirdLoginTypeEnum;
+import com.example.express.domain.vo.UserInfoVO;
 import com.example.express.exception.CustomException;
 import com.example.express.mapper.SysUserMapper;
+import com.example.express.service.DataSchoolService;
 import com.example.express.service.SmsService;
 import com.example.express.service.SysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +30,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     private SysUserMapper sysUserMapper;
     @Autowired
     private SmsService smsService;
+    @Autowired
+    private DataSchoolService dataSchoolService;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -54,6 +60,26 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 .eq("third_login_id", thirdLoginId));
 
         return CollectionUtils.getListFirst(userList);
+    }
+
+    @Override
+    public UserInfoVO getUserInfo(SysUser user) {
+        UserInfoVO vo = UserInfoVO.builder()
+                .username(user.getUsername())
+                .sex(String.valueOf(user.getSex().getType()))
+                .tel(user.getTel())
+                .studentIdCard(user.getStudentIdCard())
+                .role(user.getRole().getCnName())
+                .star(user.getStar())
+                .idCard(user.getIdCard())
+                .realName(user.getRealName()).build();
+
+        DataSchool school = dataSchoolService.getById(user.getSchoolId());
+        if(school != null) {
+            vo.setSchool(school.getName());
+        }
+
+        return vo;
     }
 
     @Override
