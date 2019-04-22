@@ -23,87 +23,632 @@
                     <h4>基础信息</h4>
                     <form class="form-horizontal">
                         <div class="form-group">
-                            <label for="role" class="col-sm-2 control-label">用户权限</label>
-                            <div class="col-sm-10">
-                                <p class="form-control-static" id="role" th:text="${info.role}"></p>
+                            <label for="role" class="col-md-2 control-label">用户权限</label>
+                            <div class="col-md-10">
+                                <p class="form-control-static col-md-7" id="role" th:text="${info.roleName}"></p>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="username" class="col-sm-2 control-label">用户名【登录名】</label>
+                            <label for="username" class="col-md-2 control-label">用户名</label>
                             <div class="col-md-10">
-                                <p class="form-control-static col-md-8" id="username"
-                                   th:style="${info.username == null ? 'color:grary' : ''}"
+                                <p class="form-control-static col-md-7" id="username"
+                                   th:style="${info.username == null ? 'color:gray' : ''}"
                                    th:text="${info.username != null ? info.username : '您未申请用户名，申请后可以使用用户名密码登陆'}"></p>
-                                <button class="btn btn-default col-dm-2" th:if="${info.username != null}">修改密码</button>
-                                <button class="btn btn-danger col-dm-2" th:if="${info.username == null}">立即申请</button>
+                                <button type="button" class="btn btn-default col-md-3" th:if="${info.username != null}" onclick="showModel(1)">修改密码</button>
+                                <button type="button" class="btn btn-danger col-md-3" th:if="${info.username == null}" onclick="showModel(2)">立即申请</button>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="tel" class="col-sm-2 control-label">手机号码</label>
+                            <label for="tel" class="col-md-2 control-label">手机号码</label>
                             <div class="col-md-10">
-                                <p class="form-control-static col-md-8" id="tel"
-                                   th:style="${info.tel == null ? 'color:grary' : ''}"
+                                <p class="form-control-static col-md-7" id="tel"
+                                   th:style="${info.tel == null ? 'color:gray' : ''}"
                                    th:text="${info.tel != null ? info.tel : '您未绑定手机号，设置后可以使用手机号登陆，以及使用找回密码功能'}"></p>
-                                <button class="btn btn-default col-dm-2" th:if="${info.tel != null}">更改绑定</button>
-                                <button class="btn btn-danger col-dm-2" th:if="${info.tel == null}">立即绑定</button>
+                                <button type="button" class="btn btn-default col-md-3" th:if="${info.tel != null}" onclick="showModel(3)">更改绑定</button>
+                                <button type="button" class="btn btn-danger col-md-3" th:if="${info.tel == null}" onclick="showModel(3)">立即绑定</button>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="sex" class="col-sm-2 control-label">性别</label>
+                            <label for="sex" class="col-md-2 control-label">性别</label>
                             <div class="col-md-10">
-                                <p class="form-control-static" id="sex" th:text="${info.sex == 1 ? '男' : '女'}"></p>
+                                <p class="form-control-static col-md-7" id="sex" th:text="${info.sex == 1 ? '男' : '女'}"></p>
                             </div>
                         </div>
                     </form>
-                </div><br>
+                </div><hr>
                 <div id="schoolInfo">
                     <h4>学校信息</h4>
                     <form class="form-horizontal">
                         <div class="form-group">
-                            <label for="school" class="col-sm-2 control-label">学校</label>
-                            <div class="col-sm-10">
-                                <p class="form-control-static" id="school" th:text="${info.school}">未设置</p>
+                            <label for="school" class="col-md-2 control-label">学校</label>
+                            <div class="col-md-10">
+                                <p class="form-control-static col-md-7" id="school"
+                                   th:style="${info.school == null ? 'color:gray' : ''}"
+                                   th:text="${info.school != null ? info.school : '未设置'}"></p>
+                                <button type="button" class="btn btn-default col-md-3" th:if="${info.school != null}" onclick="showModel(4)">更改绑定</button>
+                                <button type="button" class="btn btn-danger col-md-3" th:if="${info.school == null}" onclick="showModel(4)">立即绑定</button>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="studentIdCard" class="col-sm-2 control-label">学号</label>
-                            <div class="col-sm-10">
-                                <p class="form-control-static" id="studentIdCard" th:text="${info.studentIdCard}">未设置</p>
+                            <label for="studentIdCard" class="col-md-2 control-label">学号</label>
+                            <div class="col-md-10">
+                                <p class="form-control-static col-md-7" id="studentIdCard"
+                                   th:style="${info.studentIdCard == null ? 'color:gray' : ''}"
+                                   th:text="${info.studentIdCard != null ? info.studentIdCard : '未设置'}"></p>
                             </div>
                         </div>
                     </form>
-                </div><br>
+                </div><hr>
                 <div id="idCardInfo">
                     <h4>实名信息</h4>
                     <form class="form-horizontal">
                         <div class="form-group">
-                            <label for="realName" class="col-sm-2 control-label">姓名</label>
-                            <div class="col-sm-10">
-                                <p class="form-control-static" id="realName" th:text="${info.realName}">未设置</p>
+                            <label for="realName" class="col-md-2 control-label">姓名</label>
+                            <div class="col-md-10">
+                                <p class="form-control-static col-md-7" id="realName"
+                                   th:style="${info.realName == null ? 'color:gray' : ''}"
+                                   th:text="${info.realName != null ? info.realName : '未实名，实名后将能够申请配送员'}"></p>
+                                <button type="button" class="btn btn-danger col-md-3" th:if="${info.realName == null}" onclick="showModel(5)">实名认证</button>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="idCard" class="col-sm-2 control-label">身份证号</label>
-                            <div class="col-sm-10">
-                                <p class="form-control-static" id="idCard" th:text="${info.idCard}">未设置</p>
+                            <label for="idCard" class="col-md-2 control-label">身份证号</label>
+                            <div class="col-md-10">
+                                <p class="form-control-static col-md-7" id="idCard"
+                                   th:style="${info.idCard == null ? 'color:gray' : ''}"
+                                   th:text="${info.idCard != null ? info.idCard : '未填写'}"></p>
                             </div>
                         </div>
                     </form>
                 </div>
             </div>
+        </div><hr>
+        <!-- 角色切换 -->
+        <div class="row col-md-offset-3">
+            <button type="button" onclick="applyCourierRole()"
+                    th:class="${info.canChangeRole == '2' ? 'disabled btn btn-warning' : 'btn btn-warning'}">申请配送员</button>
         </div>
+    </div>
+
+    <!-- 修改密码模态框 -->
+    <div class="modal fade" id="restPasswordModel" tabindex="-1" role="dialog" aria-labelledby="restPasswordModelLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="confirmModelLabel">修改密码</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal" id="resetPasswordForm">
+                        <div class="form-group">
+                            <label for="inputOldPassword" class="col-md-2 control-label">原始密码</label>
+                            <div class="col-md-10">
+                                <input type="password" class="form-control" id="inputOldPassword" name="origin">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputNewPassword" class="col-md-2 control-label">新密码</label>
+                            <div class="col-md-10">
+                                <input type="password" class="form-control" id="inputNewPassword" name="target">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputNewPassword1" class="col-md-2 control-label">确认密码</label>
+                            <div class="col-md-10">
+                                <input type="password" class="form-control" id="inputNewPassword1" name="target1">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="submitForm(1)">修改密码</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 申请用户名 -->
+    <div class="modal fade" id="applyUsernameModel" tabindex="-1" role="dialog" aria-labelledby="applyUsernameModelLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="applyUsernameModelLabel">申请用户名</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal" id="applyUsernameForm">
+                        <div class="form-group">
+                            <label for="inputUsername" class="col-md-2 control-label">用户名</label>
+                            <div class="col-md-10">
+                                <input type="password" class="form-control" id="inputUsername" name="username">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputPassword" class="col-md-2 control-label">密码</label>
+                            <div class="col-md-10">
+                                <input type="password" class="form-control" id="inputPassword" name="password">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputPassword1" class="col-md-2 control-label">重复密码</label>
+                            <div class="col-md-10">
+                                <input type="password" class="form-control" id="inputPassword1" name="password1">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="submitForm(2)">立即申请</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 设置手机号 -->
+    <div class="modal fade" id="setTelModel" tabindex="-1" role="dialog" aria-labelledby="setTelModelLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="setTelModelLabel">设置手机号</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal" id="setTelForm">
+                        <div class="form-group">
+                            <label for="inputTel" class="col-md-2 control-label">手机号码</label>
+                            <div class="col-md-10">
+                                <input type="text" class="form-control" id="inputTel" name="tel">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="telCode" class="col-md-2 control-label">验证码</label>
+                            <div class="col-md-10">
+                                <div class="row" >
+                                    <div class="col-md-6 col-sm-12 col-lg-6 col-xs-12 " >
+                                        <input type="text" class="form-control" id="telCode" name="code" placeholder="请输入验证码">
+                                    </div>
+                                    <div class="col-md-6 col-sm-12 col-lg-6 col-xs-12 telCode">
+                                        <button type="button" class="btn btn-info btn-block" id="getTelCode" onclick="sendMsg()" >获取验证码</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="submitForm(3)">立即设置</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 设置学校信息 -->
+    <div class="modal fade" id="setSchoolModel" tabindex="-1" role="dialog" aria-labelledby="setSchoolModelLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="setSchoolModelLabel">设置学校信息</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal" id="setSchoolForm">
+                        <div class="form-group">
+                            <label for="inputSchool" class="col-md-2 control-label">学校</label>
+                            <div class="col-md-4">
+                                <select id="inputProvince" class="form-control">
+                                    <option value="">--请选择--</option>
+                                </select>
+                            </div>
+                            <div class="col-md-5">
+                                <select id="inputSchool" name="school" class="form-control">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputStudentIdCard" class="col-md-2 control-label">学号</label>
+                            <div class="col-md-9">
+                                <input type="text" class="form-control" id="inputStudentIdCard" name="studentIdCard">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="submitForm(4)">提交设置</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 实名信息 -->
+    <div class="modal fade" id="applyRealNameModel" tabindex="-1" role="dialog" aria-labelledby="applyRealNameModelLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="applyRealNameModelLabel">实名认证</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal" id="applyRealNameForm">
+                        <div class="form-group">
+                            <label for="inputRealName" class="col-md-2 control-label">姓名</label>
+                            <div class="col-md-10">
+                                <input type="text" class="form-control" id="inputRealName" name="realName">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputIdCard" class="col-md-2 control-label">身份证号</label>
+                            <div class="col-md-10">
+                                <input type="text" class="form-control" id="inputIdCard" name="idCard">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="submitForm(5)">立即认证</button>
+                </div>
+            </div>
         </div>
     </div>
 
 <script th:src="@{/assets/js/http.js}" src="../../static/assets/js/http.js"></script>
 <script th:src="@{/assets/js/express.js}" src="../../static/assets/js/express.js"></script>
 <script th:src="@{/assets/js/jquery.min.js}" src="../../static/assets/js/jquery.min.js"></script>
+<script th:src="@{/assets/js/jquery.validate.min.js}" src="../../static/assets/js/jquery.validate.min.js"></script>
 <script th:src="@{/assets/layer/layer.js}" src="../../static/assets/layer/layer.js"></script>
 <script th:src="@{/assets/js/bootstrap.min.js}" src="../../static/assets/js/bootstrap.min.js"></script>
 <script>
     $(function () {
         $("#info-sidebar").addClass('active');
-    })
+
+        // 加载省份数据
+        sendJson(HTTP.GET, "/api/v1/public/area/0/child", null, false, function (res) {
+            if (res.code === 0) {
+                let html = '', data = res.data;
+                for(let i = 0; i<data.length; i++) {
+                    html += '<option value="'+data[i].id+'">'+data[i].name+'</option>\n';
+                }
+                $("#inputProvince").html(html);
+
+                // 加载高校数据
+                sendJson(HTTP.GET, "/api/v1/public/school/province/" + data[0].id, null, false, function (res) {
+                    if (res.code === 0) {
+                        let html = '', data = res.data;
+                        for(let i = 0; i<data.length; i++) {
+                            html += '<option value="'+data[i].id+'">'+data[i].name+'</option>\n';
+                        }
+                        $("#inputSchool").html(html);
+                    } else {
+                        layer.msg(res.msg, {icon: 2});
+                    }
+                }, function () {
+                    layer.msg("未知错误", {icon: 2});
+                });
+
+            } else {
+                layer.msg(res.msg, {icon: 2});
+            }
+        }, function () {
+            layer.msg("未知错误", {icon: 2});
+        });
+    });
+
+    let send = document.getElementById("getTelCode");
+    let times=60;
+    let timer=null;
+
+    function sendMsg() {
+        let tel = $("#inputTel").val();
+        if(!isPoneAvailable(tel)) {
+            layer.msg("手机号码不合法", {icon: 7});
+            return false;
+        }
+        sendJson(HTTP.GET, '/auth/code/sms?mobile=' + tel, null, false, function (res) {
+                if (res.code === 0) {
+                    layer.msg("短信发送成功", {icon: 1});
+
+                    // 定时器
+                    timer=setInterval(function(){
+                        times--;
+                        if(times<=0){
+                            send.value='发送验证码';
+                            clearInterval(timer);
+                            times=60;
+                            send.disabled=false;    //是否可点击
+                        }else{
+                            send.innerText =times+'秒后重试';
+                            send.disabled=true;
+                        }
+                    },1000);
+                } else {
+                    layer.msg(res.msg, {icon: 2});
+                }
+            },
+            function () {
+                layer.msg("未知错误", {icon: 2});
+            });
+    }
+    
+    function showModel(type) {
+        switch (type) {
+            case 1:
+                $("#restPasswordModel").modal('show');
+                return;
+            case 2:
+                $("#applyUsernameModel").modal('show');
+                return;
+            case 3:
+                $("#setTelModel").modal('show');
+                return;
+            case 4:
+                $("#setSchoolModel").modal('show');
+                return;
+            case 5:
+                $("#applyRealNameModel").modal('show');
+                return;
+        }
+    }
+    function closeModel(type) {
+        switch (type) {
+            case 1:
+                $("#restPasswordModel").modal('hide');
+                return;
+            case 2:
+                $("#applyUsernameModel").modal('hide');
+                return;
+            case 3:
+                $("#setTelModel").modal('hide');
+                return;
+            case 4:
+                $("#setSchoolModel").modal('hide');
+                return;
+            case 5:
+                $("#applyRealNameModel").modal('hide');
+                return;
+        }
+    }
+    function submitForm(type) {
+        switch (type) {
+            case 1:
+                $("#resetPasswordForm").submit();
+                return;
+            case 2:
+                $("#applyUsernameForm").submit();
+                return;
+            case 3:
+                $("#setTelForm").submit();
+                return;
+            case 4:
+                $("#setSchoolForm").submit();
+                return;
+            case 5:
+                $("#applyRealNameForm").submit();
+                return;
+        }
+    }
+
+    function applyCourierRole() {
+        let msg = '申请后您将拥有配送快递的权利，同时您将失去下单的权利，确定要申请吗？';
+        layer.confirm(msg, {
+            btn: ['确定','取消']
+        }, function(){
+            sendJson(HTTP.GET, "/api/v1/public/school/province/" + id, null, false, function (res) {
+                if (res.code === 0) {
+                    let html = '', data = res.data;
+                    for(let i = 0; i<data.length; i++) {
+                        html += '<option value="'+data[i].id+'">'+data[i].name+'</option>\n';
+                    }
+                    $("#inputSchool").html(html);
+                } else {
+                    layer.msg(res.msg, {icon: 2});
+                }
+            }, function () {
+                layer.msg("未知错误", {icon: 2});
+            });
+        }, function(){
+        });
+    }
+
+    $("#inputProvince").change(function () {
+        // 加载高校数据
+        let id = $("#inputProvince").val();
+        sendJson(HTTP.GET, "/api/v1/public/school/province/" + id, null, false, function (res) {
+            if (res.code === 0) {
+                let html = '', data = res.data;
+                for(let i = 0; i<data.length; i++) {
+                    html += '<option value="'+data[i].id+'">'+data[i].name+'</option>\n';
+                }
+                $("#inputSchool").html(html);
+            } else {
+                layer.msg(res.msg, {icon: 2});
+            }
+        }, function () {
+            layer.msg("未知错误", {icon: 2});
+        });
+    });
+
+    $().ready(function() {
+        $("#resetPasswordForm").validate({
+            rules: {
+                origin: {
+                    required: true
+                },
+                target: {
+                    required: true,
+                    equalTo: "#inputNewPassword1"
+                },
+                target1: {
+                    required: true,
+                    equalTo: "#inputNewPassword"
+                }
+            },
+            messages: {
+                origin: {
+                    required:"原始密码不能为空"
+                },
+                target: {
+                    required: "新密码不能为空",
+                    equalTo: "两次密码输入不一致"
+                },
+                target1: {
+                    required: "新密码不能为空",
+                    equalTo: "两次密码输入不一致"
+                }
+            },
+            submitHandler: function (form) {
+                sendJson(HTTP.POST, "/api/v1/setting/password", $("#resetPasswordForm").serialize() , false, function (res) {
+                    if (res.code === 0) {
+                        layer.msg("密码修改成功，请重新登录", {icon: 1});
+                        setTimeout("new function(){window.location.href='/logout'}","3000");
+                        closeModel(1);
+                    } else {
+                        layer.msg(res.msg, {icon: 2});
+                    }
+                }, function () {
+                    layer.msg("未知错误", {icon: 2});
+                });
+            }
+        });
+
+        $("#applyUsernameModel").validate({
+            rules: {
+                username: {
+                    required: true
+                },
+                password: {
+                    required: true,
+                    equalTo: "#inputPassword1"
+                },
+                password1: {
+                    required: true,
+                    equalTo: "#inputPassword"
+                }
+            },
+            messages: {
+                username: {
+                    required:"原始密码不能为空"
+                },
+                password: {
+                    required: "密码不能为空",
+                    equalTo: "两次密码输入不一致"
+                },
+                password1: {
+                    required: "密码不能为空",
+                    equalTo: "两次密码输入不一致"
+                }
+            },
+            submitHandler: function (form) {
+                sendJson(HTTP.POST, "/api/v1/setting/username", $("#applyUsernameModel").serialize(), false, function (res) {
+                    if (res.code === 0) {
+                        layer.msg("申请成功，支持使用用户名密码方式登录", {icon: 1});
+                        closeModel(2);
+                    } else {
+                        layer.msg(res.msg, {icon: 2});
+                    }
+                }, function () {
+                    layer.msg("未知错误", {icon: 2});
+                });
+            }
+        });
+
+        $("#setTelForm").validate({
+            rules: {
+                tel: {
+                    required: true,
+                    number: true
+                },
+                code: {
+                    required: true,
+                    number: true
+                }
+            },
+            messages: {
+                tel: {
+                    required: "手机号码不能为空",
+                    number: "非法字符"
+                },
+                code: {
+                    required: "验证码不能为空",
+                    number: "非法字符"
+                }
+            },
+            submitHandler: function (form) {
+                sendJson(HTTP.POST, "/api/v1/setting/tel", $("#setTelForm").serialize(), false, function (res) {
+                    if (res.code === 0) {
+                        layer.msg("设置成功", {icon: 1});
+                        closeModel(3);
+                    } else {
+                        layer.msg(res.msg, {icon: 2});
+                    }
+                }, function () {
+                    layer.msg("未知错误", {icon: 2});
+                });
+            }
+        });
+
+        $("#setSchoolForm").validate({
+            rules: {
+                school: {
+                    required: true,
+                    number: true
+                },
+                studentIdCard: {
+                    required: true,
+                    number: true
+                }
+            },
+            messages: {
+                school: {
+                    required: "学校不能为空",
+                    disNum: "学校选择错误"
+                },
+                studentIdCard: {
+                    required: "学号不能为空",
+                    number: "学号必须为纯数字"
+                }
+            },
+            submitHandler: function (form) {
+                sendJson(HTTP.POST, "/api/v1/setting/school", $("#setSchoolForm").serialize() , false, function (res) {
+                    if (res.code === 0) {
+                        layer.msg("设置学校信息成功", {icon: 1});
+                        closeModel(4);
+                    } else {
+                        layer.msg(res.msg, {icon: 2});
+                    }
+                }, function () {
+                    layer.msg("未知错误", {icon: 2});
+                });
+            }
+        });
+
+        $("#applyRealNameForm").validate({
+            rules: {
+                realName: {
+                    required: true
+                },
+                idCard: {
+                    required: true
+                }
+            },
+            messages: {
+                realName: {
+                    required: "姓名不能为空"
+                },
+                idCard: {
+                    required: "身份证号为空"
+                }
+            },
+            submitHandler: function (form) {
+                sendJson(HTTP.POST, "/api/v1/setting/real-name", $("#applyRealNameForm").serialize() , false, function (res) {
+                    if (res.code === 0) {
+                        layer.msg("认证成功！", {icon: 1});
+                        closeModel(5);
+                    } else {
+                        layer.msg(res.msg, {icon: 2});
+                    }
+                }, function () {
+                    layer.msg("未知错误", {icon: 2});
+                });
+            }
+        });
+    });
+
 </script>
 </body>
 </html>

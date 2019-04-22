@@ -3,6 +3,7 @@ package com.example.express.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.express.common.util.CollectionUtils;
+import com.example.express.common.util.IDValidateUtils;
 import com.example.express.common.util.StringUtils;
 import com.example.express.domain.ResponseResult;
 import com.example.express.domain.bean.DataSchool;
@@ -12,11 +13,14 @@ import com.example.express.domain.enums.SysRoleEnum;
 import com.example.express.domain.enums.ThirdLoginTypeEnum;
 import com.example.express.domain.vo.UserInfoVO;
 import com.example.express.exception.CustomException;
+import com.example.express.mapper.DataSchoolMapper;
 import com.example.express.mapper.SysUserMapper;
 import com.example.express.service.DataSchoolService;
+import com.example.express.service.OrderInfoService;
 import com.example.express.service.SmsService;
 import com.example.express.service.SysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,9 +33,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Autowired
     private SysUserMapper sysUserMapper;
     @Autowired
+    private DataSchoolMapper dataSchoolMapper;
+    @Autowired
     private SmsService smsService;
     @Autowired
-    private DataSchoolService dataSchoolService;
+    private OrderInfoService orderInfoService;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -64,19 +70,32 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Override
     public UserInfoVO getUserInfo(SysUser user) {
+        SysRoleEnum userRole = user.getRole();
+
         UserInfoVO vo = UserInfoVO.builder()
                 .username(user.getUsername())
                 .sex(String.valueOf(user.getSex().getType()))
                 .tel(user.getTel())
                 .studentIdCard(user.getStudentIdCard())
-                .role(user.getRole().getCnName())
+                .role(String.valueOf(userRole.getType()))
+                .roleName(userRole.getCnName())
                 .star(user.getStar())
                 .idCard(user.getIdCard())
                 .realName(user.getRealName()).build();
 
-        DataSchool school = dataSchoolService.getById(user.getSchoolId());
+        DataSchool school = dataSchoolMapper.selectById(user.getSchoolId());
         if(school != null) {
             vo.setSchool(school.getName());
+        }
+
+        if(userRole != SysRoleEnum.USER && userRole != SysRoleEnum.COURIER) {
+            vo.setCanChangeRole("0");
+        } else {
+            if(orderInfoService.isExistUnfinishedOrder(user.getId(), userRole)) {
+                vo.setCanChangeRole("0");
+            } else {
+                vo.setCanChangeRole("1");
+            }
         }
 
         return vo;
@@ -141,6 +160,123 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
         if(!this.retBool(sysUserMapper.insert(user))) {
             return ResponseResult.failure(ResponseErrorCodeEnum.REGISTER_ERROR);
+        }
+        return ResponseResult.success();
+    }
+
+    @Override
+    public ResponseResult resetPassword(String userId, String oldPassword, String newPassword) {
+        SysUser user = getById(userId);
+
+        if(!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.PASSWORD_ERROR);
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+
+        if(!this.retBool(sysUserMapper.updateById(user))) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.PASSWORD_RESET_ERROR);
+        }
+        return ResponseResult.success();
+    }
+
+    @Override
+    public ResponseResult setUsernameAndPassword(SysUser user, String username, String password) {
+        if(StringUtils.isNotBlank(user.getUsername())) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.USERNAME_DISABLE_MODIFY);
+        }
+
+        if(checkExistByUsername(username)) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.USERNAME_EXIST_ERROR);
+        }
+
+        user.setUsername(username);
+        user.setPassword(passwordEncoder.encode(password));
+
+        if(!this.retBool(sysUserMapper.updateById(user))) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.OPERATION_ERROR);
+        }
+        return ResponseResult.success();
+    }
+
+    @Override
+    public ResponseResult setRealName(SysUser user, String realName, String idCard) {
+        // 实名信息不支持修改
+        if(StringUtils.isNotBlank(user.getIdCard()) || StringUtils.isNotBlank(user.getRealName())) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.IDCARD_OR_REALNAME_EXIST);
+        }
+
+        if(!IDValidateUtils.check(idCard)) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.ID_CARD_INVALID);
+        }
+        if(StringUtils.containsSpecial(realName)) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.REAL_NAME_INVALID);
+        }
+
+        user.setRealName(realName);
+        user.setIdCard(idCard);
+        if(!this.retBool(sysUserMapper.updateById(user))) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.OPERATION_ERROR);
+        }
+        return ResponseResult.success();
+    }
+
+    @Override
+    public ResponseResult setTel(SysUser user, String tel, String code, HttpSession session) {
+        ResponseErrorCodeEnum check = smsService.check(session, tel, code);
+        if(check != ResponseErrorCodeEnum.SUCCESS) {
+            return ResponseResult.failure(check);
+        }
+
+        if(checkExistByTel(tel)) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.TEL_EXIST);
+        }
+
+        user.setTel(tel);
+        if(!this.retBool(sysUserMapper.updateById(user))) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.OPERATION_ERROR);
+        }
+        return ResponseResult.success();
+    }
+
+    @Override
+    public ResponseResult setSchoolInfo(SysUser user, Integer schoolId, String studentIdCard) {
+        DataSchool dataSchool = dataSchoolMapper.selectById(schoolId);
+        if(dataSchool == null) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.SCHOOL_NOT_EXIST);
+        }
+        if(!StringUtils.isNumeric(studentIdCard)) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.STUDENT_IDCARD_NOT_NUMBER);
+        }
+
+        user.setSchoolId(schoolId);
+        user.setStudentIdCard(studentIdCard);
+        if(!this.retBool(sysUserMapper.updateById(user))) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.OPERATION_ERROR);
+        }
+        return ResponseResult.success();
+    }
+
+    @Override
+    public ResponseResult changeRole(SysUser user) {
+        SysRoleEnum role = user.getRole();
+        if(role != SysRoleEnum.USER && role != SysRoleEnum.COURIER) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.OPERATION_NOT_SUPPORT);
+        }
+
+        boolean can = orderInfoService.isExistUnfinishedOrder(user.getId(), role);
+        if(!can) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.EXIST_UNFINISHED_ORDER);
+        }
+
+        if(role == SysRoleEnum.USER) {
+            user.setRole(SysRoleEnum.COURIER);
+        } else {
+            user.setRole(SysRoleEnum.USER);
+        }
+
+        if(!this.retBool(sysUserMapper.updateById(user))) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.OPERATION_ERROR);
         }
         return ResponseResult.success();
     }

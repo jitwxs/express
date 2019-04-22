@@ -27,9 +27,16 @@ public class UserInfoVO implements Serializable {
 
     private String role;
 
+    private String roleName;
+
     private String star;
 
     private String idCard;
 
     private String realName;
+    /**
+     * 能否切换角色（普通用户 --> 配送员）
+     * 1：可以；0：不可以
+     */
+    private String canChangeRole;
 }

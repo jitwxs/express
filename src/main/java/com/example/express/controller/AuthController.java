@@ -226,6 +226,11 @@ public class AuthController {
         if(!dataSchoolService.isExist(school)) {
             return ResponseResult.failure(ResponseErrorCodeEnum.SCHOOL_INVALID);
         }
+        // 校验 studentIdCard
+        if(!StringUtils.isNumeric(studentIdCard)) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.STUDENT_IDCARD_NOT_NUMBER);
+        }
+
         sysUser.setSchoolId(school);
         sysUser.setStudentIdCard(studentIdCard);
 

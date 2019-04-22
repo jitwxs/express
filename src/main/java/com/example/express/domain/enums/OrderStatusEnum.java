@@ -22,7 +22,7 @@ public enum  OrderStatusEnum  implements IEnum<Integer> {
     /**
      * 订单完成
      */
-    COMPLTE("订单完成", 3),
+    COMPLETE("订单完成", 3),
 
     /**
      * '订单异常

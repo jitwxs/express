@@ -1,6 +1,7 @@
 package com.example.express.domain.bean;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.example.express.domain.enums.OrderStatusEnum;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
@@ -28,7 +29,22 @@ public class OrderInfo {
      * 收货地址
      */
     private String recAddress;
-
+    /**
+     * 代取人ID
+     */
+    private String courierId;
+    /**
+     * 订单状态
+     */
+    @TableField("status")
+    private OrderStatusEnum orderStatus;
+    /**
+     * 代取人备注
+     */
+    private String courierRemark;
+    /**
+     * 逻辑删除
+     */
     @TableLogic
     private Integer hasDelete;
 

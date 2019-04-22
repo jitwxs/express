@@ -47,6 +47,11 @@ public class SmsServiceImpl implements SmsService {
 
     @Override
     public ResponseErrorCodeEnum send(HttpSession session, String tel, String code) {
+        // 校验手机号码合法
+        if(!StringUtils.isValidTel(tel)) {
+            return ResponseErrorCodeEnum.TEL_INVALID;
+        }
+
         SmsSingleSender sender = new SmsSingleSender(APP_ID,APP_KEY);
         ArrayList<String> params = new ArrayList<>();
         // 添加模板参数
@@ -71,6 +76,11 @@ public class SmsServiceImpl implements SmsService {
 
     @Override
     public ResponseErrorCodeEnum check(HttpSession session, String tel, String code) {
+        // 校验手机号码合法
+        if(!StringUtils.isValidTel(tel)) {
+            return ResponseErrorCodeEnum.TEL_INVALID;
+        }
+
         String sessionTel = (String)session.getAttribute(SessionKeyConstant.SMS_TEL);
         String sessionCode = (String)session.getAttribute(SessionKeyConstant.SMS_CODE);
         String sessionTimestamp = (String)session.getAttribute(SessionKeyConstant.SMS_TIMESTAMP);
