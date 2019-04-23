@@ -100,6 +100,9 @@ public class OrderController extends BaseController {
         }
     }
 
+    /**
+     * 支付宝服务器同步回调
+     */
     @GetMapping("/alipay/return")
     public String alipayReturn(HttpServletRequest request, @AuthenticationPrincipal SysUser sysUser, ModelMap map) {
         // 获取参数
@@ -139,7 +142,7 @@ public class OrderController extends BaseController {
     }
 
     /**
-     * 服务器异步通知，获取支付宝POST过来反馈信息
+     * 支付宝服务器异步通知，获取支付宝POST过来反馈信息
      * 该方法无返回值，静默处理
      * 订单的状态已该方法为主，其他的状态修改方法为辅 *
      * （1）程序执行完后必须打印输出“success”（不包含引号）。

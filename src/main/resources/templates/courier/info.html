@@ -12,11 +12,11 @@
 <body>
     <div class="container-fluid">
         <!-- 头部 -->
-        <nav th:replace="/user/module/nav::html"></nav>
+        <nav th:replace="/courier/module/nav::html"></nav>
         <!-- 主体 -->
         <div class="row">
             <!-- 左侧菜单 -->
-            <div th:replace="/user/module/sidebar::html"></div>
+            <div th:replace="/courier/module/sidebar::html"></div>
             <!-- 主体内容 -->
             <div class="col-md-10">
                 <div id="baseInfo">
@@ -85,18 +85,13 @@
                         <div class="form-group">
                             <label for="realName" class="col-md-2 control-label">姓名</label>
                             <div class="col-md-10">
-                                <p class="form-control-static col-md-7" id="realName"
-                                   th:style="${info.realName == null ? 'color:gray' : ''}"
-                                   th:text="${info.realName != null ? info.realName : '未实名，实名后将能够申请配送员'}"></p>
-                                <button type="button" class="btn btn-danger col-md-3" th:if="${info.realName == null}" onclick="showModel(5)">实名认证</button>
+                                <p class="form-control-static col-md-7" id="realName" th:text="${info.realName}"></p>
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="idCard" class="col-md-2 control-label">身份证号</label>
                             <div class="col-md-10">
-                                <p class="form-control-static col-md-7" id="idCard"
-                                   th:style="${info.idCard == null ? 'color:gray' : ''}"
-                                   th:text="${info.idCard != null ? info.idCard : '未填写'}"></p>
+                                <p class="form-control-static col-md-7" id="idCard" th:text="${info.idCard}"></p>
                             </div>
                         </div>
                     </form>
@@ -106,7 +101,7 @@
         <!-- 角色切换 -->
         <div class="row col-md-offset-3">
             <button type="button" onclick="applyCourierRole()"
-                    th:class="${info.canChangeRole == '0' ? 'disabled btn btn-warning' : 'btn btn-warning'}">申请配送员</button>
+                    th:class="${info.canChangeRole == '0' ? 'disabled btn btn-warning' : 'btn btn-warning'}">申请普通用户</button>
         </div>
     </div>
 
@@ -256,36 +251,6 @@
             </div>
         </div>
     </div>
-    <!-- 实名信息 -->
-    <div class="modal fade" id="applyRealNameModel" tabindex="-1" role="dialog" aria-labelledby="applyRealNameModelLabel">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="applyRealNameModelLabel">实名认证</h4>
-                </div>
-                <div class="modal-body">
-                    <form class="form-horizontal" id="applyRealNameForm">
-                        <div class="form-group">
-                            <label for="inputRealName" class="col-md-2 control-label">姓名</label>
-                            <div class="col-md-10">
-                                <input type="text" class="form-control" id="inputRealName" name="realName">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="inputIdCard" class="col-md-2 control-label">身份证号</label>
-                            <div class="col-md-10">
-                                <input type="text" class="form-control" id="inputIdCard" name="idCard">
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" onclick="submitForm(5)">立即认证</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
 <script th:src="@{/assets/js/http.js}" src="../../static/assets/js/http.js"></script>
 <script th:src="@{/assets/js/express.js}" src="../../static/assets/js/express.js"></script>
@@ -379,9 +344,6 @@
             case 4:
                 $("#setSchoolModel").modal('show');
                 return;
-            case 5:
-                $("#applyRealNameModel").modal('show');
-                return;
         }
     }
     function closeModel(type) {
@@ -398,9 +360,6 @@
             case 4:
                 $("#setSchoolModel").modal('hide');
                 return;
-            case 5:
-                $("#applyRealNameModel").modal('hide');
-                return;
         }
     }
     function submitForm(type) {
@@ -416,9 +375,6 @@
                 return;
             case 4:
                 $("#setSchoolForm").submit();
-                return;
-            case 5:
-                $("#applyRealNameForm").submit();
                 return;
         }
     }
@@ -608,37 +564,6 @@
                     if (res.code === 0) {
                         layer.msg("设置学校信息成功", {icon: 1});
                         closeModel(4);
-                    } else {
-                        layer.msg(res.msg, {icon: 2});
-                    }
-                }, function () {
-                    layer.msg("未知错误", {icon: 2});
-                });
-            }
-        });
-
-        $("#applyRealNameForm").validate({
-            rules: {
-                realName: {
-                    required: true
-                },
-                idCard: {
-                    required: true
-                }
-            },
-            messages: {
-                realName: {
-                    required: "姓名不能为空"
-                },
-                idCard: {
-                    required: "身份证号为空"
-                }
-            },
-            submitHandler: function (form) {
-                sendJson(HTTP.POST, "/api/v1/setting/real-name", $("#applyRealNameForm").serialize() , false, function (res) {
-                    if (res.code === 0) {
-                        layer.msg("认证成功！", {icon: 1});
-                        closeModel(5);
                     } else {
                         layer.msg(res.msg, {icon: 2});
                     }

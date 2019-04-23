@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<nav class="navbar navbar-default" th:fragment="html">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand">快递代拿管理系统</a>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                        <div>当前用户：<span th:text="${username}"></span><span class="caret"></span></div>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/courier/info">个人中心</a></li>
+                        <li class="divider"></li>
+                        <li><a href="/logout">退出登录</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+</html>

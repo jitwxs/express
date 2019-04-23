@@ -27,22 +27,17 @@ public class BaseController {
         }
     }
 
-    /**
-     * 获取用户名
-     * 默认读取username，不存在读取tel，不存在返回空
-     * @author jitwxs
-     * @date 2019/4/21 1:06
-     */
-    private String getUsername(SysUser sysUser) {
-        if(StringUtils.isNotBlank(sysUser.getUsername())) {
-            return sysUser.getUsername();
-        } else if(StringUtils.isNotBlank(sysUser.getTel())) {
-            return sysUser.getTel();
-        }
-        return StringUtils.EMPTY;
-    }
-
     protected void initModelMap(ModelMap map, SysUser sysUser) {
-        map.put("username", getUsername(sysUser));
+        // 获取显示用户名
+        String username;
+        if(StringUtils.isNotBlank(sysUser.getUsername())) {
+            username = sysUser.getUsername();
+        } else if(StringUtils.isNotBlank(sysUser.getTel())) {
+            username = sysUser.getTel();
+        } else {
+            username = sysUser.getThirdLogin().getName() + "用户";
+        }
+
+        map.put("username", username);
     }
 }
