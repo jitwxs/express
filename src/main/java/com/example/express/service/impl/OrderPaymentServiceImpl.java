@@ -3,11 +3,9 @@ package com.example.express.service.impl;
 import com.alipay.api.internal.util.AlipaySignature;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.express.config.AliPayConfig;
-import com.example.express.domain.ResponseResult;
 import com.example.express.domain.bean.OrderPayment;
 import com.example.express.domain.enums.PaymentStatusEnum;
 import com.example.express.domain.enums.PaymentTypeEnum;
-import com.example.express.domain.enums.ResponseErrorCodeEnum;
 import com.example.express.mapper.OrderInfoMapper;
 import com.example.express.mapper.OrderPaymentMapper;
 import com.example.express.service.OrderPaymentService;
@@ -27,7 +25,7 @@ public class OrderPaymentServiceImpl extends ServiceImpl<OrderPaymentMapper, Ord
     private AliPayConfig aliPayConfig;
 
     @Override
-    public boolean createAliPayment(long orderId, double money, String sellerId) {
+    public boolean createAliPayment(String orderId, double money, String sellerId) {
         OrderPayment payment = OrderPayment.builder()
                 .orderId(orderId)
                 .paymentStatus(PaymentStatusEnum.WAIT_BUYER_PAY)
@@ -94,7 +92,7 @@ public class OrderPaymentServiceImpl extends ServiceImpl<OrderPaymentMapper, Ord
      */
 
     @Override
-    public boolean updateStatus(long orderId, PaymentStatusEnum status, String... tradeNo) {
+    public boolean updateStatus(String orderId, PaymentStatusEnum status, String... tradeNo) {
         // 判断参数是否合法
         OrderPayment payment = orderPaymentMapper.selectById(orderId);
         if(payment == null) {

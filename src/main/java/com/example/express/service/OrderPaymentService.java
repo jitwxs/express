@@ -12,7 +12,7 @@ public interface OrderPaymentService extends IService<OrderPayment> {
      * @author jitwxs
      * @since 2018/6/11 17:26
      */
-    boolean createAliPayment(long orderId, double money, String sellerId);
+    boolean createAliPayment(String orderId, double money, String sellerId);
 
     boolean validAlipay(Map<String,String> params) throws Exception;
 
@@ -22,5 +22,5 @@ public interface OrderPaymentService extends IService<OrderPayment> {
      * @author jitwxs
      * @since 2018/6/4 22:42
      */
-    boolean updateStatus(long orderId, PaymentStatusEnum status, String... tradeNo);
+    boolean updateStatus(String orderId, PaymentStatusEnum status, String... tradeNo);
 }

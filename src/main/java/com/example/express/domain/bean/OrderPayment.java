@@ -21,9 +21,9 @@ import java.time.LocalDateTime;
 @Builder
 public class OrderPayment {
     @TableId(type = IdType.INPUT)
-    private Long orderId;
+    private String orderId;
     /**
-     * 订单状态
+     * 支付状态
      */
     @TableField("status")
     private PaymentStatusEnum paymentStatus;

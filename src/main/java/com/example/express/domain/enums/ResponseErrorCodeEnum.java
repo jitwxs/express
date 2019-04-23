@@ -19,6 +19,9 @@ public enum ResponseErrorCodeEnum {
     EXIST_UNFINISHED_ORDER(1007, "当前存在未完成的订单"),
     ORDER_CREATE_ERROR(1008, "订单创建失败"),
     ORDER_PAYMENT_CREATE_ERROR(1008, "订单支付信息创建失败"),
+    FEEDBACK_TYPE_ERROR(1009, "反馈类型错误"),
+    FEEDBACK_NOT_EMPTY(1010, "反馈内容不能为空"),
+    FEEDBACk_LENGTH_OVER_255(1011, "反馈内容过长，请控制在255字符内"),
 
     OPERATION_NOT_SUPPORT(1976, "操作不支持"),
     IDCARD_OR_REALNAME_EXIST(1977, "您已绑定实名信息"),

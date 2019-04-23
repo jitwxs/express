@@ -13,8 +13,8 @@ import java.time.LocalDateTime;
  */
 @Data
 public class OrderInfo {
-    @TableId(type = IdType.ID_WORKER)
-    private Long id;
+    @TableId(type = IdType.ID_WORKER_STR)
+    private String id;
 
     private String userId;
     /**
@@ -42,7 +42,7 @@ public class OrderInfo {
      */
     private String remark;
     /**
-     * 代取人ID
+     * 配送员ID
      */
     private String courierId;
     /**
@@ -51,7 +51,7 @@ public class OrderInfo {
     @TableField("status")
     private OrderStatusEnum orderStatus;
     /**
-     * 代取人备注
+     * 配送员备注
      */
     private String courierRemark;
     /**

@@ -59,13 +59,14 @@ public class OrderController extends BaseController {
 
         if(orderInfo == null || money == null) {
             response.getWriter().write("参数错误，请重新下单");
+            return;
         }
 
         // 金额保留两位
         money = (double) (Math.round(money * 100)) / 100;
 
         // 生成订单 & 订单支付
-        long orderId = orderInfoService.createOrder(orderInfo, money, sysUser.getId());
+        String orderId = orderInfoService.createOrder(orderInfo, money, sysUser.getId());
 
         // 1、设置请求参数
         AlipayTradePagePayRequest alipayRequest = new AlipayTradePagePayRequest();
@@ -112,7 +113,7 @@ public class OrderController extends BaseController {
             boolean flag = paymentService.validAlipay(params);
             if(flag) {
                 // 验证成功后，修改订单状态为已支付
-                long orderId = Long.parseLong(params.get("out_trade_no"));
+                String orderId = params.get("out_trade_no");
                 /*
                  * 订单状态（与官方统一）
                  * WAIT_BUYER_PAY：交易创建，等待买家付款；
@@ -172,7 +173,7 @@ public class OrderController extends BaseController {
             boolean flag = paymentService.validAlipay(params);
             if(flag) {
                 //商户订单号
-                long orderId = Long.parseLong(params.get("out_trade_no"));
+                String orderId = params.get("out_trade_no");
                 //支付宝交易号
                 String tradeNo = params.get("trade_no");
                 //交易状态

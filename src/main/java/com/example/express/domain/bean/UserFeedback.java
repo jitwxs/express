@@ -6,13 +6,10 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.example.express.domain.enums.FeedbackStatusEnum;
 import com.example.express.domain.enums.FeedbackTypeEnum;
-import com.example.express.domain.enums.PaymentStatusEnum;
-import com.example.express.domain.enums.PaymentTypeEnum;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -34,7 +31,7 @@ public class UserFeedback {
     /**
      * 订单ID
      */
-    private Long orderId;
+    private String orderId;
     /**
      * 反馈内容
      */

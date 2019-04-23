@@ -76,4 +76,8 @@ public interface SysUserService extends IService<SysUser> {
      * user -> courier
      */
     ResponseResult changeRole(SysUser user);
+    /**
+     * 获取 frontName
+     */
+    String getFrontName(String userId);
 }

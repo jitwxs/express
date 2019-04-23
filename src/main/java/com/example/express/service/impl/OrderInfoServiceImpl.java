@@ -2,15 +2,19 @@ package com.example.express.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.example.express.common.util.StringUtils;
 import com.example.express.config.AliPayConfig;
 import com.example.express.domain.bean.OrderInfo;
+import com.example.express.domain.bean.OrderPayment;
 import com.example.express.domain.enums.OrderStatusEnum;
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
 import com.example.express.domain.enums.SysRoleEnum;
+import com.example.express.domain.vo.OrderDescVO;
 import com.example.express.exception.CustomException;
 import com.example.express.mapper.OrderInfoMapper;
 import com.example.express.service.OrderInfoService;
 import com.example.express.service.OrderPaymentService;
+import com.example.express.service.SysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +25,8 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     private OrderInfoMapper orderInfoMapper;
     @Autowired
     private OrderPaymentService orderPaymentService;
+    @Autowired
+    private SysUserService sysUserService;
     @Autowired
     private AliPayConfig aliPayConfig;
 
@@ -42,7 +48,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
 
     @Transactional(rollbackFor = CustomException.class)
     @Override
-    public long createOrder(OrderInfo orderInfo, double money, String uid) {
+    public String createOrder(OrderInfo orderInfo, double money, String uid) {
         orderInfo.setOrderStatus(OrderStatusEnum.WAIT_DIST);
         orderInfo.setUserId(uid);
 
@@ -50,12 +56,45 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
            throw new CustomException(ResponseErrorCodeEnum.ORDER_CREATE_ERROR);
        }
 
-       Long orderId = orderInfo.getId();
+       String orderId = orderInfo.getId();
         boolean b = orderPaymentService.createAliPayment(orderId, money, aliPayConfig.getSellerId());
         if(!b) {
             throw new CustomException(ResponseErrorCodeEnum.ORDER_PAYMENT_CREATE_ERROR);
         }
 
         return orderId;
+    }
+
+    @Override
+    public OrderDescVO getDescVO(String orderId) {
+        OrderInfo orderInfo = orderInfoMapper.selectById(orderId);
+        if(orderInfo == null) {
+            return new OrderDescVO();
+        }
+
+        OrderDescVO vo = OrderDescVO.builder()
+                .orderId(orderId)
+                .odd(orderInfo.getOdd())
+                .company(orderInfo.getCompany())
+                .recName(orderInfo.getRecName())
+                .recTel(orderInfo.getRecTel())
+                .recAddress(orderInfo.getRecAddress())
+                .remark(orderInfo.getRemark())
+                .orderStatus(orderInfo.getOrderStatus().getName()).build();
+
+        if(StringUtils.isNotBlank(orderInfo.getCourierId())) {
+            String courierFrontName = sysUserService.getFrontName(orderInfo.getCourierId());
+            vo.setCourierFrontName(courierFrontName);
+            vo.setCourierRemark(orderInfo.getCourierRemark());
+        }
+
+        OrderPayment payment = orderPaymentService.getById(orderId);
+        if(payment != null) {
+            vo.setPaymentStatus(payment.getPaymentStatus().getName());
+            vo.setPaymentType(payment.getPaymentType().getName());
+            vo.setPayment(payment.getPayment().toString());
+        }
+
+        return vo;
     }
 }

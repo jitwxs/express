@@ -3,6 +3,7 @@ package com.example.express.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.express.domain.bean.OrderInfo;
 import com.example.express.domain.enums.SysRoleEnum;
+import com.example.express.domain.vo.OrderDescVO;
 
 public interface OrderInfoService extends IService<OrderInfo> {
     /**
@@ -17,5 +18,7 @@ public interface OrderInfoService extends IService<OrderInfo> {
      * @date 2019/4/23 0:40
      * @return 订单号
      */
-    long createOrder(OrderInfo orderInfo, double money, String uid);
+    String createOrder(OrderInfo orderInfo, double money, String uid);
+
+    OrderDescVO getDescVO(String orderId);
 }

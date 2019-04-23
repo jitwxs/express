@@ -15,12 +15,10 @@ import com.example.express.domain.vo.UserInfoVO;
 import com.example.express.exception.CustomException;
 import com.example.express.mapper.DataSchoolMapper;
 import com.example.express.mapper.SysUserMapper;
-import com.example.express.service.DataSchoolService;
 import com.example.express.service.OrderInfoService;
 import com.example.express.service.SmsService;
 import com.example.express.service.SysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -279,6 +277,22 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             return ResponseResult.failure(ResponseErrorCodeEnum.OPERATION_ERROR);
         }
         return ResponseResult.success();
+    }
+
+    @Override
+    public String getFrontName(String userId) {
+        SysUser sysUser = getById(userId);
+        // 获取显示用户名
+        String username;
+        if(StringUtils.isNotBlank(sysUser.getUsername())) {
+            username = sysUser.getUsername();
+        } else if(StringUtils.isNotBlank(sysUser.getTel())) {
+            username = sysUser.getTel();
+        } else {
+            username = sysUser.getThirdLogin().getName() + "用户";
+        }
+
+        return username;
     }
 
     private boolean registryByThirdLogin(String thirdLoginId, ThirdLoginTypeEnum thirdLoginTypeEnum) {
