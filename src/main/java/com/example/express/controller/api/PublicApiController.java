@@ -2,10 +2,12 @@ package com.example.express.controller.api;
 
 import com.example.express.common.util.StringUtils;
 import com.example.express.domain.ResponseResult;
+import com.example.express.domain.bean.DataCompany;
 import com.example.express.domain.bean.DataSchool;
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
 import com.example.express.domain.vo.DataAreaVO;
 import com.example.express.service.DataAreaService;
+import com.example.express.service.DataCompanyService;
 import com.example.express.service.DataSchoolService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,6 +29,8 @@ public class PublicApiController {
     private DataAreaService dataAreaService;
     @Autowired
     private DataSchoolService dataSchoolService;
+    @Autowired
+    private DataCompanyService dataCompanyService;
 
     /**
      * 根据父ID查询行政区划
@@ -62,6 +66,16 @@ public class PublicApiController {
         List<DataSchool> schools = dataSchoolService.listByProvinceIdByCache(provinceId);
 
         return ResponseResult.success(schools);
+    }
+
+    /**
+     * 读取快递公司数据
+     */
+    @GetMapping("/company")
+    public ResponseResult listCompany() {
+        List<DataCompany> list = dataCompanyService.listAllByCache();
+
+        return ResponseResult.success(list);
     }
 
 }

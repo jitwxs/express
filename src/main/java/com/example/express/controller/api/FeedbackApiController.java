@@ -87,4 +87,13 @@ public class FeedbackApiController extends BaseApiController {
 
         return isSuccess ? ResponseResult.success() : ResponseResult.failure(ResponseErrorCodeEnum.OPERATION_ERROR);
     }
+
+    /**
+     * 审批反馈记录
+     */
+    @PostMapping("/deal")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_COURIER')")
+    public ResponseResult dealFeedback(String id, Integer status, String result) {
+
+    }
 }
