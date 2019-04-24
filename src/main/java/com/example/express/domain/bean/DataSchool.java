@@ -3,13 +3,15 @@ package com.example.express.domain.bean;
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 
+import java.io.Serializable;
+
 /**
  * 高校数据
  * @author xiangsheng.wu
  * @date 2019年04月21日 12:40
  */
 @Data
-public class DataSchool {
+public class DataSchool implements Serializable {
     @TableId
     private Integer id;
     /**
