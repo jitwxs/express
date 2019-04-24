@@ -1,6 +1,7 @@
 package com.example.express.domain.bean;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.example.express.domain.enums.OrderDeleteEnum;
 import com.example.express.domain.enums.OrderStatusEnum;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
@@ -22,9 +23,9 @@ public class OrderInfo {
      */
     private String odd;
     /**
-     * 快递公司
+     * 快递公司ID
      */
-    private String company;
+    private Integer company;
     /**
      * 收件人
      */
@@ -59,6 +60,8 @@ public class OrderInfo {
      */
     @TableLogic
     private Integer hasDelete;
+
+    private OrderDeleteEnum deleteType;
 
     @TableField(fill = FieldFill.INSERT)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")

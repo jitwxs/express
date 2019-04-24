@@ -1,17 +1,17 @@
 /*
  Navicat Premium Data Transfer
 
- Source Server         : 127.0.0.1
+ Source Server         : local
  Source Server Type    : MySQL
- Source Server Version : 50725
+ Source Server Version : 50719
  Source Host           : localhost:3306
  Source Schema         : express1
 
  Target Server Type    : MySQL
- Target Server Version : 50725
+ Target Server Version : 50719
  File Encoding         : 65001
 
- Date: 24/04/2019 16:54:52
+ Date: 25/04/2019 00:37:13
 */
 
 SET NAMES utf8mb4;
@@ -146,7 +146,7 @@ CREATE TABLE `order_info`  (
   `id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '订单ID',
   `user_id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '用户ID',
   `odd` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '快递单号',
-  `company` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '快递公司',
+  `company` int(11) NULL DEFAULT NULL COMMENT '快递公司',
   `rec_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '收件人',
   `rec_tel` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '收件短信',
   `rec_address` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '收货地址',
@@ -154,7 +154,8 @@ CREATE TABLE `order_info`  (
   `courier_id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '配送员ID',
   `status` int(11) NULL DEFAULT NULL COMMENT '订单状态',
   `courier_remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '配送员备注',
-  `has_delete` int(1) NULL DEFAULT NULL,
+  `has_delete` int(1) NULL DEFAULT 0,
+  `delete_type` int(1) NULL DEFAULT NULL COMMENT '删除原因',
   `create_date` datetime(0) NOT NULL,
   `update_date` datetime(0) NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
@@ -164,7 +165,7 @@ CREATE TABLE `order_info`  (
 -- Records of order_info
 -- ----------------------------
 BEGIN;
-INSERT INTO `order_info` VALUES ('1120375221937831938', '1', '111', '222', 'xiangsheng wu', '17626014329', '北京市海淀区上地', '', NULL, 1, NULL, NULL, '2019-04-23 01:14:03', NULL), ('1120376407025811458', '1', '111', 'okcoin', 'xiangsheng wu', '17626014329', '北京市海淀区上地', '', NULL, 1, NULL, NULL, '2019-04-23 01:18:46', NULL), ('1120377206619549698', '1', '222', '222', 'xiangsheng wu', '17626014329', '北京市海淀区上地', '', NULL, 1, NULL, NULL, '2019-04-23 01:21:56', NULL), ('1120377582852812802', '1', '333', '333', 'xiangsheng wu', '17626014329', '北京市海淀区上地', '', NULL, 1, NULL, NULL, '2019-04-23 01:23:26', NULL), ('1120378178322362370', '1', '555', '555', 'xiangsheng wu', '17626014329', '北京市海淀区上地', '', NULL, 1, NULL, NULL, '2019-04-23 01:25:48', NULL), ('1120378688504975362', '1', '666', '666', 'xiangsheng wu', '17626014329', '北京市海淀区上地', '', NULL, 1, NULL, NULL, '2019-04-23 01:27:50', NULL), ('1120379705921404930', '1', '777', '777', 'xiangsheng wu', '17626014329', '北京市海淀区上地', '', NULL, 1, NULL, NULL, '2019-04-23 01:31:52', NULL);
+INSERT INTO `order_info` VALUES ('1120375221937831938', '1', '111', 166, 'xiangsheng wu', '17626014329', '北京市海淀区上地', '', NULL, 2, NULL, 0, NULL, '2019-04-23 01:14:03', NULL), ('1120376407025811458', '1', '111', 172, 'xiangsheng wu', '17626014329', '北京市海淀区上地', '', NULL, 1, NULL, 0, NULL, '2019-04-23 01:18:46', '2019-04-25 00:19:43'), ('1120377206619549698', '1', '222', 222, 'xiangsheng wu', '17626014329', '北京市海淀区上地', '', NULL, 3, NULL, 0, NULL, '2019-04-23 01:21:56', NULL), ('1120377582852812802', '1', '333', 101, 'xiangsheng wu', '17626014329', '北京市海淀区上地', '', NULL, 1, NULL, 0, NULL, '2019-04-23 01:23:26', '2019-04-25 00:19:43'), ('1120378178322362370', '1', '555', 104, 'xiangsheng wu', '17626014329', '北京市海淀区上地', '', NULL, 1, NULL, 0, NULL, '2019-04-23 01:25:48', NULL), ('1120378688504975362', '1', '666', 107, 'xiangsheng wu', '17626014329', '北京市海淀区上地', '', NULL, 1, NULL, 0, NULL, '2019-04-23 01:27:50', NULL), ('1120379705921404930', '1', '777', 122, 'xiangsheng wu', '17626014329', '北京市海淀区上地', '', NULL, 4, NULL, 0, NULL, '2019-04-23 01:31:52', NULL), ('1121054404204625921', '1', '123456', 119, 'xiangsheng wu', '17626014329', '北京市海淀区上地', 'xxxxxxxxx', NULL, 1, NULL, 0, NULL, '2019-04-24 22:12:53', NULL);
 COMMIT;
 
 -- ----------------------------
@@ -189,7 +190,7 @@ CREATE TABLE `order_payment`  (
 -- Records of order_payment
 -- ----------------------------
 BEGIN;
-INSERT INTO `order_payment` VALUES ('1120375221937831938', 1, 1, 0, NULL, '2088102175634311', NULL, '2019-04-23 01:14:03', NULL), ('1120376407025811458', 1, 1, 0, NULL, '2088102175634311', NULL, '2019-04-23 01:18:46', NULL), ('1120377206619549698', 1, 1, 0, NULL, '2088102175634311', NULL, '2019-04-23 01:21:56', NULL), ('1120377582852812802', 3, 1, 0, '2019042322001477881000012220', '2088102175634311', NULL, '2019-04-23 01:23:26', '2019-04-23 01:24:01'), ('1120378178322362370', 1, 1, 0, NULL, '2088102175634311', NULL, '2019-04-23 01:25:48', NULL), ('1120378688504975362', 1, 1, 0, NULL, '2088102175634311', NULL, '2019-04-23 01:27:50', NULL), ('1120379705921404930', 3, 1, 0, '2019042322001477881000010543', '2088102175634311', NULL, '2019-04-23 01:31:52', '2019-04-23 01:33:04');
+INSERT INTO `order_payment` VALUES ('1120375221937831938', 1, 1, 0, NULL, '2088102175634311', NULL, '2019-04-23 01:14:03', NULL), ('1120376407025811458', 1, 1, 0, NULL, '2088102175634311', NULL, '2019-04-23 01:18:46', NULL), ('1120377206619549698', 1, 1, 0, NULL, '2088102175634311', NULL, '2019-04-23 01:21:56', NULL), ('1120377582852812802', 3, 1, 0, '2019042322001477881000012220', '2088102175634311', NULL, '2019-04-23 01:23:26', '2019-04-23 01:24:01'), ('1120378178322362370', 1, 1, 0, NULL, '2088102175634311', NULL, '2019-04-23 01:25:48', NULL), ('1120378688504975362', 1, 1, 0, NULL, '2088102175634311', NULL, '2019-04-23 01:27:50', NULL), ('1120379705921404930', 3, 1, 0, '2019042322001477881000010543', '2088102175634311', NULL, '2019-04-23 01:31:52', '2019-04-23 01:33:04'), ('1121054404204625921', 1, 1, 4, NULL, '2088102175634311', NULL, '2019-04-24 22:12:53', NULL);
 COMMIT;
 
 -- ----------------------------
@@ -200,7 +201,7 @@ CREATE TABLE `persistent_logins`  (
   `username` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `series` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `token` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  `last_used` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0),
+  `last_used` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0),
   PRIMARY KEY (`series`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '登录持久化表';
 
@@ -242,7 +243,7 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `user_feedback`;
 CREATE TABLE `user_feedback`  (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `user_id` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '用户ID',
   `type` int(1) NOT NULL COMMENT '反馈类型',
   `order_id` bigint(20) NULL DEFAULT NULL COMMENT '订单ID',
@@ -253,6 +254,13 @@ CREATE TABLE `user_feedback`  (
   `create_date` datetime(0) NOT NULL,
   `update_date` datetime(0) NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 10000 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '用户反馈表';
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '用户反馈表';
+
+-- ----------------------------
+-- Records of user_feedback
+-- ----------------------------
+BEGIN;
+INSERT INTO `user_feedback` VALUES ('155611418011422', '1', 1, NULL, '11', 1, NULL, '', '2019-04-24 21:56:20', NULL);
+COMMIT;
 
 SET FOREIGN_KEY_CHECKS = 1;

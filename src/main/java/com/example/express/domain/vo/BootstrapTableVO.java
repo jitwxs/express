@@ -1,21 +1,16 @@
 package com.example.express.domain.vo;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author xiangsheng.wu
  * @date 2019年04月23日 18:11
  */
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class BootstrapTableVO implements Serializable {
+public class BootstrapTableVO<T> implements Serializable {
     /**
      * 总记录数
      */
@@ -23,5 +18,5 @@ public class BootstrapTableVO implements Serializable {
     /**
      * 记录
      */
-    private Object rows;
+    private List<T> rows;
 }

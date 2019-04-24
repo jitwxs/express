@@ -41,7 +41,9 @@
                     <div class="form-group">
                         <label for="inputCompany" class="col-sm-1 control-label">快递公司</label>
                         <div class="col-sm-11">
-                            <input type="tel" class="form-control" id="inputCompany" name="company" placeholder="请输入快递公司">
+                            <select name="company" id="inputCompany" class="form-control">
+                                <option value="">--请选择快递公司--</option>
+                            </select>
                         </div>
                     </div>
                     <div class="form-group">
@@ -86,6 +88,21 @@
     <script>
         $(function () {
             $("#order-sidebar").addClass('active');
+
+            // 加载快递公司数据
+            sendJson(HTTP.GET, "/api/v1/public/company", null, false, function (res) {
+                if (res.code === 0) {
+                    let html = '', data = res.data;
+                    for(let i = 0; i<data.length; i++) {
+                        html += '<option value="'+data[i].id+'">'+data[i].name+ ' | ' + data[i].code + '</option>\n';
+                    }
+                    $("#inputCompany").html(html);
+                } else {
+                    layer.msg(res.msg, {icon: 2});
+                }
+            }, function () {
+                layer.msg("未知错误", {icon: 2});
+            });
         });
 
         function refresh(obj) { obj.src = "/auth/code/getVerifyCode?" + Math.random(); }

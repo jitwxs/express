@@ -1,14 +1,17 @@
 package com.example.express.controller.api;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.express.common.util.StringUtils;
 import com.example.express.domain.ResponseResult;
 import com.example.express.domain.bean.SysUser;
 import com.example.express.domain.bean.UserFeedback;
+import com.example.express.domain.enums.FeedbackStatusEnum;
 import com.example.express.domain.enums.FeedbackTypeEnum;
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
 import com.example.express.domain.vo.BootstrapTableVO;
 import com.example.express.domain.vo.UserFeedbackDescVO;
+import com.example.express.service.OrderInfoService;
 import com.example.express.service.UserFeedbackService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,6 +28,8 @@ import org.springframework.web.bind.annotation.*;
 public class FeedbackApiController extends BaseApiController {
     @Autowired
     private UserFeedbackService userFeedbackService;
+    @Autowired
+    private OrderInfoService orderInfoService;
 
     /**
      * 获取单条记录详情
@@ -47,14 +52,32 @@ public class FeedbackApiController extends BaseApiController {
                                        @RequestParam(required = false, defaultValue = "10") Integer size,
                                        Integer type, Integer status, @AuthenticationPrincipal SysUser sysUser) {
         Page<UserFeedback> page = new Page<>(current, size);
+        QueryWrapper<UserFeedback> wrapper = new QueryWrapper<>();
 
         switch (sysUser.getRole()) {
             case ADMIN:
-                return userFeedbackService.pageUserFeedback(page, type, status,null);
+                if(type != null) {
+                    wrapper.eq("type", type);
+                }
+                if(status != null) {
+                    wrapper.eq("status", status);
+                }
+                return userFeedbackService.pageUserFeedbackVO(page, wrapper);
             case COURIER:
-                return userFeedbackService.pageUserFeedback(page, FeedbackTypeEnum.ORDER.getType(), status,null);
+                wrapper.eq("type", FeedbackTypeEnum.ORDER.getType());
+                if(status != null) {
+                    wrapper.eq("status", status);
+                }
+                return userFeedbackService.pageUserFeedbackVO(page,wrapper);
             case USER:
-                return userFeedbackService.pageUserFeedback(page, type, status, sysUser.getId());
+                wrapper.eq("user_id", sysUser.getId());
+                if(type != null) {
+                    wrapper.eq("type", type);
+                }
+                if(status != null) {
+                    wrapper.eq("status", status);
+                }
+                return userFeedbackService.pageUserFeedbackVO(page, wrapper);
             default:
                 return new BootstrapTableVO();
         }
@@ -82,6 +105,11 @@ public class FeedbackApiController extends BaseApiController {
         if(content.length() > CONTENT_MAX_LENGTH) {
             return ResponseResult.failure(ResponseErrorCodeEnum.FEEDBACk_LENGTH_OVER_255);
         }
+        if(StringUtils.isNotBlank(orderId)) {
+            if(!orderInfoService.isExist(orderId)) {
+                return ResponseResult.failure(ResponseErrorCodeEnum.ORDER_NOT_EXIST);
+            }
+        }
 
         boolean isSuccess = userFeedbackService.createFeedback(sysUser.getId(), feedbackTypeEnum, content, orderId);
 
@@ -93,7 +121,22 @@ public class FeedbackApiController extends BaseApiController {
      */
     @PostMapping("/deal")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_COURIER')")
-    public ResponseResult dealFeedback(String id, Integer status, String result) {
+    public ResponseResult dealFeedback(String id, Integer status, String result, @AuthenticationPrincipal SysUser sysUser) {
+        // 校验参数
+        UserFeedback feedback = userFeedbackService.getById(id);
+        FeedbackStatusEnum statusEnum = FeedbackStatusEnum.getByStatus(status);
+        if(feedback == null || statusEnum == null || StringUtils.isBlank(result)) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
+        }
+        if(result.length() > 255) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.FEEDBACk_LENGTH_OVER_255);
+        }
 
+        feedback.setHandler(sysUser.getId());
+        feedback.setFeedbackStatus(statusEnum);
+        feedback.setResult(result);
+
+        boolean isSuccess = userFeedbackService.updateById(feedback);
+        return isSuccess ? ResponseResult.success() : ResponseResult.failure(ResponseErrorCodeEnum.OPERATION_ERROR);
     }
 }

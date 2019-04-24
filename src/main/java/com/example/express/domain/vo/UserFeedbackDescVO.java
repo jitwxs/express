@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserFeedbackDescVO implements Serializable {
-    private Integer id;
+    private String id;
 
     private String frontName;
     /**

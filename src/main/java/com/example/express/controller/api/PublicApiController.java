@@ -4,6 +4,8 @@ import com.example.express.common.util.StringUtils;
 import com.example.express.domain.ResponseResult;
 import com.example.express.domain.bean.DataCompany;
 import com.example.express.domain.bean.DataSchool;
+import com.example.express.domain.enums.OrderStatusEnum;
+import com.example.express.domain.enums.PaymentStatusEnum;
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
 import com.example.express.domain.vo.DataAreaVO;
 import com.example.express.service.DataAreaService;
@@ -15,7 +17,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * API公开信息
@@ -78,4 +83,37 @@ public class PublicApiController {
         return ResponseResult.success(list);
     }
 
+    /**
+     * 订单状态
+     * @author jitwxs
+     * @date 2019/4/24 23:24
+     */
+    @GetMapping("/order-status")
+    public ResponseResult listOrderStatus() {
+        List<Map<String,Object>> result = new ArrayList<>();
+        for(OrderStatusEnum enums :OrderStatusEnum.values()) {
+            Map<String,Object> map = new HashMap<>();
+            map.put("id",enums.getStatus());
+            map.put("name",enums.getName());
+            result.add(map);
+        }
+        return ResponseResult.success(result);
+    }
+
+    /**
+     * 支付状态
+     * @author jitwxs
+     * @date 2019/4/24 23:24
+     */
+    @GetMapping("/payment-status")
+    public ResponseResult lisPaymentStatus() {
+        List<Map<String,Object>> result = new ArrayList<>();
+        for(PaymentStatusEnum enums :PaymentStatusEnum.values()) {
+            Map<String,Object> map = new HashMap<>();
+            map.put("id",enums.getStatus());
+            map.put("name",enums.getName());
+            result.add(map);
+        }
+        return ResponseResult.success(result);
+    }
 }

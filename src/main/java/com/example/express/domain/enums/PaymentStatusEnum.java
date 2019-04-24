@@ -34,15 +34,15 @@ public enum PaymentStatusEnum implements IEnum<Integer> {
     TRADE_FINISHED("交易结束", 4);
 
     private String name;
-    private int type;
+    private int status;
 
-    PaymentStatusEnum(String name, int type) {
+    PaymentStatusEnum(String name, int status) {
         this.name = name;
-        this.type = type;
+        this.status = status;
     }
 
     @Override
     public Integer getValue() {
-        return this.type;
+        return this.status;
     }
 }

@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 public class UserFeedbackVO implements Serializable {
-    private Integer id;
+    private String id;
     /**
      * 用户名
      */

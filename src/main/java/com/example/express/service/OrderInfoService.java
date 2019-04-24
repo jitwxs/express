@@ -1,9 +1,14 @@
 package com.example.express.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.example.express.domain.ResponseResult;
 import com.example.express.domain.bean.OrderInfo;
 import com.example.express.domain.enums.SysRoleEnum;
+import com.example.express.domain.vo.BootstrapTableVO;
 import com.example.express.domain.vo.OrderDescVO;
+import com.example.express.domain.vo.OrderVO;
 
 public interface OrderInfoService extends IService<OrderInfo> {
     /**
@@ -21,4 +26,18 @@ public interface OrderInfoService extends IService<OrderInfo> {
     String createOrder(OrderInfo orderInfo, double money, String uid);
 
     OrderDescVO getDescVO(String orderId);
+
+    boolean isExist(String orderId);
+
+    BootstrapTableVO<OrderVO> pageOrderVO(Page<OrderInfo> page, QueryWrapper<OrderInfo> wrapper);
+
+    ResponseResult batchDeleteOrder(String[] ids, String id);
+
+    ResponseResult batchCancelOrder(String[] ids, String id);
+    /**
+     * 手动删除
+     * @author jitwxs
+     * @date 2019/4/25 0:13
+     */
+    boolean manualDelete(String orderId, Integer deleteType);
 }

@@ -5,6 +5,7 @@ import com.example.express.controller.BaseController;
 import com.example.express.domain.bean.OrderInfo;
 import com.example.express.domain.bean.SysUser;
 import com.example.express.domain.vo.UserInfoVO;
+import com.example.express.service.DataCompanyService;
 import com.example.express.service.SysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,6 +26,8 @@ import javax.servlet.http.HttpSession;
 public class UserPageController extends BaseController {
     @Autowired
     private SysUserService sysUserService;
+    @Autowired
+    private DataCompanyService dataCompanyService;
 
     /**
      * 仪表盘页面
@@ -52,6 +55,7 @@ public class UserPageController extends BaseController {
     public String placeOrder(OrderInfo orderInfo, ModelMap map, HttpSession session, @AuthenticationPrincipal SysUser sysUser) {
         initModelMap(map, sysUser);
         map.put("order", orderInfo);
+        map.put("company", dataCompanyService.getByCache(orderInfo.getCompany()).getName());
         session.setAttribute(SessionKeyConstant.SESSION_LATEST_EXPRESS, orderInfo);
         return "user/payment";
     }

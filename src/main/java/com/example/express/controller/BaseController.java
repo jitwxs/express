@@ -38,6 +38,6 @@ public class BaseController {
             username = sysUser.getThirdLogin().getName() + "用户";
         }
 
-        map.put("username", username);
+        map.put("frontName", username);
     }
 }

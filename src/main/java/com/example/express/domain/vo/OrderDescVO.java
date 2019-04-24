@@ -27,7 +27,7 @@ public class OrderDescVO implements Serializable {
     /**
      * 快递公司
      */
-    private String company;
+    private String companyName;
     /**
      * 收件人
      */

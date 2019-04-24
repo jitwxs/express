@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>意见反馈 - 快递代拿系统</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}" href="../../static/assets/css/bootstrap.min.css"/>
+    <link rel="stylesheet" th:href="@{/assets/css/express.css}" href="../../static/assets/css/express.css"/>
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- 头部 -->
+        <nav th:replace="/courier/module/nav::html"></nav>
+        <!-- 主体 -->
+        <div class="row">
+            <!-- 左侧菜单 -->
+            <div th:replace="/courier/module/sidebar::html"></div>
+            <div class="col-md-10">
+                <form class="form-horizontal" id="feedbackForm">
+                    <div class="form-group">
+                        <label class="col-sm-1 control-label" for="inputType">反馈类型</label>
+                        <div class="col-sm-11">
+                            <select class="form-control" name="type" id="inputType">
+                                <option value="2">意见反馈</option>
+                                <option value="3">BUG反馈</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputContent" class="col-sm-1 control-label">反馈内容</label>
+                        <div class="col-sm-11">
+                            <textarea class="form-control" id="inputContent" name="content" rows="5"
+                                      placeholder="请输入反馈的内容，如果牵扯到订单，请说明订单号"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputVerify" class="col-sm-1 control-label">验证码</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="inputVerify" name="verify" placeholder="请输入验证码">
+                        </div>
+                        <div class="col-sm-5"  style="margin-top: 10px">
+                            <img id="verifyImg" src="/auth/code/getVerifyCode" title="看不清，请点我" onclick="refresh(this)" onmouseover="mouseover(this)" />
+                        </div>
+                    </div>
+                    <div class="form-group" style="text-align: center">
+                        <button class="btn btn-primary" type="submit">提交反馈</button>
+                        <button class="btn btn-warning" type="reset">重新填写</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/assets/js/http.js}" src="../../static/assets/js/http.js"></script>
+    <script th:src="@{/assets/js/express.js}" src="../../static/assets/js/express.js"></script>
+    <script th:src="@{/assets/js/jquery.min.js}" src="../../static/assets/js/jquery.min.js"></script>
+    <script th:src="@{/assets/js/jquery.validate.min.js}" src="../../static/assets/js/jquery.validate.min.js"></script>
+    <script th:src="@{/assets/layer/layer.js}" src="../../static/assets/layer/layer.js"></script>
+    <script th:src="@{/assets/js/bootstrap.min.js}" src="../../static/assets/js/bootstrap.min.js"></script>
+    <script>
+        $(function () {
+            $("#feedback-sidebar").addClass('active');
+        });
+
+        function refresh(obj) { obj.src = "/auth/code/getVerifyCode?" + Math.random(); }
+
+        function mouseover(obj) { obj.style.cursor = "pointer"; }
+
+        $().ready(function() {
+            $("#feedbackForm").validate({
+                rules: {
+                    content: {
+                        required: true,
+                        maxlength: 255
+                    },
+                    verify: "required"
+                },
+                messages: {
+                    content: {
+                        required: "反馈内容不能为空",
+                        maxlength: "反馈内容不能超过255字符"
+                    },
+                    verify: "验证码不能为空"
+                },
+                submitHandler: function (form) {
+                    sendJson("post", "/auth/code/check-img", {"code": $("#inputVerify").val()}, false, function (res) {
+                        if (res.code !== 0) {
+                            layer.msg(res.msg,{icon:2});
+                        } else {
+                            sendJson("post", "/api/v1/feedback", $("#feedbackForm").serialize(), false, function (res) {
+                                if (res.code !== 0) {
+                                    layer.msg(res.msg,{icon:2});
+                                } else {
+                                    layer.msg("反馈成功！", {icon: 1});
+                                    // 重置表单
+                                    $("#feedbackForm")[0].reset();
+                                    // 刷新验证码
+                                    refresh(document.getElementById("verifyImg"));
+                                }
+                            }, function () {
+                                layer.msg("未知错误",{icon:2});
+                            });
+                        }
+                    }, function () {
+                        layer.msg("未知错误",{icon:2});
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

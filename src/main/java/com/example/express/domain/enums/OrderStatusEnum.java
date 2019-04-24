@@ -30,15 +30,15 @@ public enum  OrderStatusEnum  implements IEnum<Integer> {
     ERROR("订单异常", 4);
 
     private String name;
-    private int index;
+    private int status;
 
-    OrderStatusEnum(String name, int index) {
+    OrderStatusEnum(String name, int status) {
         this.name = name;
-        this.index = index;
+        this.status = status;
     }
 
     @Override
     public Integer getValue() {
-        return this.index;
+        return this.status;
     }
 }

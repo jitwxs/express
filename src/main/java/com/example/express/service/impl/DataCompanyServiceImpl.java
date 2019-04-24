@@ -1,6 +1,7 @@
 package com.example.express.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.example.express.common.cache.CommonDataCache;
 import com.example.express.common.constant.RedisKeyConstant;
 import com.example.express.domain.bean.DataCompany;
 import com.example.express.mapper.DataCompanyMapper;
@@ -37,6 +38,11 @@ public class DataCompanyServiceImpl extends ServiceImpl<DataCompanyMapper, DataC
             list = listAll();
         }
         return list;
+    }
+
+    @Override
+    public DataCompany getByCache(Integer id) {
+        return CommonDataCache.dataCompanyCache.getUnchecked(id);
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.express.common.util.CollectionUtils;
+import com.example.express.common.util.RandomUtils;
 import com.example.express.common.util.StringUtils;
 import com.example.express.domain.bean.UserFeedback;
 import com.example.express.domain.enums.FeedbackStatusEnum;
@@ -33,33 +34,28 @@ public class UserFeedbackServiceImpl extends ServiceImpl<UserFeedbackMapper, Use
     private OrderInfoService orderInfoService;
 
     @Override
-    public BootstrapTableVO pageUserFeedback(Page<UserFeedback> page, Integer type, Integer status, String userId) {
-        QueryWrapper<UserFeedback> wrapper = new QueryWrapper<>();
-        if(type != null) {
-            wrapper.eq("type", type);
-        }
-        if(status != null) {
-            wrapper.eq("status", status);
-        }
-        if(userId != null) {
-            wrapper.eq("user_id", userId);
-        }
+    public BootstrapTableVO<UserFeedbackVO> pageUserFeedbackVO(Page<UserFeedback> page, QueryWrapper<UserFeedback> wrapper) {
 
         IPage<UserFeedback> selectPage = userFeedbackMapper.selectPage(page, wrapper);
 
-        return BootstrapTableVO.builder()
-                .total(selectPage.getTotal())
-                .rows(convert(selectPage.getRecords())).build();
+        BootstrapTableVO<UserFeedbackVO> vo = new BootstrapTableVO<>();
+        vo.setTotal(selectPage.getTotal());
+        vo.setRows(convert(selectPage.getRecords()));
+
+        return vo;
     }
 
     @Override
     public boolean createFeedback(String userId, FeedbackTypeEnum feedbackTypeEnum, String content, String orderId) {
         UserFeedback feedback = UserFeedback.builder()
+                .id(RandomUtils.time())
                 .userId(userId)
                 .feedbackType(feedbackTypeEnum)
                 .feedbackStatus(FeedbackStatusEnum.WAIT)
-                .content(content)
-                .orderId(orderId).build();
+                .content(content).build();
+        if(StringUtils.isNotBlank(orderId)) {
+            feedback.setOrderId(orderId);
+        }
 
         return this.retBool(userFeedbackMapper.insert(feedback));
     }

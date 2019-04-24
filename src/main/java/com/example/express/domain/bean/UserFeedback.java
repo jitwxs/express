@@ -19,8 +19,8 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 public class UserFeedback {
-    @TableId(type = IdType.AUTO)
-    private Integer id;
+        @TableId(type = IdType.INPUT)
+    private String id;
 
     private String userId;
     /**
