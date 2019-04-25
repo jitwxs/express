@@ -1,11 +1,11 @@
 ## 快递代拿系统
 
-> 该项目基于[express-ssm](https://github.com/jitwxs/express-ssm) 项目全面升级，使用当前最为流行的 SpringBoot 框架，相关技术栈全面更新！是您深入学习 SpringBoot 开发的最佳实践！
+> 该项目基于[[express-ssm]](https://github.com/jitwxs/express-ssm) 项目全面升级，使用当前最为流行的 SpringBoot 框架，相关技术栈全面更新！是您深入学习 SpringBoot 开发的最佳实践！
 
 ### 相关技术栈
 
-1. **前端：**Thymeleaf、Bootstrap、Ajax、Jquery、Echarts
-2. **开发环境：**IDEA 、SpringBoot 2.1、Maven
+1. **前端：** Thymeleaf、Bootstrap、Ajax、Jquery、Echarts
+2. **开发环境：** IDEA 、SpringBoot 2.1、Maven
 3. **数据库与缓存**：MySQL 5.7、Redis、Guava Cache
 4. **三方服务**：腾讯云短信服务、腾讯云对象存储、支付宝支付（沙箱）、百度人脸识别
 5. **安全框架**：Spring Security
@@ -13,8 +13,8 @@
 
 ### 主要功能
 
-1. **登陆与注册：**用户名密码、短信验证码、人脸识别
-2. **权限：**普通用户、配送员、后台管理员
+1. **登陆与注册：** 用户名密码、短信验证码、人脸识别
+2. **权限：** 普通用户、配送员、后台管理员
 3. **普通用户**：下单支付、订单查询、操作日志、意见反馈
 4. **配送员**：接单、订单管理、操作日志、意见反馈
 5. **系统管理员**：用户管理、订单管理、系统日志

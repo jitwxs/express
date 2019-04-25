@@ -19,9 +19,13 @@ import com.example.express.service.OrderInfoService;
 import com.example.express.service.SmsService;
 import com.example.express.service.SysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
@@ -32,12 +36,16 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     private SysUserMapper sysUserMapper;
     @Autowired
     private DataSchoolMapper dataSchoolMapper;
+
     @Autowired
     private SmsService smsService;
     @Autowired
     private OrderInfoService orderInfoService;
+
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private DataSourceTransactionManager transactionManager;
 
     @Override
     public SysUser getByName(String username) {
@@ -110,27 +118,37 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    @Transactional(rollbackFor = CustomException.class)
-    public SysUser thirdLogin(String thirdLoginId, ThirdLoginTypeEnum thirdLoginTypeEnum) {
+    @Transactional(propagation = Propagation.REQUIRED)
+    public ResponseResult thirdLogin(String thirdLoginId, ThirdLoginTypeEnum thirdLoginTypeEnum) {
+        DefaultTransactionDefinition definition = new DefaultTransactionDefinition();
+        TransactionStatus status = transactionManager.getTransaction(definition);
+
         SysUser sysUser = getByThirdLogin(thirdLoginId, thirdLoginTypeEnum);
         if(sysUser == null) {
             // 三方注册
             if(!registryByThirdLogin(thirdLoginId, thirdLoginTypeEnum)) {
-                throw new CustomException(ResponseErrorCodeEnum.REGISTRY_ERROR);
+                transactionManager.rollback(status);
+                return ResponseResult.failure(ResponseErrorCodeEnum.REGISTRY_ERROR);
             }
             sysUser = getByThirdLogin(thirdLoginId, thirdLoginTypeEnum);
             if(sysUser == null) {
-                throw new CustomException(ResponseErrorCodeEnum.THIRD_LOGIN_ERROR);
+                transactionManager.rollback(status);
+                return ResponseResult.failure(ResponseErrorCodeEnum.THIRD_LOGIN_ERROR);
             }
         }
 
-        return sysUser;
+        transactionManager.commit(status);
+        return ResponseResult.success(sysUser);
     }
 
-    @Transactional(rollbackFor = CustomException.class)
     @Override
+    @Transactional(propagation = Propagation.REQUIRED)
     public ResponseResult registryByUsername(String username, String password) {
+        DefaultTransactionDefinition definition = new DefaultTransactionDefinition();
+        TransactionStatus status = transactionManager.getTransaction(definition);
+
         if(checkExistByUsername(username)) {
+            transactionManager.rollback(status);
             return ResponseResult.failure(ResponseErrorCodeEnum.USERNAME_EXIST_ERROR);
         }
 
@@ -140,8 +158,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 .role(SysRoleEnum.DIS_FORMAL).build();
 
         if(!this.retBool(sysUserMapper.insert(user))) {
+            transactionManager.rollback(status);
             return ResponseResult.failure(ResponseErrorCodeEnum.REGISTER_ERROR);
         }
+
+        transactionManager.commit(status);
         return ResponseResult.success();
     }
 

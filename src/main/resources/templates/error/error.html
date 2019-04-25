@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title th:text="${errorCode}+' - 快递代拿管理系统'">错误 - 快递代拿管理系统</title>
+    <link th:href="@{/assets/css/bootstrap.min.css}" href="../../static/assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href='http://fonts.googleapis.com/css?family=Nova+Flat' rel='stylesheet' type='text/css'>
+    <style>
+        body {
+            font-family: 'Nova Flat', cursive;
+            background-color: #1e83ff;
+            color: #fff;
+        }
+        .pad-top {
+            padding-top:60px;
+        }
+        .text-center {
+            text-align:center;
+        }
+        #error-link {
+            font-size:150px;
+            padding:10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="row pad-top text-center">
+        <div class="col-md-6 col-md-offset-3 text-center">
+            <h1> 啊哦，请求似乎出现了点错误！</h1>
+            <h5>您的错误码为：</h5>
+            <span id="error-link"></span>
+            <h3 th:if="${errorMsg == null}">请检查您输入的网址是否正确，或者点击链接继续浏览空间</h3>
+            <h3 th:if="${errorMsg != null}" th:text="'错误原因可能来自：'+${errorMsg}"></h3>
+        </div>
+    </div>
+    <div class="row text-center">
+        <div class="col-md-8 col-md-offset-2">
+            <h3> <i class="fa fa-lightbulb-o fa-5x"></i> </h3>
+            <a href="/" class="btn btn-primary">返回首页</a>
+        </div>
+    </div>
+
+</div>
+
+<script th:src="@{/assets/js/jquery.min.js}" src="../../static/assets/js/jquery.min.js"></script>
+<script th:src="@{/assets/js/bootstrap.min.js}" src="../../static/assets/js/bootstrap.min.js"></script>
+<script th:src="@{/assets/js/countUp.js}" src="../../static/assets/js/countUp.js"></script>
+<script th:inline = "javascript" >
+    /*<![CDATA[*/
+    var errorCode = [[${errorCode}]];
+    /*]]>*/
+</script>
+<script>
+    (function ($) {
+        "use strict";
+        var mainApp = {
+            main_fun: function () {
+                var count = new countUp("error-link", 10, errorCode, 0, 5); //CHANGE 404 TO THE ERROR VALUE AS YOU WANT
+                window.onload = function () {
+                    count.start();
+                }
+                /*====================================
+                WRITE YOUR SCRIPTS HERE
+                ======================================*/
+            },
+            initialization: function () {
+                mainApp.main_fun();
+
+            }
+        };
+
+        $(document).ready(function () {
+            mainApp.main_fun();
+        });
+    }(jQuery));
+</script>
+</body>
+</html>

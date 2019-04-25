@@ -36,7 +36,7 @@ public interface SysUserService extends IService<SysUser> {
     /**
      * 三方登陆逻辑
      */
-    SysUser thirdLogin(String thirdLoginId, ThirdLoginTypeEnum thirdLoginTypeEnum);
+    ResponseResult thirdLogin(String thirdLoginId, ThirdLoginTypeEnum thirdLoginTypeEnum);
     /**
      * 根据用户名注册
      * @author jitwxs

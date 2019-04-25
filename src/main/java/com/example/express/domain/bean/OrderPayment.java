@@ -1,9 +1,6 @@
 package com.example.express.domain.bean;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.*;
 import com.example.express.domain.enums.PaymentStatusEnum;
 import com.example.express.domain.enums.PaymentTypeEnum;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -53,6 +50,7 @@ public class OrderPayment {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime createDate;
 
+    @Version
     @TableField(fill = FieldFill.UPDATE)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime updateDate;

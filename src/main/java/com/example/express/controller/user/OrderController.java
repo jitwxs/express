@@ -7,9 +7,12 @@ import com.example.express.common.constant.SessionKeyConstant;
 import com.example.express.common.util.JsonUtils;
 import com.example.express.config.AliPayConfig;
 import com.example.express.controller.BaseController;
+import com.example.express.domain.ResponseResult;
 import com.example.express.domain.bean.OrderInfo;
 import com.example.express.domain.bean.SysUser;
 import com.example.express.domain.enums.PaymentStatusEnum;
+import com.example.express.domain.enums.ResponseErrorCodeEnum;
+import com.example.express.exception.CustomException;
 import com.example.express.service.OrderInfoService;
 import com.example.express.service.OrderPaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,15 +61,19 @@ public class OrderController extends BaseController {
         OrderInfo orderInfo = (OrderInfo)session.getAttribute(SessionKeyConstant.SESSION_LATEST_EXPRESS);
 
         if(orderInfo == null || money == null) {
-            response.getWriter().write("参数错误，请重新下单");
-            return;
+            throw new CustomException(ResponseErrorCodeEnum.PARAMETER_ERROR);
         }
 
         // 金额保留两位
         money = (double) (Math.round(money * 100)) / 100;
 
         // 生成订单 & 订单支付
-        String orderId = orderInfoService.createOrder(orderInfo, money, sysUser.getId());
+        ResponseResult result1 = orderInfoService.createOrder(orderInfo, money, sysUser.getId());
+        if(result1.getCode() != ResponseErrorCodeEnum.SUCCESS.getCode()) {
+            throw new CustomException(result1);
+        }
+
+        String orderId = (String)result1.getData();
 
         // 1、设置请求参数
         AlipayTradePagePayRequest alipayRequest = new AlipayTradePagePayRequest();

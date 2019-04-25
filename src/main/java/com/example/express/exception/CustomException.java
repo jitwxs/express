@@ -1,5 +1,6 @@
 package com.example.express.exception;
 
+import com.example.express.domain.ResponseResult;
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
 import lombok.Data;
 
@@ -14,6 +15,11 @@ public class CustomException extends RuntimeException {
     public CustomException(ResponseErrorCodeEnum errorCodeEnum) {
         super(errorCodeEnum.getMsg());
         this.code = errorCodeEnum.getCode();
+    }
+
+    public CustomException(ResponseResult result) {
+        super(result.getMsg());
+        this.code = result.getCode();
     }
 
     public CustomException(Integer code , String info) {

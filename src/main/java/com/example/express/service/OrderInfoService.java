@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.express.domain.ResponseResult;
 import com.example.express.domain.bean.OrderInfo;
+import com.example.express.domain.enums.ResponseErrorCodeEnum;
 import com.example.express.domain.enums.SysRoleEnum;
 import com.example.express.domain.vo.BootstrapTableVO;
 import com.example.express.domain.vo.OrderDescVO;
@@ -21,9 +22,8 @@ public interface OrderInfoService extends IService<OrderInfo> {
      * 生成订单 & 订单支付
      * @author jitwxs
      * @date 2019/4/23 0:40
-     * @return 订单号
      */
-    String createOrder(OrderInfo orderInfo, double money, String uid);
+    ResponseResult createOrder(OrderInfo orderInfo, double money, String uid);
 
     OrderDescVO getDescVO(String orderId);
 

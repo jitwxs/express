@@ -24,8 +24,12 @@ import com.example.express.service.OrderInfoService;
 import com.example.express.service.OrderPaymentService;
 import com.example.express.service.SysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,14 +41,18 @@ import java.util.stream.Collectors;
 public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo> implements OrderInfoService {
     @Autowired
     private OrderInfoMapper orderInfoMapper;
+
     @Autowired
     private OrderPaymentService orderPaymentService;
     @Autowired
     private DataCompanyService dataCompanyService;
     @Autowired
     private SysUserService sysUserService;
+
     @Autowired
     private AliPayConfig aliPayConfig;
+    @Autowired
+    private DataSourceTransactionManager transactionManager;
 
     @Override
     public boolean isExistUnfinishedOrder(String userId, SysRoleEnum roleEnum) {
@@ -62,23 +70,29 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         return count != 0;
     }
 
-    @Transactional(rollbackFor = CustomException.class)
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
-    public String createOrder(OrderInfo orderInfo, double money, String uid) {
+    public ResponseResult createOrder(OrderInfo orderInfo, double money, String uid) {
+        DefaultTransactionDefinition definition = new DefaultTransactionDefinition();
+        TransactionStatus status = transactionManager.getTransaction(definition);
+
         orderInfo.setOrderStatus(OrderStatusEnum.WAIT_DIST);
         orderInfo.setUserId(uid);
 
        if(!this.retBool(orderInfoMapper.insert(orderInfo))) {
-           throw new CustomException(ResponseErrorCodeEnum.ORDER_CREATE_ERROR);
+           transactionManager.rollback(status);
+           return ResponseResult.failure(ResponseErrorCodeEnum.ORDER_CREATE_ERROR);
        }
 
        String orderId = orderInfo.getId();
         boolean b = orderPaymentService.createAliPayment(orderId, money, aliPayConfig.getSellerId());
         if(!b) {
-            throw new CustomException(ResponseErrorCodeEnum.ORDER_PAYMENT_CREATE_ERROR);
+            transactionManager.rollback(status);
+            return ResponseResult.failure(ResponseErrorCodeEnum.ORDER_PAYMENT_CREATE_ERROR);
         }
 
-        return orderId;
+        transactionManager.commit(status);
+        return ResponseResult.success(orderId);
     }
 
     @Override
@@ -130,7 +144,6 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         return vo;
     }
 
-    @Transactional
     @Override
     public ResponseResult batchDeleteOrder(String[] ids, String id) {
         int success = 0;
@@ -155,7 +168,6 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         return ResponseResult.success(count);
     }
 
-    @Transactional
     @Override
     public ResponseResult batchCancelOrder(String[] ids, String id) {
         int success = 0;

@@ -9,6 +9,7 @@ import com.example.express.domain.enums.ResponseErrorCodeEnum;
 import com.example.express.domain.enums.SexEnum;
 import com.example.express.domain.enums.SysRoleEnum;
 import com.example.express.domain.enums.ThirdLoginTypeEnum;
+import com.example.express.exception.CustomException;
 import com.example.express.security.validate.third.ThirdLoginAuthenticationToken;
 import com.example.express.service.DataSchoolService;
 import com.example.express.service.OAuthService;
@@ -172,8 +173,13 @@ public class AuthController {
         String openId = getQQOpenid(meResult);
 
         // 三方登陆
-        SysUser sysUser = sysUserService.thirdLogin(openId, ThirdLoginTypeEnum.QQ);
+        ResponseResult result1 = sysUserService.thirdLogin(openId, ThirdLoginTypeEnum.QQ);
+        if(result1.getCode() != ResponseErrorCodeEnum.SUCCESS.getCode()) {
+            throw new CustomException(result1);
+        }
+
         // 注入框架
+        SysUser sysUser = (SysUser) result1.getData();
         ThirdLoginAuthenticationToken token = new ThirdLoginAuthenticationToken(sysUser.getId());
         Authentication authentication = authenticationManager.authenticate(token);
         SecurityContextHolder.getContext().setAuthentication(authentication);

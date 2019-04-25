@@ -128,7 +128,7 @@ public class FeedbackApiController extends BaseApiController {
         if(feedback == null || statusEnum == null || StringUtils.isBlank(result)) {
             return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
         }
-        if(result.length() > 255) {
+        if(result.length() > CONTENT_MAX_LENGTH) {
             return ResponseResult.failure(ResponseErrorCodeEnum.FEEDBACk_LENGTH_OVER_255);
         }
 
