@@ -54,11 +54,121 @@
                             <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> 删除订单
                         </button>
                     </div>
+                    <div class="alert alert-danger alert-dismissible fade in" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+                        <strong>重要！</strong> 由于来自支付宝的限制，您支付后订单可能仍处于 “等待付款” 状态，请务必手动点击订单后的同步按钮。【注：未支付成功的订单将无法为您安排配送】
+                    </div>
                     <div class="alert alert-warning alert-dismissible fade in" role="alert">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
-                        <strong>提示！</strong> 撤销订单仅能撤“等待派送”状态订单，删除订单仅能移除“订单完成”和“订单异常”状态订单
+                        <strong>提示！</strong> 撤销订单仅能撤 “等待派送” 状态订单，删除订单仅能移除 “订单完成” 和 “订单异常” 状态订单
                     </div>
                     <table id="tb_history"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 订单详情模态框 -->
+    <div class="modal fade" id="infoModel" tabindex="-1" role="dialog" aria-labelledby="infoModelLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="infoModelLabel">订单详情</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label for="inputInfoId" class="col-sm-2 control-label">订单号</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static" id="inputInfoId"></p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputInfoName" class="col-sm-2 control-label">收件姓名</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static" id="inputInfoName"></p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputInfoTel" class="col-sm-2 control-label">收件短信</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static" id="inputInfoTel"></p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputInfoAddress" class="col-sm-2 control-label">收件地址</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static" id="inputInfoAddress"></p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputInfoOdd" class="col-sm-2 control-label">快递单号</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static" id="inputInfoOdd"></p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputInfoCompany" class="col-sm-2 control-label">快递公司</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static" id="inputInfoCompany"></p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputInfoRemark" class="col-sm-2 control-label">备注</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static" id="inputInfoRemark"></p>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="form-group">
+                            <label for="inputInfoPaymentType" class="col-sm-2 control-label">支付方式</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static" id="inputInfoPaymentType"></p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputInfoPaymentId" class="col-sm-2 control-label">流水号</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static" id="inputInfoPaymentId"></p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputInfoMoney" class="col-sm-2 control-label">支付金额</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static" id="inputInfoMoney"></p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputInfoPaymentStatus" class="col-sm-2 control-label">支付状态</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static" id="inputInfoPaymentStatus"></p>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="form-group">
+                            <label for="inputInfoOrderStatus" class="col-sm-2 control-label">订单状态</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static" id="inputInfoOrderStatus"></p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputInfoCourierName" class="col-sm-2 control-label">配送员</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static" id="inputInfoCourierName"></p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputInfoCourierRemark" class="col-sm-2 control-label">配送备注</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static" id="inputInfoCourierRemark"></p>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
                 </div>
             </div>
         </div>
@@ -123,17 +233,14 @@
                         field: 'id',
                         title: '订单号'
                     }, {
-                        field: 'name',
-                        title: '收件姓名'
-                    }, {
-                        field: 'tel',
-                        title: '收件电话'
-                    }, {
                         field: 'odd',
                         title: '快递单号'
                     }, {
                         field: 'company',
                         title: '快递公司'
+                    }, {
+                        field: 'payment',
+                        title: '支付金额'
                     }, {
                         field: 'paymentStatus',
                         title: '支付状态',
@@ -178,10 +285,10 @@
             oInit.Init = function () {
                 // 撤销订单
                 $("#btn_cancel").click(function () {
-                    var row = $('#tb_history').bootstrapTable("getSelections");
+                    let row = $('#tb_history').bootstrapTable("getSelections");
                     if(row.length > 0) {
-                        var ids = new Array();
-                        for (var i = 0; i < row.length; i++) {
+                        let ids = new Array();
+                        for (let i = 0; i < row.length; i++) {
                             if (row[i].orderStatus === 1) {
                                 ids.push(row[i].id);
                             }
@@ -195,7 +302,7 @@
                             }, function(){
                                 sendArray(HTTP.POST, "/api/v1/order/batch-cancel", {"ids": ids}, false, function (res) {
                                     if(res.code === 0) {
-                                        layer.msg("成功，撤销" + res.msg.success + "个，失败" + res.msg.error + "个",{icon:1});
+                                        layer.msg("成功，撤销" + res.data.success + "个，失败" + res.data.error + "个",{icon:1});
                                         flushTable();
                                     }
                                 }, function () {
@@ -208,10 +315,10 @@
                 });
                 // 删除订单
                 $("#btn_delete").click(function () {
-                    var row = $('#tb_history').bootstrapTable("getSelections");
+                    let row = $('#tb_history').bootstrapTable("getSelections");
                     if(row.length > 0) {
-                        var ids = new Array();
-                        for (var i = 0; i < row.length; i++) {
+                        let ids = new Array();
+                        for (let i = 0; i < row.length; i++) {
                             if (row[i].orderStatus === 3 || row[i].orderStatus === 4) {
                                 ids.push(row[i].id);
                             }
@@ -225,7 +332,7 @@
                             }, function(){
                                 sendArray(HTTP.POST, "/api/v1/order/batch-delete", {"ids": ids}, false, function (res) {
                                     if(res.code === 0) {
-                                        layer.msg("成功，删除" + res.msg.success + "个，失败" + res.msg.error + "个",{icon:1});
+                                        layer.msg("成功，删除" + res.data.success + "个，失败" + res.data.error + "个",{icon:1});
                                         flushTable();
                                     }
                                 }, function () {
@@ -243,7 +350,7 @@
         function actionFormatter(value, row, index) {
             let id = "'" + value + "'";
             let result = '<button class="btn btn-xs btn-info" onclick="showDetail('+id+')" title="查看"><span class="glyphicon glyphicon-search"></span></button>\n' +
-                '         <button class="btn btn-xs btn-primary" onclick="refreshStatus('+id+')" title="刷新"><span class="glyphicon glyphicon-refresh"></span></button>';
+                '         <button class="btn btn-xs btn-danger" onclick="refreshStatus('+id+')" title="刷新"><span class="glyphicon glyphicon-refresh"></span></button>';
             return result;
         }
         // 订单状态的格式化
@@ -274,10 +381,51 @@
         }
 
         function refreshStatus(id) {
-
+            layer.confirm("是否要手动更新支付状态？", {
+                btn: ['确定','取消']
+            }, function(){
+                sendArray(HTTP.POST, "/api/v1/payment/sync", {"orderId": id}, false, function (res) {
+                    if(res.code === 0) {
+                        layer.msg("同步成功",{icon:1});
+                        flushTable();
+                    } else {
+                        layer.msg(res.msg,{icon:2});
+                    }
+                }, function () {
+                    layer.msg("未知错误",{icon:2});
+                });
+            }, function(){
+            });
         }
         function showDetail(id) {
+            sendJson(HTTP.GET, "/api/v1/order/" + id, null, false, function (res) {
+                if (res.code !== 0) {
+                    layer.msg(res.msg,{icon:2});
+                } else {
+                    // 初始化模态框信息
+                    let data = res.data;
+                    $("#inputInfoId").text(data.orderId);
+                    $("#inputInfoName").text(data.recName);
+                    $("#inputInfoTel").text(data.recTel);
+                    $("#inputInfoAddress").text(data.recAddress);
+                    $("#inputInfoOdd").text(data.odd);
+                    $("#inputInfoCompany").text(data.companyName);
+                    $("#inputInfoRemark").text(data.remark);
 
+                    $("#inputInfoPaymentType").text(data.paymentType);
+                    $("#inputInfoPaymentId").text(data.paymentId);
+                    $("#inputInfoMoney").text(data.payment);
+                    $("#inputInfoPaymentStatus").text(data.paymentStatus);
+
+                    $("#inputInfoOrderStatus").text(data.orderStatus);
+                    $("#inputInfoCourierName").text(data.courierFrontName);
+                    $("#inputInfoCourierRemark").text(data.courierRemark);
+
+                    $("#infoModel").modal("show");
+                }
+            }, function () {
+                layer.msg("未知错误",{icon:2});
+            });
         }
     </script>
 </body>

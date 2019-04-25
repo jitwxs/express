@@ -3,6 +3,8 @@ package com.example.express.domain.enums;
 import com.baomidou.mybatisplus.core.enums.IEnum;
 import lombok.Getter;
 
+import java.util.Arrays;
+
 /**
  * 订单状态枚举
  * @date 2019年04月16日 23:21
@@ -35,6 +37,10 @@ public enum  OrderStatusEnum  implements IEnum<Integer> {
     OrderStatusEnum(String name, int status) {
         this.name = name;
         this.status = status;
+    }
+
+    public static OrderStatusEnum getByName(String name) {
+        return Arrays.stream(values()).filter(e -> e.getName().equals(name)).findFirst().orElse(null);
     }
 
     @Override

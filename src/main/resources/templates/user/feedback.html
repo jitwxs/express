@@ -168,11 +168,11 @@
                     verify: "验证码不能为空"
                 },
                 submitHandler: function (form) {
-                    sendJson("post", "/auth/code/check-img", {"code": $("#inputVerify").val()}, false, function (res) {
+                    sendJson(HTTP.POST, "/auth/code/check-img", {"code": $("#inputVerify").val()}, false, function (res) {
                         if (res.code !== 0) {
                             layer.msg(res.msg,{icon:2});
                         } else {
-                            sendJson("post", "/api/v1/feedback", $("#feedbackForm").serialize(), false, function (res) {
+                            sendJson(HTTP.POST, "/api/v1/feedback", $("#feedbackForm").serialize(), false, function (res) {
                                 if (res.code !== 0) {
                                     layer.msg(res.msg,{icon:2});
                                 } else {
@@ -282,10 +282,10 @@
             oInit.Init = function () {
                 // 撤销反馈
                 $("#btn_cancel").click(function () {
-                    var row = $('#tb_history').bootstrapTable("getSelections");
+                    let row = $('#tb_history').bootstrapTable("getSelections");
                     if(row.length > 0) {
-                        var ids = new Array();
-                        for (var i = 0; i < row.length; i++) {
+                        let ids = new Array();
+                        for (let i = 0; i < row.length; i++) {
                             if (row[i].status === 1) {
                                 ids.push(row[i].id);
                             }

@@ -47,7 +47,7 @@
                 </div>
                 <div class="panel-body">
                     <div id="toolbar" class="btn-group">
-                        <button id="btn_cancel" type="button" class="btn btn-primary">
+                        <button id="btn_rollback" type="button" class="btn btn-default">
                             <span class="glyphicon glyphicon-repeat" aria-hidden="true"></span> 还原订单
                         </button>
                     </div>
@@ -72,11 +72,11 @@
             $("#recycle-sidebar").addClass('active');
 
             //1、初始化Table
-            var oTable = new TableInit();
+            let oTable = new TableInit();
             oTable.Init();
 
             //2、初始化Button的点击事件
-            var oButtonInit = new ButtonInit();
+            let oButtonInit = new ButtonInit();
             oButtonInit.Init();
         });
 
@@ -116,17 +116,18 @@
                         field: 'id',
                         title: '订单号'
                     }, {
-                        field: 'name',
-                        title: '收件姓名'
-                    }, {
-                        field: 'tel',
-                        title: '收件电话'
+                        field: 'deleteType',
+                        title: '回收原因',
+                        formatter: deleteTypeFormatter
                     }, {
                         field: 'odd',
                         title: '快递单号'
                     }, {
                         field: 'company',
                         title: '快递公司'
+                    }, {
+                        field: 'payment',
+                        title: '支付金额'
                     }, {
                         field: 'paymentStatus',
                         title: '支付状态',
@@ -138,13 +139,6 @@
                     }, {
                         field: 'createDate',
                         title: '下单时间'
-                    }, {
-                        field: 'id',
-                        title: '操作',
-                        width: 120,
-                        align: 'center',
-                        valign: 'middle',
-                        formatter: actionFormatter
                     }]
                 });
             };
@@ -169,26 +163,24 @@
             var oInit = new Object();
 
             oInit.Init = function () {
-                // 撤销订单
-                $("#btn_cancel").click(function () {
-                    var row = $('#tb_recycle').bootstrapTable("getSelections");
+                // 还原订单
+                $("#btn_rollback").click(function () {
+                    let row = $('#tb_recycle').bootstrapTable("getSelections");
                     if(row.length > 0) {
-                        var ids = new Array();
-                        for (var i = 0; i < row.length; i++) {
-                            if (row[i].orderStatus === 1) {
-                                ids.push(row[i].id);
-                            }
+                        let ids = new Array();
+                        for (let i = 0; i < row.length; i++) {
+                            ids.push(row[i].id);
                         }
                         if (ids.length === 0) {
-                            layer.msg("选中项不包含可撤销的订单",{icon:0});
+                            layer.msg("您未选中任何订单",{icon:0});
                             return false;
                         } else {
-                            layer.confirm("撤销的订单号为：" + ids + "，确认执行？", {
+                            layer.confirm("是否恢复被选中订单？", {
                                 btn: ['确定','取消']
                             }, function(){
-                                sendArray(HTTP.POST, "/api/v1/order/batch-cancel", {"ids": ids}, false, function (res) {
+                                sendArray(HTTP.POST, "/api/v1/order/batch-rollback", {"ids": ids}, false, function (res) {
                                     if(res.code === 0) {
-                                        layer.msg("成功，撤销" + res.msg.success + "个，失败" + res.msg.error + "个",{icon:1});
+                                        layer.msg("成功，撤销" + res.data.success + "个，失败" + res.data.error + "个",{icon:1});
                                         flushTable();
                                     }
                                 }, function () {
@@ -202,13 +194,7 @@
             };
             return oInit;
         };
-        //操作栏的格式化
-        function actionFormatter(value, row, index) {
-            let id = "'" + value + "'";
-            let result = '<button class="btn btn-xs btn-info" onclick="showDetail('+id+')" title="查看"><span class="glyphicon glyphicon-search"></span></button>';
-            return result;
-        }
-        // 订单状态的格式化
+        // 订单状态格式化
         function orderFormatter(value, row, index) {
             if(value === 4)
                 return '<span style="color:red">订单异常</span>';
@@ -219,7 +205,7 @@
             else if (value === 1)
                 return '<span style="color:grey">等待派送</span>';
         }
-        // 支付状态的格式化
+        // 支付状态格式化
         function paymentFormatter(value, row, index) {
             if(value === 1)
                 return '<span style="color:#f5a623">等待付款</span>';
@@ -230,13 +216,47 @@
             else if (value === 4)
                 return '<span style="color:grey">交易结束</span>';
         }
+        // 回收原因格式化
+        function deleteTypeFormatter(value, row, index) {
+            if(value === 1)
+                return '<span style="color:#f5a623">订单撤销</span>';
+            else if (value === 2)
+                return '<span style="color:red">手动删除</span>';
+        }
 
         function flushTable() {
             $("#tb_recycle").bootstrapTable('refresh',{url : '/api/v1/order/list'} );
         }
 
         function showDetail(id) {
+            sendJson(HTTP.GET, "/api/v1/order/" + id, null, false, function (res) {
+                if (res.code !== 0) {
+                    layer.msg(res.msg,{icon:2});
+                } else {
+                    // 初始化模态框信息
+                    let data = res.data;
+                    $("#inputInfoId").text(data.orderId);
+                    $("#inputInfoName").text(data.recName);
+                    $("#inputInfoTel").text(data.recTel);
+                    $("#inputInfoAddress").text(data.recAddress);
+                    $("#inputInfoOdd").text(data.odd);
+                    $("#inputInfoCompany").text(data.companyName);
+                    $("#inputInfoRemark").text(data.remark);
 
+                    $("#inputInfoPaymentType").text(data.paymentType);
+                    $("#inputInfoPaymentId").text(data.paymentId);
+                    $("#inputInfoMoney").text(data.payment);
+                    $("#inputInfoPaymentStatus").text(data.paymentStatus);
+
+                    $("#inputInfoOrderStatus").text(data.orderStatus);
+                    $("#inputInfoCourierName").text(data.courierFrontName);
+                    $("#inputInfoCourierRemark").text(data.courierRemark);
+
+                    $("#infoModel").modal("show");
+                }
+            }, function () {
+                layer.msg("未知错误",{icon:2});
+            });
         }
     </script>
 </body>

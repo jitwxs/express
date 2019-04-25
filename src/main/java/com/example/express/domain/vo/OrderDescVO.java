@@ -65,6 +65,10 @@ public class OrderDescVO implements Serializable {
      */
     private String paymentType;
     /**
+     * 支付流水号
+     */
+    private String paymentId;
+    /**
      * 支付金额
      */
     private String payment;

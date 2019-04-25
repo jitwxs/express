@@ -16,6 +16,21 @@ public interface OrderInfoService extends IService<OrderInfo> {
      * @param roleEnum ROLE_USER: order表userId；ROLE_COURIER:order表courierId
      */
     boolean isExistUnfinishedOrder(String userId, SysRoleEnum roleEnum);
+
+    boolean isExist(String orderId);
+    /**
+     * 手动删除
+     * @author jitwxs
+     * @date 2019/4/25 0:13
+     */
+    boolean manualDelete(String orderId, int hasDelete, int deleteType);
+
+    /**
+     * 是否是某位用户的订单
+     * @author jitwxs
+     * @date 2019/4/26 0:53
+     */
+    boolean isUserOrder(String orderId, String userId);
     /**
      * 生成订单 & 订单支付
      * @author jitwxs
@@ -25,7 +40,6 @@ public interface OrderInfoService extends IService<OrderInfo> {
 
     OrderDescVO getDescVO(String orderId);
 
-    boolean isExist(String orderId);
     /**
      * 分页查询订单
      * @param isDelete 0：未删除；1：已删除
@@ -40,9 +54,7 @@ public interface OrderInfoService extends IService<OrderInfo> {
      */
     ResponseResult batchCancelOrder(String[] ids, String userId);
     /**
-     * 手动删除
-     * @author jitwxs
-     * @date 2019/4/25 0:13
+     * 批量恢复订单
      */
-    boolean manualDelete(OrderInfo orderInfo, Integer deleteType);
+    ResponseResult batchRollback(String[] ids, String id);
 }

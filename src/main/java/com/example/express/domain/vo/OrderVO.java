@@ -27,21 +27,21 @@ public class OrderVO implements Serializable {
      */
     private String company;
     /**
-     * 取件名
-     */
-    private String name;
-    /**
-     * 取件号码
-     */
-    private String tel;
-    /**
      * 支付状态
      */
     private Integer paymentStatus;
     /**
+     * 支付金额
+     */
+    private String payment;
+    /**
      * 订单状态
      */
     private Integer orderStatus;
+    /**
+     * 删除原因
+     */
+    private Integer deleteType;
     /**
      * 下单时间
      */

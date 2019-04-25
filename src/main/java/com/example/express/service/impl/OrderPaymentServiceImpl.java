@@ -1,20 +1,29 @@
 package com.example.express.service.impl;
 
+import com.alipay.api.AlipayClient;
 import com.alipay.api.internal.util.AlipaySignature;
+import com.alipay.api.request.AlipayTradeQueryRequest;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.example.express.common.util.JsonUtils;
 import com.example.express.config.AliPayConfig;
+import com.example.express.domain.ResponseResult;
 import com.example.express.domain.bean.OrderPayment;
 import com.example.express.domain.enums.PaymentStatusEnum;
 import com.example.express.domain.enums.PaymentTypeEnum;
+import com.example.express.domain.enums.ResponseErrorCodeEnum;
+import com.example.express.exception.CustomException;
 import com.example.express.mapper.OrderInfoMapper;
 import com.example.express.mapper.OrderPaymentMapper;
 import com.example.express.service.OrderPaymentService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @Service
 public class OrderPaymentServiceImpl extends ServiceImpl<OrderPaymentMapper, OrderPayment> implements OrderPaymentService {
     @Autowired
@@ -23,6 +32,8 @@ public class OrderPaymentServiceImpl extends ServiceImpl<OrderPaymentMapper, Ord
     private OrderPaymentMapper orderPaymentMapper;
     @Autowired
     private AliPayConfig aliPayConfig;
+    @Autowired
+    private AlipayClient alipayClient;
 
     @Override
     public boolean createAliPayment(String orderId, double money, String sellerId) {
@@ -112,5 +123,79 @@ public class OrderPaymentServiceImpl extends ServiceImpl<OrderPaymentMapper, Ord
         payment.setPaymentStatus(status);
 
         return this.retBool(orderPaymentMapper.updateById(payment));
+    }
+
+    @Override
+    public ResponseResult syncPaymentInfo(String orderId) {
+        // 1、设置请求参数
+        AlipayTradeQueryRequest alipayRequest = new AlipayTradeQueryRequest();
+        Map<String, String> map = new HashMap<>(16);
+        map.put("out_trade_no", orderId);
+        alipayRequest.setBizContent(JsonUtils.objectToJson(map));
+
+        try {
+            // 2、请求
+            String json = alipayClient.execute(alipayRequest).getBody();
+            Map<String, Object> resMap = JsonUtils.jsonToObject(json, Map.class);
+            Map<String, String> responseMap = (Map)resMap.get("alipay_trade_query_response");
+
+            // 获得返回状态码，具体参考：https://docs.open.alipay.com/common/105806
+            String code = responseMap.get("code");
+            if("10000".equals(code)) {
+                // 获取查询结果
+                String paymentStatus = responseMap.get("trade_status");
+                String tradeNo = responseMap.get("trade_no");
+
+                OrderPayment payment = orderPaymentMapper.selectById(orderId);
+
+                payment.setPaymentStatus(PaymentStatusEnum.getByDesc(paymentStatus));
+                payment.setPaymentId(tradeNo);
+
+                orderPaymentMapper.updateById(payment);
+
+                return ResponseResult.success();
+            } else {
+                log.error("【支付宝查询】错误，错误码：{}，错误信息：{}", code, responseMap.get("sub_msg"));
+                return ResponseResult.failure(ResponseErrorCodeEnum.ORDER_PAYMENT_SYNC_ERROR);
+            }
+        } catch (Exception e) {
+            log.error("【支付宝查询】异常，异常信息：{}", e.getMessage());
+            throw new CustomException(ResponseErrorCodeEnum.ORDER_PAYMENT_SYNC_ERROR);
+        }
+        /*
+         {
+            "alipay_trade_query_response":{
+                "code":"10000",
+                "msg":"Success",
+                "buyer_logon_id":"uce***@sandbox.com",
+                "buyer_pay_amount":"0.00",
+                "buyer_user_id":"2088102176077881",
+                "buyer_user_type":"PRIVATE",
+                "invoice_amount":"0.00",
+                "out_trade_no":"152810603232866",
+                "point_amount":"0.00",
+                "receipt_amount":"0.00",
+                "send_pay_date":"2018-06-04 17:54:04",
+                "total_amount":"2.00",
+                "trade_no":"2018060421001004880200500828",
+                "trade_status":"TRADE_SUCCESS"
+            },
+            "sign":"HqdTcGWWhW4ivZxPNpdZfUkwHsVKg9eQZ2/Z17XA4wngMk3bOFmYYgYX5DwGPxccywyvxa+L7sUDZXQoxMYg2zcbPCLkn2poLCC51IAqCibo8R9F98cLFsjeKIFQ6Mw4a30lcFjr+esRTa8T7bJsoqRl4HX7B1qvMcarWJdBGN8AX3MIRmAWrqs2N4AULUghPucJKsApTi/CVebGYlf2e3cakxUhTos/Rw0Y3kvjwFaDBm18QZAt8xQ5dkYfFEEQuxDNkPYrxZTuAlp5M6BbEzbIf3z1iRBSkLuA7VfpZiZUNDw6dXLmpIaZZJK+3/Ltu3aOUJLlRR7EQ9PX7rDJ6g=="
+        }
+        {
+            "alipay_trade_query_response":{
+                "code":"40004",
+                "msg":"Business Failed",
+                "sub_code":"ACQ.TRADE_NOT_EXIST",
+                "sub_msg":"交易不存在",
+                "buyer_pay_amount":"0.00",
+                "invoice_amount":"0.00",
+                "out_trade_no":"1528106032328",
+                "point_amount":"0.00",
+                "receipt_amount":"0.00"
+            },
+            "sign":"BcGLHOlzPryBbF8FvuvvtA/8vItcZRawWJ7kX4SRKRxomB+h6kq+SzJG9xMs8N24CPA144D9EXBBCqAGPoj149pBBFHhmFwnBEFDpNrBrfB4MAfsJndK6xvYeaCoOXqgqs3f7tfOiDbUVOMuLKZYZTSm0N/UA2OKXUXT1aPVeLLMVuKPwBXZY7MvpbWxNVLqRz2Qmf6n1i4o4hl9p5ywiNIR9FgvAvN2Dwyd32QED1cYcfPXWJWGjWKucrsCcZIfetput+ZyYWxxG4l3GBQ32fXrAx1vbkfDtAdRmeStAfvUL3adiZpplEXil3AGgIckSlUfDF7hHG92Bnd1U9LYNg=="
+        }
+         */
     }
 }

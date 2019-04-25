@@ -162,7 +162,7 @@
                     verify: "验证码不能为空"
                 },
                 submitHandler: function (form) {
-                    sendJson("post", "/auth/code/check-img", {"code": $("#inputVerify").val()}, false, function (res) {
+                    sendJson(HTTP.POST, "/auth/code/check-img", {"code": $("#inputVerify").val()}, false, function (res) {
                         if (res.code !== 0) {
                             layer.msg(res.msg,{icon:2});
                         } else {

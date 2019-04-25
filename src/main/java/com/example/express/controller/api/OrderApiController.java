@@ -10,7 +10,6 @@ import com.example.express.domain.vo.OrderDescVO;
 import com.example.express.domain.vo.OrderVO;
 import com.example.express.exception.CustomException;
 import com.example.express.service.OrderInfoService;
-import com.example.express.service.OrderPaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,8 +25,6 @@ import org.springframework.web.bind.annotation.*;
 public class OrderApiController {
     @Autowired
     private OrderInfoService orderInfoService;
-    @Autowired
-    private OrderPaymentService orderPaymentService;
 
     /**
      * 获取订单信息
@@ -37,6 +34,10 @@ public class OrderApiController {
     @GetMapping("/{id}")
     public ResponseResult getOrderDesc(@PathVariable String id) {
         OrderDescVO descVO = orderInfoService.getDescVO(id);
+        if(descVO == null) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.ORDER_NOT_EXIT);
+        }
+
         return ResponseResult.success(descVO);
     }
 
@@ -101,5 +102,16 @@ public class OrderApiController {
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_COURIER')")
     public ResponseResult batchCancel(String[] ids, @AuthenticationPrincipal SysUser sysUser) {
         return orderInfoService.batchCancelOrder(ids, sysUser.getId());
+    }
+
+    /**
+     * 批量恢复订单，仅能恢复个人订单
+     * @author jitwxs
+     * @date 2019/4/26 1:58
+     */
+    @PostMapping("/batch-rollback")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_COURIER')")
+    public ResponseResult batchRollback(String[] ids, @AuthenticationPrincipal SysUser sysUser) {
+        return orderInfoService.batchRollback(ids, sysUser.getId());
     }
 }

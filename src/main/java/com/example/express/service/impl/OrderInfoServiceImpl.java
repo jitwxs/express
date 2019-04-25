@@ -1,11 +1,9 @@
 package com.example.express.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.example.express.common.util.CollectionUtils;
 import com.example.express.common.util.StringUtils;
 import com.example.express.config.AliPayConfig;
 import com.example.express.domain.ResponseResult;
@@ -18,13 +16,11 @@ import com.example.express.domain.enums.SysRoleEnum;
 import com.example.express.domain.vo.BootstrapTableVO;
 import com.example.express.domain.vo.OrderDescVO;
 import com.example.express.domain.vo.OrderVO;
-import com.example.express.exception.CustomException;
 import com.example.express.mapper.OrderInfoMapper;
 import com.example.express.service.DataCompanyService;
 import com.example.express.service.OrderInfoService;
 import com.example.express.service.OrderPaymentService;
 import com.example.express.service.SysUserService;
-import com.google.common.collect.Ordering;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Service;
@@ -33,11 +29,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo> implements OrderInfoService {
@@ -101,7 +94,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     public OrderDescVO getDescVO(String orderId) {
         OrderInfo orderInfo = orderInfoMapper.selectById(orderId);
         if(orderInfo == null) {
-            return new OrderDescVO();
+            return null;
         }
 
         OrderDescVO vo = OrderDescVO.builder()
@@ -125,6 +118,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             vo.setPaymentStatus(payment.getPaymentStatus().getName());
             vo.setPaymentType(payment.getPaymentType().getName());
             vo.setPayment(payment.getPayment().toString());
+            vo.setPaymentId(payment.getPaymentId());
         }
 
         return vo;
@@ -157,7 +151,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             if (orderInfo.getOrderStatus() != OrderStatusEnum.COMPLETE && orderInfo.getOrderStatus() != OrderStatusEnum.ERROR) {
                 continue;
             }
-            if(manualDelete(orderInfo, OrderDeleteEnum.MANUAL.getType())) {
+            if(manualDelete(orderId, 1, OrderDeleteEnum.MANUAL.getType())) {
                 success++;
             }
         }
@@ -181,7 +175,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             if (orderInfo.getOrderStatus() != OrderStatusEnum.WAIT_DIST) {
                 continue;
             }
-            if(manualDelete(orderInfo, OrderDeleteEnum.CANCEL.getType())) {
+            if(manualDelete(orderId, 1, OrderDeleteEnum.CANCEL.getType())) {
                 success++;
             }
         }
@@ -195,35 +189,37 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     }
 
     @Override
-    public boolean manualDelete(OrderInfo orderInfo, Integer deleteType) {
-        UpdateWrapper<OrderInfo> wrapper = new UpdateWrapper<OrderInfo>()
-                .set("has_delete", 1)
-                .set("delete_type", deleteType);
-        return this.retBool(orderInfoMapper.update(orderInfo, wrapper));
+    public ResponseResult batchRollback(String[] ids, String userId) {
+        int success = 0;
+        for(String orderId : ids) {
+            OrderInfo orderInfo = orderInfoMapper.selectByIdIgnoreDelete(orderId);
+            if(!userId.equals(orderInfo.getUserId())) {
+                continue;
+            }
+            if(manualDelete(orderId, 0, OrderDeleteEnum.CANCEL.getType())) {
+                success++;
+            }
+        }
+        int finalSuccess = success;
+        Map<String, Integer> count = new HashMap<String, Integer>(16) {{
+            put("success", finalSuccess);
+            put("error", ids.length - finalSuccess);
+        }};
+
+        return ResponseResult.success(count);
     }
 
-//    private List<OrderVO> convert(List<OrderInfo> infos) {
-//        if(CollectionUtils.isListEmpty(infos)) {
-//            return Collections.emptyList();
-//        }
-//        return infos.stream().map(this::convert).collect(Collectors.toList());
-//    }
-//
-//    private OrderVO convert(OrderInfo info) {
-//        OrderPayment payment = orderPaymentService.getById(info.getId());
-//
-//        OrderVO vo = OrderVO.builder()
-//                .id(info.getId())
-//                .odd(info.getOdd())
-//                .name(info.getRecName())
-//                .tel(info.getRecTel())
-//                .orderStatus(info.getOrderStatus().getStatus())
-//                .paymentStatus(payment.getPaymentStatus().getStatus())
-//                .createDate(info.getCreateDate()).build();
-//        if(info.getCompany() != null) {
-//            vo.setCompany(dataCompanyService.getByCache(info.getCompany()).getName());
-//        }
-//
-//        return vo;
-//    }
+    @Override
+    public boolean manualDelete(String orderId, int hasDelete, int deleteType) {
+        return orderInfoMapper.manualDelete(orderId, hasDelete, deleteType);
+    }
+
+    @Override
+    public boolean isUserOrder(String orderId, String userId) {
+        OrderInfo info = getById(orderId);
+        if(info == null) {
+            return false;
+        }
+        return info.getUserId().equals(userId);
+    }
 }

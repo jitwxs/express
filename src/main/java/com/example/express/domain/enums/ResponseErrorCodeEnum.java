@@ -24,6 +24,8 @@ public enum ResponseErrorCodeEnum {
     FEEDBACk_LENGTH_OVER_255(1011, "反馈内容过长，请控制在255字符内"),
     ORDER_NOT_EXIST(1012, "订单不存在"),
     NOT_APPLY_REAL_NAME(1013, "未完成实名认证"),
+    ORDER_PAYMENT_SYNC_ERROR(1014, "订单支付状态同步失败"),
+    ORDER_NOT_EXIT(1013, "订单不存在"),
 
     OPERATION_NOT_SUPPORT(1976, "操作不支持"),
     IDCARD_OR_REALNAME_EXIST(1977, "您已绑定实名信息"),

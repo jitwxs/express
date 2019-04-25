@@ -1,6 +1,7 @@
 package com.example.express.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.example.express.domain.ResponseResult;
 import com.example.express.domain.bean.OrderPayment;
 import com.example.express.domain.enums.PaymentStatusEnum;
 
@@ -23,4 +24,11 @@ public interface OrderPaymentService extends IService<OrderPayment> {
      * @since 2018/6/4 22:42
      */
     boolean updateStatus(String orderId, PaymentStatusEnum status, String... tradeNo);
+
+    /**
+     * 请求支付宝服务器,同步支付状态
+     * @author jitwxs
+     * @date 2019/4/26 1:00
+     */
+    ResponseResult syncPaymentInfo(String orderId);
 }

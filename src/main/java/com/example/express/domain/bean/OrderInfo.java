@@ -60,7 +60,9 @@ public class OrderInfo {
      */
     @TableLogic
     private Integer hasDelete;
-
+    /**
+     * 删除原因
+     */
     private OrderDeleteEnum deleteType;
 
     @TableField(fill = FieldFill.INSERT)
