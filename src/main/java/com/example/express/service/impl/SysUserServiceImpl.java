@@ -12,7 +12,6 @@ import com.example.express.domain.enums.ResponseErrorCodeEnum;
 import com.example.express.domain.enums.SysRoleEnum;
 import com.example.express.domain.enums.ThirdLoginTypeEnum;
 import com.example.express.domain.vo.UserInfoVO;
-import com.example.express.exception.CustomException;
 import com.example.express.mapper.DataSchoolMapper;
 import com.example.express.mapper.SysUserMapper;
 import com.example.express.service.OrderInfoService;
@@ -110,6 +109,14 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Override
     public boolean checkExistByTel(String mobile) {
         return getByTel(mobile) != null;
+    }
+
+    @Override
+    public boolean checkApplyRealName(SysUser user) {
+        if(StringUtils.isAnyBlank(user.getRealName(), user.getIdCard())) {
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -288,7 +295,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             return ResponseResult.failure(ResponseErrorCodeEnum.EXIST_UNFINISHED_ORDER);
         }
 
+        // user --> courier 需要实名认证
         if(role == SysRoleEnum.USER) {
+            if(!checkApplyRealName(user)) {
+                return ResponseResult.failure(ResponseErrorCodeEnum.NOT_APPLY_REAL_NAME);
+            }
             user.setRole(SysRoleEnum.COURIER);
         } else {
             user.setRole(SysRoleEnum.USER);

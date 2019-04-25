@@ -10,9 +10,7 @@ import com.example.express.domain.enums.FeedbackStatusEnum;
 import com.example.express.domain.enums.FeedbackTypeEnum;
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
 import com.example.express.domain.vo.BootstrapTableVO;
-import com.example.express.domain.vo.UserFeedbackDescVO;
 import com.example.express.domain.vo.UserFeedbackVO;
-import com.example.express.domain.vo.UserInfoVO;
 import com.example.express.service.OrderInfoService;
 import com.example.express.service.UserFeedbackService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +20,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
-import java.util.stream.Collectors;
 
 /**
  * API 反馈接口
@@ -38,13 +35,13 @@ public class FeedbackApiController extends BaseApiController {
     private OrderInfoService orderInfoService;
 
     /**
-     * 分页查询当前用户所有反馈记录
-     * - 管理员：查询所有人所有反馈
-     * - 配送员：查询所有人所有订单反馈
-     * - 普通用户：查询个人所有反馈
+     * 分页查询所有反馈记录
+     * - 普通用户和配送员：个人记录
+     * - 管理员：所有记录
      */
     @GetMapping("/list")
-    public BootstrapTableVO<UserFeedbackVO> listFeedback(@RequestParam(required = false, defaultValue = "1") Integer current,
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_COURIER')")
+    public BootstrapTableVO<UserFeedbackVO> listSelfFeedback(@RequestParam(required = false, defaultValue = "1") Integer current,
                                                          @RequestParam(required = false, defaultValue = "10") Integer size,
                                                          String type, String status, String id,
                                                          @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
@@ -56,6 +53,11 @@ public class FeedbackApiController extends BaseApiController {
         Integer feedStatus = StringUtils.toInteger(status, -1);
         if(FeedbackStatusEnum.getByStatus(feedStatus) != null) {
             wrapper.eq("status", feedStatus);
+        }
+
+        Integer feedbackType1 = StringUtils.toInteger(type, -1);
+        if(FeedbackTypeEnum.getByType(feedbackType1) != null) {
+            wrapper.eq("type", feedbackType1);
         }
 
         if(StringUtils.isNotBlank(id)) {
@@ -70,29 +72,51 @@ public class FeedbackApiController extends BaseApiController {
 
         switch (sysUser.getRole()) {
             case ADMIN:
-                Integer feedbackType = StringUtils.toInteger(type, -1);
-                if(FeedbackTypeEnum.getByType(feedbackType) != null) {
-                    wrapper.eq("type", feedbackType);
-                }
-
-                return userFeedbackService.pageUserFeedbackVO(page, wrapper);
-            case COURIER:
-                wrapper.eq("type", FeedbackTypeEnum.ORDER.getType());
-
-                BootstrapTableVO<UserFeedbackVO> vo = userFeedbackService.pageUserFeedbackVO(page, wrapper);
-                return vo;
-            case USER:
-                wrapper.eq("user_id", sysUser.getId());
-
-                Integer feedbackType1 = StringUtils.toInteger(type, -1);
-                if(FeedbackTypeEnum.getByType(feedbackType1) != null) {
-                    wrapper.eq("type", feedbackType1);
-                }
-
-                 return userFeedbackService.pageUserFeedbackVO(page, wrapper);
+                break;
             default:
-                return new BootstrapTableVO();
+                wrapper.eq("user_id", sysUser.getId());
+                break;
         }
+
+        return userFeedbackService.pageUserFeedbackVO(page, wrapper);
+    }
+
+    /**
+     * 获取配送员需要处理反馈列表
+     * @author jitwxs
+     * @date 2019/4/25 22:58
+     */
+    @GetMapping("/handle-list")
+    @PreAuthorize("hasRole('ROLE_COURIER')")
+    public BootstrapTableVO<UserFeedbackVO> listHandleOrder(@RequestParam(required = false, defaultValue = "1") Integer current,
+                                                            @RequestParam(required = false, defaultValue = "10") Integer size,
+                                                            String type, String status, String id,
+                                                            @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
+                                                            @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate,
+                                                            @AuthenticationPrincipal SysUser sysUser) {
+        Page<UserFeedback> page = new Page<>(current, size);
+        QueryWrapper<UserFeedback> wrapper = new QueryWrapper<>();
+
+        Integer feedStatus = StringUtils.toInteger(status, -1);
+        if(FeedbackStatusEnum.getByStatus(feedStatus) != null) {
+            wrapper.eq("status", feedStatus);
+        }
+        Integer feedbackType1 = StringUtils.toInteger(type, -1);
+        if(FeedbackTypeEnum.getByType(feedbackType1) != null) {
+            wrapper.eq("type", feedbackType1);
+        }
+        if(StringUtils.isNotBlank(id)) {
+            wrapper.eq("id", id);
+        }
+        if(startDate != null) {
+            wrapper.ge("create_date", startDate);
+        }
+        if(endDate != null) {
+            wrapper.le("create_date", endDate);
+        }
+        wrapper.eq("handler", sysUser.getId());
+
+        return userFeedbackService.pageUserFeedbackVO(page, wrapper);
     }
 
     /**

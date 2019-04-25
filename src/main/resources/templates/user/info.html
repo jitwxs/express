@@ -105,7 +105,7 @@
         </div><hr>
         <!-- 角色切换 -->
         <div class="row col-md-offset-3">
-            <button type="button" onclick="applyCourierRole()"
+            <button type="button" id="applyCourierBtn" onclick="applyCourierRole()"
                     th:class="${info.canChangeRole == '0' ? 'disabled btn btn-warning' : 'btn btn-warning'}">申请配送员</button>
         </div>
     </div>
@@ -424,17 +424,18 @@
     }
 
     function applyCourierRole() {
+        if($("#applyCourierBtn").hasClass("disabled")) {
+            return false;
+        }
+
         let msg = '申请后您将拥有配送快递的权利，同时您将失去下单的权利，确定要申请吗？';
         layer.confirm(msg, {
             btn: ['确定','取消']
         }, function(){
-            sendJson(HTTP.GET, "/api/v1/public/school/province/" + id, null, false, function (res) {
+            sendJson(HTTP.POST, "/api/v1/setting/apply-role", null, false, function (res) {
                 if (res.code === 0) {
-                    let html = '', data = res.data;
-                    for(let i = 0; i<data.length; i++) {
-                        html += '<option value="'+data[i].id+'">'+data[i].name+'</option>\n';
-                    }
-                    $("#inputSchool").html(html);
+                    layer.msg("申请成功，请重新登录！", {icon: 1});
+                    setTimeout("new function(){window.location.href='/logout'}","3000");
                 } else {
                     layer.msg(res.msg, {icon: 2});
                 }

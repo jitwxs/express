@@ -58,7 +58,9 @@
                                         <label for="inputId">反馈号</label>
                                         <input type="text" class="form-control" id="inputId">
                                     </div>
-                                    <button type="button" class="btn btn-info ml10" onclick="flushTable()">条件查询</button>
+                                    <button type="button" class="btn btn-info ml10" onclick="flushTable()">
+                                        <span class="glyphicon glyphicon-search"></span> 查询
+                                    </button>
                                 </form>
                             </div>
                             <div class="panel-body">
@@ -297,7 +299,7 @@
                             }, function(){
                                 sendArray(HTTP.POST, "/api/v1/feedback/batch-cancel", {"ids": ids}, false, function (res) {
                                     if(res.code === 0) {
-                                        layer.msg("成功，撤销" + res.msg.success + "个，失败" + res.msg.error + "个",{icon:1});
+                                        layer.msg("成功，撤销" + res.data.success + "个，失败" + res.data.error + "个",{icon:1});
                                         flushTable();
                                     }
                                 }, function () {

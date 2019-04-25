@@ -255,12 +255,10 @@ public class HttpClientUtils {
 
             @Override
             public void checkClientTrusted(X509Certificate[] arg0, String authType) throws CertificateException {
-                // TODO Auto-generated method stub
             }
 
             @Override
             public void checkServerTrusted(X509Certificate[] arg0, String authType) throws CertificateException {
-                // TODO Auto-generated method stub
             }
         };
         SSLContext sslContext;

@@ -22,6 +22,7 @@
                 <!-- Nav tabs -->
                 <ul class="nav nav-tabs" role="tablist">
                     <li role="presentation" class="active"><a href="#history_tab" aria-controls="history-feedback" role="tab" data-toggle="tab">我的反馈</a></li>
+                    <li role="presentation"><a href="#handle_tab" aria-controls="history-feedback" role="tab" data-toggle="tab">处理反馈</a></li>
                     <li role="presentation"><a href="#create_tab" aria-controls="create-feedback" role="tab" data-toggle="tab">立即反馈</a></li>
                 </ul>
                 <!-- Tab panes -->
@@ -30,6 +31,15 @@
                         <div class="panel panel-info">
                             <div class="panel-heading">
                                 <form class="form-inline">
+                                    <div class="form-group">
+                                        <label for="inputType">反馈类型</label>
+                                        <select id="inputType" class="form-control">
+                                            <option value=-1>所有类型</option>
+                                            <option value=1>订单反馈</option>
+                                            <option value=2>意见反馈</option>
+                                            <option value=3>BUG反馈</option>
+                                        </select>
+                                    </div>
                                     <div class="form-group">
                                         <label for="inputStatus">反馈状态</label>
                                         <select id="inputStatus" class="form-control">
@@ -49,11 +59,64 @@
                                         <label for="inputId">反馈号</label>
                                         <input type="text" class="form-control" id="inputId">
                                     </div>
-                                    <button type="button" class="btn btn-info ml10" onclick="flushTable()">条件查询</button>
+                                    <button type="button" class="btn btn-sm btn-success ml10" onclick="flushHistoryTable()">
+                                        <span class="glyphicon glyphicon-search"></span> 查询
+                                    </button>
                                 </form>
                             </div>
                             <div class="panel-body">
+                                <div id="toolbar" class="btn-group">
+                                    <button id="btn_cancel" type="button" class="btn btn-warning">
+                                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> 撤销反馈
+                                    </button>
+                                </div>
+                                <div class="alert alert-warning alert-dismissible fade in" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                    <strong>提示！</strong> 撤销反馈仅能撤“等待处理”状态反馈
+                                </div>
                                 <table id="tb_history"></table>
+                            </div>
+                        </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane fade" id="handle_tab">
+                        <div class="panel panel-info">
+                            <div class="panel-heading">
+                                <form class="form-inline">
+                                    <div class="form-group">
+                                        <label for="inputType1">反馈类型</label>
+                                        <select id="inputType1" class="form-control">
+                                            <option value=-1>所有类型</option>
+                                            <option value=1>订单反馈</option>
+                                            <option value=2>意见反馈</option>
+                                            <option value=3>BUG反馈</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputStatus1">反馈状态</label>
+                                        <select id="inputStatus1" class="form-control">
+                                            <option value=-1>所有状态</option>
+                                            <option value=1>等待处理</option>
+                                            <option value=2>处理中</option>
+                                            <option value=3>处理完毕</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputStartDate1" class="ml10">起</label>
+                                        <input type="date" id="inputStartDate1" class="form-control ml10">
+                                        <label for="inputEndDate1" class="ml10">讫</label>
+                                        <input type="date" id="inputEndDate1" class="form-control ml10">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputId1">反馈号</label>
+                                        <input type="text" class="form-control" id="inputId1">
+                                    </div>
+                                    <button type="button" class="btn btn-info ml10" onclick="flushHandleTable()">
+                                        <span class="glyphicon glyphicon-search"></span> 查询
+                                    </button>
+                                </form>
+                            </div>
+                            <div class="panel-body">
+                                <table id="tb_handle"></table>
                             </div>
                         </div>
                     </div>
@@ -62,9 +125,9 @@
                             <div class="panel-body">
                                 <form class="form-horizontal" id="feedbackForm">
                                     <div class="form-group">
-                                        <label class="col-sm-1 control-label" for="inputType1">反馈类型</label>
+                                        <label class="col-sm-1 control-label" for="inputType2">反馈类型</label>
                                         <div class="col-sm-11">
-                                            <select class="form-control" name="type" id="inputType1">
+                                            <select class="form-control" name="type" id="inputType2">
                                                 <option value="1">订单反馈</option>
                                                 <option value="2">意见反馈</option>
                                                 <option value="3">BUG反馈</option>
@@ -122,6 +185,13 @@
             //1、初始化Table
             var oTable = new TableInit();
             oTable.Init();
+
+            var oTable1 = new TableInit1();
+            oTable1.Init();
+
+            //2、初始化Button的点击事件
+            var oButtonInit = new ButtonInit();
+            oButtonInit.Init();
         });
 
         function refresh(obj) { obj.src = "/auth/code/getVerifyCode?" + Math.random(); }
@@ -233,6 +303,88 @@
                     }, {
                         field: 'updateDate',
                         title: '处理时间'
+                    }]
+                });
+            };
+
+            // 传递给后台的参数
+            oTableInit.queryParams = function (params) {
+                return {   //这里的键的名字和后台参数必须一致
+                    size: params.limit,                             //页面大小
+                    current: (params.offset / params.limit) + 1,   //页码
+                    // 筛选参数
+                    type: $("#inputType").val(),
+                    id: $("#inputId").val(),
+                    status: $("#inputStatus").val(),
+                    startDate: $("#inputStartDate").val(),
+                    endDate:$("#inputEndDate").val(),
+                };
+            };
+            return oTableInit;
+        };
+
+        var TableInit1 = function () {
+            let oTableInit = new Object();
+            //初始化Table
+            oTableInit.Init = function () {
+                $('#tb_handle').bootstrapTable({
+                    url: '/api/v1/feedback/handle-list',       //请求后台的URL（*）
+                    method: HTTP.GET,                   //请求方式（*）
+                    striped: true,                      //是否显示行间隔色
+                    cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+                    pagination: true,                   //是否显示分页（*）
+                    sortable: false,                    //是否启用排序
+                    sortOrder: "asc",                   //排序方式
+                    queryParams: oTableInit.queryParams,//传递参数（*）
+                    sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+                    pageNumber:1,                       //初始化加载第一页，默认第一页
+                    pageSize: 10,                       //每页的记录行数（*）
+                    pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+                    search: false,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端。后台分页时意义不大
+                    showColumns: true,                  //是否显示所有的列
+                    showRefresh: true,                  //是否显示刷新按钮
+                    minimumCountColumns: 2,             //最少允许的列数
+                    clickToSelect: true,                //是否启用点击选中行
+                    // height: 750,                     //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+                    uniqueId: "id",                     //每一行的唯一标识，一般为主键列
+                    showToggle:false,                   //是否显示详细视图和列表视图的切换按钮
+                    cardView: false,                    //是否显示详细视图
+                    detailView: false,                  //是否显示父子表
+                    showExport: true,                   //是否显示导出
+                    exportDataType: "basic",            //导出的模式是当前页basic、所有数据all、选中数据selected。
+                    columns: [{
+                        checkbox: true
+                    }, {
+                        field: 'id',
+                        title: '反馈号'
+                    }, {
+                        field: 'type',
+                        title: '反馈类型',
+                        formatter: typeFormatter
+                    }, {
+                        field: 'status',
+                        title: '反馈状态',
+                        formatter: statusFormatter
+                    }, {
+                        field: 'orderId',
+                        title: '订单号'
+                    }, {
+                        field: 'content',
+                        title: '反馈内容',
+                        width: 200
+                    }, {
+                        field: 'handlerName',
+                        title: '处理人'
+                    }, {
+                        field: 'result',
+                        title: '处理结果',
+                        width: 200
+                    }, {
+                        field: 'createDate',
+                        title: '反馈时间'
+                    }, {
+                        field: 'updateDate',
+                        title: '处理时间'
                     }, {
                         field: 'id',
                         title: '操作',
@@ -250,23 +402,65 @@
                     size: params.limit,                             //页面大小
                     current: (params.offset / params.limit) + 1,   //页码
                     // 筛选参数
-                    id: $("#inputId").val(),
-                    status: $("#inputStatus").val(),
-                    startDate: $("#inputStartDate").val(),
-                    endDate:$("#inputEndDate").val(),
+                    type: $("#inputType1").val(),
+                    id: $("#inputId1").val(),
+                    status: $("#inputStatus1").val(),
+                    startDate: $("#inputStartDate1").val(),
+                    endDate:$("#inputEndDate1").val(),
                 };
             };
             return oTableInit;
         };
 
+        var ButtonInit = function () {
+            var oInit = new Object();
+
+            oInit.Init = function () {
+                // 撤销反馈
+                $("#btn_cancel").click(function () {
+                    var row = $('#tb_history').bootstrapTable("getSelections");
+                    if(row.length > 0) {
+                        var ids = new Array();
+                        for (var i = 0; i < row.length; i++) {
+                            if (row[i].status === 1) {
+                                ids.push(row[i].id);
+                            }
+                        }
+                        if (ids.length === 0) {
+                            layer.msg("选中项不包含可撤销的反馈",{icon:0});
+                            return false;
+                        } else {
+                            layer.confirm("撤销的反馈号为：" + ids + "，确认执行？", {
+                                btn: ['确定','取消']
+                            }, function(){
+                                sendArray(HTTP.POST, "/api/v1/feedback/batch-cancel", {"ids": ids}, false, function (res) {
+                                    if(res.code === 0) {
+                                        layer.msg("成功，撤销" + res.data.success + "个，失败" + res.data.error + "个",{icon:1});
+                                        flushTable();
+                                    }
+                                }, function () {
+                                    layer.msg("未知错误",{icon:2});
+                                });
+                            }, function(){
+                            });
+                        }
+                    }
+                });
+            };
+            return oInit;
+        };
+
         //操作栏的格式化
         function actionFormatter(value, row, index) {
             let id = "'" + value + "'", result = '';
-            if(row.isSelf) {
-                result += '<button class="btn btn-xs btn-info" onclick="cancelFeedback('+id+')" title="撤销"><span class="glyphicon glyphicon-remove"></span></button>\n' +
-            } else {
-                result += '<button class="btn btn-xs btn-info" onclick="handleFeedback('+id+')" title="处理"><span class="glyphicon glyphicon-edit"></span></button>\n' +
+
+            if(row.status !== 3) {
+                if(row.status === 1) {
+                    result += '<button class="btn btn-xs btn-warning" onclick="handleFeedback('+id+')" title="处理中"><span class="glyphicon glyphicon-adjust"></span></button>\n';
+                }
+                result += '<button class="btn btn-xs btn-success" onclick="closeFeedback('+id+')" title="处理完毕"><span class="glyphicon glyphicon-check"></span></button>\n';
             }
+
             return result;
         }
         function typeFormatter(value, row, index) {
@@ -285,14 +479,45 @@
             else if (value === 1)
                 return '<span style="color:grey">等待处理</span>';
         }
-        function flushTable() {
+        function flushHistoryTable() {
             $("#tb_history").bootstrapTable('refresh',{url : '/api/v1/feedback/list'} );
         }
-        function cancelFeedback(id) {
-
+        function flushHandleTable() {
+            $("#tb_handle").bootstrapTable('refresh',{url : '/api/v1/feedback/handle-list'} );
         }
         function handleFeedback(id) {
-
+            layer.prompt({title:"处理中"},function(val, index) {
+                sendArray(HTTP.POST, "/api/v1/feedback/deal", {
+                    "id": id,
+                    "status": 2,
+                    "result": val
+                }, false, function (res) {
+                    if (res.code === 0) {
+                        layer.msg("操作成功", {icon: 1});
+                        layer.close(index);
+                        flushHandleTable();
+                    }
+                }, function () {
+                    layer.msg("未知错误", {icon: 2});
+                });
+            });
+        }
+        function closeFeedback(id) {
+            layer.prompt({title:"处理完毕"},function(val, index) {
+                sendArray(HTTP.POST, "/api/v1/feedback/deal", {
+                    "id": id,
+                    "status": 3,
+                    "result": val
+                }, false, function (res) {
+                    if (res.code === 0) {
+                        layer.msg("操作成功", {icon: 1});
+                        layer.close(index);
+                        flushHandleTable();
+                    }
+                }, function () {
+                    layer.msg("未知错误", {icon: 2});
+                });
+            });
         }
     </script>
 </body>

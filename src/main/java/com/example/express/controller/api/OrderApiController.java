@@ -6,6 +6,7 @@ import com.example.express.domain.ResponseResult;
 import com.example.express.domain.bean.SysUser;
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
 import com.example.express.domain.vo.BootstrapTableVO;
+import com.example.express.domain.vo.OrderDescVO;
 import com.example.express.domain.vo.OrderVO;
 import com.example.express.exception.CustomException;
 import com.example.express.service.OrderInfoService;
@@ -27,6 +28,17 @@ public class OrderApiController {
     private OrderInfoService orderInfoService;
     @Autowired
     private OrderPaymentService orderPaymentService;
+
+    /**
+     * 获取订单信息
+     * @author jitwxs
+     * @date 2019/4/25 23:36
+     */
+    @GetMapping("/{id}")
+    public ResponseResult getOrderDesc(@PathVariable String id) {
+        OrderDescVO descVO = orderInfoService.getDescVO(id);
+        return ResponseResult.success(descVO);
+    }
 
     /**
      * 获取个人所有订单

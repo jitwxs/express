@@ -34,6 +34,10 @@ public interface SysUserService extends IService<SysUser> {
      */
     boolean checkExistByTel(String mobile);
     /**
+     * 是否实名认证
+     */
+    boolean checkApplyRealName(SysUser user);
+    /**
      * 三方登陆逻辑
      */
     ResponseResult thirdLogin(String thirdLoginId, ThirdLoginTypeEnum thirdLoginTypeEnum);
