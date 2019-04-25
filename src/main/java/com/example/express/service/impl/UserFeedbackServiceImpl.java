@@ -7,9 +7,13 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.express.common.util.CollectionUtils;
 import com.example.express.common.util.RandomUtils;
 import com.example.express.common.util.StringUtils;
+import com.example.express.domain.ResponseResult;
+import com.example.express.domain.bean.OrderInfo;
 import com.example.express.domain.bean.UserFeedback;
 import com.example.express.domain.enums.FeedbackStatusEnum;
 import com.example.express.domain.enums.FeedbackTypeEnum;
+import com.example.express.domain.enums.OrderDeleteEnum;
+import com.example.express.domain.enums.OrderStatusEnum;
 import com.example.express.domain.vo.BootstrapTableVO;
 import com.example.express.domain.vo.UserFeedbackDescVO;
 import com.example.express.domain.vo.UserFeedbackVO;
@@ -21,7 +25,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -61,34 +67,27 @@ public class UserFeedbackServiceImpl extends ServiceImpl<UserFeedbackMapper, Use
     }
 
     @Override
-    public UserFeedbackDescVO getDescVO(Integer feedbackId) {
-        UserFeedback feedback = userFeedbackMapper.selectById(feedbackId);
-        if(feedback == null) {
-            return new UserFeedbackDescVO();
+    public ResponseResult batchCancelOrder(String[] ids, String userId) {
+        int success = 0;
+        for(String id : ids) {
+            UserFeedback feedback = userFeedbackMapper.selectById(id);
+            if(!userId.equals(feedback.getUserId())) {
+                continue;
+            }
+            if (feedback.getFeedbackStatus() != FeedbackStatusEnum.WAIT) {
+                continue;
+            }
+            if(this.retBool(userFeedbackMapper.deleteById(id))) {
+                success++;
+            }
         }
+        int finalSuccess = success;
+        Map<String, Integer> count = new HashMap<String, Integer>(16) {{
+            put("success", finalSuccess);
+            put("error", ids.length - finalSuccess);
+        }};
 
-        String userFrontName = sysUserService.getFrontName(feedback.getUserId());
-        String handlerFrontName = null;
-        if(feedback.getHandler() != null) {
-            handlerFrontName = sysUserService.getFrontName(feedback.getHandler());
-        }
-
-        UserFeedbackDescVO vo = UserFeedbackDescVO.builder()
-                .id(feedback.getId())
-                .frontName(userFrontName)
-                .feedbackType(feedback.getFeedbackType().getName())
-                .feedbackStatus(feedback.getFeedbackStatus().getName())
-                .content(feedback.getContent())
-                .handler(handlerFrontName)
-                .result(feedback.getResult())
-                .createDate(feedback.getCreateDate())
-                .updateDate(feedback.getUpdateDate()).build();
-
-        if(StringUtils.isNotBlank(feedback.getOrderId())) {
-            vo.setOrder(orderInfoService.getDescVO(feedback.getOrderId()));
-        }
-
-        return vo;
+        return ResponseResult.success(count);
     }
 
     private List<UserFeedbackVO> convert(List<UserFeedback> userFeedbacks) {
@@ -109,6 +108,10 @@ public class UserFeedbackServiceImpl extends ServiceImpl<UserFeedbackMapper, Use
                 .content(userFeedback.getContent())
                 .createDate(userFeedback.getCreateDate())
                 .updateDate(userFeedback.getUpdateDate()).build();
+
+        if(StringUtils.isNotBlank(userFeedback.getOrderId())) {
+            vo.setOrderId(userFeedback.getOrderId());
+        }
 
         if(StringUtils.isNotBlank(userFeedback.getHandler())) {
             String handlerName = sysUserService.getFrontName(userFeedback.getHandler());

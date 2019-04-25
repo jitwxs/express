@@ -12,6 +12,7 @@ import com.example.express.domain.enums.ResponseErrorCodeEnum;
 import com.example.express.domain.vo.BootstrapTableVO;
 import com.example.express.domain.vo.UserFeedbackDescVO;
 import com.example.express.domain.vo.UserFeedbackVO;
+import com.example.express.domain.vo.UserInfoVO;
 import com.example.express.service.OrderInfoService;
 import com.example.express.service.UserFeedbackService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
+import java.util.stream.Collectors;
 
 /**
  * API 反馈接口
@@ -34,16 +36,6 @@ public class FeedbackApiController extends BaseApiController {
     private UserFeedbackService userFeedbackService;
     @Autowired
     private OrderInfoService orderInfoService;
-
-    /**
-     * 获取单条记录详情
-     */
-    @GetMapping("/{id}")
-    public ResponseResult getFeedbackById(@PathVariable Integer id) {
-        UserFeedbackDescVO feedback = userFeedbackService.getDescVO(id);
-
-        return ResponseResult.success(feedback);
-    }
 
     /**
      * 分页查询当前用户所有反馈记录
@@ -73,7 +65,7 @@ public class FeedbackApiController extends BaseApiController {
             wrapper.ge("create_date", startDate);
         }
         if(endDate != null) {
-            wrapper.le("create_date", startDate);
+            wrapper.le("create_date", endDate);
         }
 
         switch (sysUser.getRole()) {
@@ -87,7 +79,8 @@ public class FeedbackApiController extends BaseApiController {
             case COURIER:
                 wrapper.eq("type", FeedbackTypeEnum.ORDER.getType());
 
-                return userFeedbackService.pageUserFeedbackVO(page,wrapper);
+                BootstrapTableVO<UserFeedbackVO> vo = userFeedbackService.pageUserFeedbackVO(page, wrapper);
+                return vo;
             case USER:
                 wrapper.eq("user_id", sysUser.getId());
 
@@ -96,7 +89,7 @@ public class FeedbackApiController extends BaseApiController {
                     wrapper.eq("type", feedbackType1);
                 }
 
-                return userFeedbackService.pageUserFeedbackVO(page, wrapper);
+                 return userFeedbackService.pageUserFeedbackVO(page, wrapper);
             default:
                 return new BootstrapTableVO();
         }
@@ -133,6 +126,18 @@ public class FeedbackApiController extends BaseApiController {
         boolean isSuccess = userFeedbackService.createFeedback(sysUser.getId(), feedbackTypeEnum, content, orderId);
 
         return isSuccess ? ResponseResult.success() : ResponseResult.failure(ResponseErrorCodeEnum.OPERATION_ERROR);
+    }
+
+    /**
+     * 批量撤销反馈，仅能撤销个人反馈
+     * 状态为等待处理
+     * @author jitwxs
+     * @date 2019/4/25 0:11
+     */
+    @PostMapping("/batch-cancel")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_COURIER')")
+    public ResponseResult batchCancel(String[] ids, @AuthenticationPrincipal SysUser sysUser) {
+        return userFeedbackService.batchCancelOrder(ids, sysUser.getId());
     }
 
     /**

@@ -29,7 +29,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = CustomException.class)
     public ModelAndView customException(CustomException e) {
-        log.error("[异常错误] code：{}, msg: {}", e.getCode(), e.getMessage());
+        log.error("[异常错误] code：{}, msg: {}, 错误：{}", e.getCode(), e.getMessage(), HttpClientUtils.getStackTraceAsString(e));
 
         Map<String, Object> map = new HashMap<>(16);
         map.put("errorCode", e.getCode());

@@ -187,7 +187,7 @@
                             }
                         }
                         if (ids.length === 0) {
-                            layer.msg("选中的订单不包含可撤销的订单",{icon:0});
+                            layer.msg("选中项不包含可撤销的订单",{icon:0});
                             return false;
                         } else {
                             layer.confirm("撤销的订单号为：" + ids + "，确认执行？", {
@@ -217,7 +217,7 @@
                             }
                         }
                         if (ids.length === 0) {
-                            layer.msg("选中的订单不包含可删除的订单",{icon:0});
+                            layer.msg("选中项不包含可删除的订单",{icon:0});
                             return false;
                         } else {
                             layer.confirm("删除的订单号为：" + ids + "，确认执行？", {

@@ -62,6 +62,15 @@
                                 </form>
                             </div>
                             <div class="panel-body">
+                                <div id="toolbar" class="btn-group">
+                                    <button id="btn_cancel" type="button" class="btn btn-warning">
+                                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> 撤销反馈
+                                    </button>
+                                </div>
+                                <div class="alert alert-warning alert-dismissible fade in" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                    <strong>提示！</strong> 撤销反馈仅能撤“等待处理”状态反馈
+                                </div>
                                 <table id="tb_history"></table>
                             </div>
                         </div>
@@ -89,8 +98,7 @@
                                     <div class="form-group">
                                         <label for="inputContent" class="col-sm-1 control-label">反馈内容</label>
                                         <div class="col-sm-11">
-                            <textarea class="form-control" id="inputContent" name="content" rows="5"
-                                      placeholder="请输入反馈的内容，如果牵扯到订单，请说明订单号"></textarea>
+                                            <textarea class="form-control" id="inputContent" name="content" rows="5" href="" laceholder="请输入反馈的内容，如果牵扯到订单，请说明订单号"></textarea>
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -132,6 +140,9 @@
             //1、初始化Table
             var oTable = new TableInit();
             oTable.Init();
+            //2、初始化Button的点击事件
+            var oButtonInit = new ButtonInit();
+            oButtonInit.Init();
         });
 
         function refresh(obj) { obj.src = "/auth/code/getVerifyCode?" + Math.random(); }
@@ -224,6 +235,9 @@
                         title: '反馈状态',
                         formatter: statusFormatter
                     }, {
+                        field: 'orderId',
+                        title: '订单号'
+                    }, {
                         field: 'content',
                         title: '反馈内容',
                         width: 200
@@ -239,14 +253,7 @@
                         title: '反馈时间'
                     }, {
                         field: 'updateDate',
-                        title: '答复时间'
-                    }, {
-                        field: 'id',
-                        title: '操作',
-                        width: 120,
-                        align: 'center',
-                        valign: 'middle',
-                        formatter: actionFormatter
+                        title: '处理时间'
                     }]
                 });
             };
@@ -267,6 +274,51 @@
             return oTableInit;
         };
 
+        var ButtonInit = function () {
+            var oInit = new Object();
+
+            oInit.Init = function () {
+                // 撤销反馈
+                $("#btn_cancel").click(function () {
+                    var row = $('#tb_history').bootstrapTable("getSelections");
+                    if(row.length > 0) {
+                        var ids = new Array();
+                        for (var i = 0; i < row.length; i++) {
+                            if (row[i].status === 1) {
+                                ids.push(row[i].id);
+                            }
+                        }
+                        if (ids.length === 0) {
+                            layer.msg("选中项不包含可撤销的反馈",{icon:0});
+                            return false;
+                        } else {
+                            layer.confirm("撤销的反馈号为：" + ids + "，确认执行？", {
+                                btn: ['确定','取消']
+                            }, function(){
+                                sendArray(HTTP.POST, "/api/v1/feedback/batch-cancel", {"ids": ids}, false, function (res) {
+                                    if(res.code === 0) {
+                                        layer.msg("成功，撤销" + res.msg.success + "个，失败" + res.msg.error + "个",{icon:1});
+                                        flushTable();
+                                    }
+                                }, function () {
+                                    layer.msg("未知错误",{icon:2});
+                                });
+                            }, function(){
+                            });
+                        }
+                    }
+                });
+            };
+            return oInit;
+        };
+
+        //操作栏的格式化
+        function actionFormatter(value, row, index) {
+            let id = "'" + value + "'";
+            let result = '<button class="btn btn-xs btn-info" onclick="showDetail('+id+')" title="查看"><span class="glyphicon glyphicon-search"></span></button>\n' +
+                '         <button class="btn btn-xs btn-primary" onclick="refreshStatus('+id+')" title="刷新"><span class="glyphicon glyphicon-refresh"></span></button>';
+            return result;
+        }
         function typeFormatter(value, row, index) {
             if (value === 3)
                 return 'BUG反馈';
@@ -283,17 +335,8 @@
             else if (value === 1)
                 return '<span style="color:grey">等待处理</span>';
         }
-        function actionFormatter(value, row, index) {
-            let id = "'" + value + "'";
-            let result = '<button class="btn btn-xs btn-info" onclick="showDetail('+id+')" title="查看"><span class="glyphicon glyphicon-search"></span></button>';
-            return result;
-        }
-
         function flushTable() {
-            $("#tb_history").bootstrapTable('refresh',{url : '/api/v1/order/list'} );
-        }
-        function showDetail(id) {
-
+            $("#tb_history").bootstrapTable('refresh',{url : '/api/v1/feedback/list'} );
         }
     </script>
 </body>

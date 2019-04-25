@@ -3,6 +3,7 @@ package com.example.express.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.example.express.domain.ResponseResult;
 import com.example.express.domain.bean.UserFeedback;
 import com.example.express.domain.enums.FeedbackTypeEnum;
 import com.example.express.domain.vo.BootstrapTableVO;
@@ -19,5 +20,5 @@ public interface UserFeedbackService extends IService<UserFeedback> {
 
     boolean createFeedback(String userId, FeedbackTypeEnum feedbackTypeEnum, String content, String orderId);
 
-    UserFeedbackDescVO getDescVO(Integer feedbackId);
+    ResponseResult batchCancelOrder(String[] ids, String id);
 }

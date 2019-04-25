@@ -30,6 +30,10 @@ public class UserFeedbackVO implements Serializable {
      */
     private String content;
     /**
+     * 订单号
+     */
+    private String orderId;
+    /**
      * 反馈状态
      */
     private Integer status;
