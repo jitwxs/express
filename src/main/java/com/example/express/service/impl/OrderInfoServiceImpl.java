@@ -1,6 +1,7 @@
 package com.example.express.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -23,6 +24,7 @@ import com.example.express.service.DataCompanyService;
 import com.example.express.service.OrderInfoService;
 import com.example.express.service.OrderPaymentService;
 import com.example.express.service.SysUserService;
+import com.google.common.collect.Ordering;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Service;
@@ -134,28 +136,28 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     }
 
     @Override
-    public BootstrapTableVO<OrderVO> pageOrderVO(Page<OrderInfo> page, QueryWrapper<OrderInfo> wrapper) {
+    public BootstrapTableVO<OrderVO> pageOrderVO(Page<OrderVO> page, String selectSql, int isDelete) {
         BootstrapTableVO<OrderVO> vo = new BootstrapTableVO<>();
 
-        IPage<OrderInfo> selectPage = orderInfoMapper.selectPage(page, wrapper);
+        IPage<OrderVO> selectPage = orderInfoMapper.pageOrderVO(page, selectSql, isDelete);
         vo.setTotal(selectPage.getTotal());
-        vo.setRows(convert(selectPage.getRecords()));
+        vo.setRows(selectPage.getRecords());
 
         return vo;
     }
 
     @Override
-    public ResponseResult batchDeleteOrder(String[] ids, String id) {
+    public ResponseResult batchDeleteOrder(String[] ids, String userId) {
         int success = 0;
         for(String orderId : ids) {
             OrderInfo orderInfo = orderInfoMapper.selectById(orderId);
-            if(!id.equals(orderInfo.getUserId())) {
+            if(!userId.equals(orderInfo.getUserId())) {
                 continue;
             }
             if (orderInfo.getOrderStatus() != OrderStatusEnum.COMPLETE && orderInfo.getOrderStatus() != OrderStatusEnum.ERROR) {
                 continue;
             }
-            if(manualDelete(orderId, OrderDeleteEnum.MANUAL.getType())) {
+            if(manualDelete(orderInfo, OrderDeleteEnum.MANUAL.getType())) {
                 success++;
             }
         }
@@ -169,22 +171,22 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     }
 
     @Override
-    public ResponseResult batchCancelOrder(String[] ids, String id) {
+    public ResponseResult batchCancelOrder(String[] ids, String userId) {
         int success = 0;
         for(String orderId : ids) {
             OrderInfo orderInfo = orderInfoMapper.selectById(orderId);
-            if(!id.equals(orderInfo.getUserId())) {
+            if(!userId.equals(orderInfo.getUserId())) {
                 continue;
             }
             if (orderInfo.getOrderStatus() != OrderStatusEnum.WAIT_DIST) {
                 continue;
             }
-            if(manualDelete(orderId, OrderDeleteEnum.CANCEL.getType())) {
+            if(manualDelete(orderInfo, OrderDeleteEnum.CANCEL.getType())) {
                 success++;
             }
         }
         int finalSuccess = success;
-        Map<String, Integer> count = new HashMap<String, Integer>() {{
+        Map<String, Integer> count = new HashMap<String, Integer>(16) {{
             put("success", finalSuccess);
             put("error", ids.length - finalSuccess);
         }};
@@ -193,32 +195,35 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     }
 
     @Override
-    public boolean manualDelete(String orderId, Integer deleteType) {
-        return orderInfoMapper.manualDelete(orderId, deleteType);
+    public boolean manualDelete(OrderInfo orderInfo, Integer deleteType) {
+        UpdateWrapper<OrderInfo> wrapper = new UpdateWrapper<OrderInfo>()
+                .set("has_delete", 1)
+                .set("delete_type", deleteType);
+        return this.retBool(orderInfoMapper.update(orderInfo, wrapper));
     }
 
-    private List<OrderVO> convert(List<OrderInfo> infos) {
-        if(CollectionUtils.isListEmpty(infos)) {
-            return Collections.emptyList();
-        }
-        return infos.stream().map(this::convert).collect(Collectors.toList());
-    }
-
-    private OrderVO convert(OrderInfo info) {
-        OrderPayment payment = orderPaymentService.getById(info.getId());
-
-        OrderVO vo = OrderVO.builder()
-                .id(info.getId())
-                .odd(info.getOdd())
-                .name(info.getRecName())
-                .tel(info.getRecTel())
-                .orderStatus(info.getOrderStatus().getStatus())
-                .paymentStatus(payment.getPaymentStatus().getStatus())
-                .createDate(info.getCreateDate()).build();
-        if(info.getCompany() != null) {
-            vo.setCompany(dataCompanyService.getByCache(info.getCompany()).getName());
-        }
-
-        return vo;
-    }
+//    private List<OrderVO> convert(List<OrderInfo> infos) {
+//        if(CollectionUtils.isListEmpty(infos)) {
+//            return Collections.emptyList();
+//        }
+//        return infos.stream().map(this::convert).collect(Collectors.toList());
+//    }
+//
+//    private OrderVO convert(OrderInfo info) {
+//        OrderPayment payment = orderPaymentService.getById(info.getId());
+//
+//        OrderVO vo = OrderVO.builder()
+//                .id(info.getId())
+//                .odd(info.getOdd())
+//                .name(info.getRecName())
+//                .tel(info.getRecTel())
+//                .orderStatus(info.getOrderStatus().getStatus())
+//                .paymentStatus(payment.getPaymentStatus().getStatus())
+//                .createDate(info.getCreateDate()).build();
+//        if(info.getCompany() != null) {
+//            vo.setCompany(dataCompanyService.getByCache(info.getCompany()).getName());
+//        }
+//
+//        return vo;
+//    }
 }

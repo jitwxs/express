@@ -1,7 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.express.mapper.OrderInfoMapper">
-    <update id="manualDelete">
-        UPDATE `order_info` set has_delete=1,delete_type=#{deleteType} WHERE id = #{id}
-    </update>
+    <select id="pageOrderVO" resultType="com.example.express.domain.vo.OrderVO">
+        SELECT
+            info.id,
+            info.odd,
+            cp.name as company,
+            info.rec_name as name,
+            info.rec_tel as tel,
+            info.status AS order_status,
+            payment.status AS payment_status,
+            info.create_date
+        FROM
+            order_payment as payment,
+            order_info as info LEFT JOIN data_company as cp
+            ON info.company = cp.id
+        WHERE
+            info.id = payment.order_id AND info.has_delete = #{has_delete} ${sql}
+    </select>
 </mapper>

@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>我的订单 - 快递代拿系统</title>
+    <title>回收站 - 快递代拿系统</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
 
@@ -47,18 +47,11 @@
                 </div>
                 <div class="panel-body">
                     <div id="toolbar" class="btn-group">
-                        <button id="btn_cancel" type="button" class="btn btn-warning">
-                            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> 撤销订单
-                        </button>
-                        <button id="btn_delete" type="button" class="btn btn-danger">
-                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> 删除订单
+                        <button id="btn_cancel" type="button" class="btn btn-primary">
+                            <span class="glyphicon glyphicon-repeat" aria-hidden="true"></span> 还原订单
                         </button>
                     </div>
-                    <div class="alert alert-warning alert-dismissible fade in" role="alert">
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
-                        <strong>提示！</strong> 撤销订单仅能撤“等待派送”状态订单，删除订单仅能移除“订单完成”和“订单异常”状态订单
-                    </div>
-                    <table id="tb_history"></table>
+                    <table id="tb_recycle"></table>
                 </div>
             </div>
         </div>
@@ -76,7 +69,7 @@
     <script th:src="@{/assets/js/tableExport.min.js}" src="../../static/assets/js/tableExport.min.js"></script>
     <script>
         $(function () {
-            $("#history-sidebar").addClass('active');
+            $("#recycle-sidebar").addClass('active');
 
             //1、初始化Table
             var oTable = new TableInit();
@@ -91,7 +84,7 @@
             let oTableInit = new Object();
             //初始化Table
             oTableInit.Init = function () {
-                $('#tb_history').bootstrapTable({
+                $('#tb_recycle').bootstrapTable({
                     url: '/api/v1/order/list',          //请求后台的URL（*）
                     method: HTTP.GET,                   //请求方式（*）
                     toolbar: '#toolbar',                //工具按钮组id
@@ -161,7 +154,7 @@
                 return {   //这里的键的名字和后台参数必须一致
                     size: params.limit,                             //页面大小
                     current: (params.offset / params.limit) + 1,   //页码
-                    type: 0,
+                    type: 1,
                     // 筛选参数
                     id: $("#inputId").val(),
                     status: $("#inputStatus").val(),
@@ -178,7 +171,7 @@
             oInit.Init = function () {
                 // 撤销订单
                 $("#btn_cancel").click(function () {
-                    var row = $('#tb_history').bootstrapTable("getSelections");
+                    var row = $('#tb_recycle').bootstrapTable("getSelections");
                     if(row.length > 0) {
                         var ids = new Array();
                         for (var i = 0; i < row.length; i++) {
@@ -206,44 +199,13 @@
                         }
                     }
                 });
-                // 删除订单
-                $("#btn_delete").click(function () {
-                    var row = $('#tb_history').bootstrapTable("getSelections");
-                    if(row.length > 0) {
-                        var ids = new Array();
-                        for (var i = 0; i < row.length; i++) {
-                            if (row[i].orderStatus === 3 || row[i].orderStatus === 4) {
-                                ids.push(row[i].id);
-                            }
-                        }
-                        if (ids.length === 0) {
-                            layer.msg("选中的订单不包含可删除的订单",{icon:0});
-                            return false;
-                        } else {
-                            layer.confirm("删除的订单号为：" + ids + "，确认执行？", {
-                                btn: ['确定','取消']
-                            }, function(){
-                                sendArray(HTTP.POST, "/api/v1/order/batch-delete", {"ids": ids}, false, function (res) {
-                                    if(res.code === 0) {
-                                        layer.msg("成功，删除" + res.msg.success + "个，失败" + res.msg.error + "个",{icon:1});
-                                        flushTable();
-                                    }
-                                }, function () {
-                                    layer.msg("未知错误",{icon:2});
-                                });
-                            }, function(){
-                            });
-                        }
-                    }
-                });
             };
             return oInit;
         };
         //操作栏的格式化
         function actionFormatter(value, row, index) {
             let id = "'" + value + "'";
-            let result = '<button class="btn btn-xs btn-info" onclick="showDetail('+id+')" title="查看"><span class="glyphicon glyphicon-search"></span></button>\n' +
-                '         <button class="btn btn-xs btn-primary" onclick="refreshStatus('+id+')" title="刷新"><span class="glyphicon glyphicon-refresh"></span></button>';
+            let result = '<button class="btn btn-xs btn-info" onclick="showDetail('+id+')" title="查看"><span class="glyphicon glyphicon-search"></span></button>';
             return result;
         }
         // 订单状态的格式化
@@ -270,12 +232,9 @@
         }
 
         function flushTable() {
-            $("#tb_history").bootstrapTable('refresh',{url : '/api/v1/order/list'} );
+            $("#tb_recycle").bootstrapTable('refresh',{url : '/api/v1/order/list'} );
         }
 
-        function refreshStatus(id) {
-
-        }
         function showDetail(id) {
 
         }

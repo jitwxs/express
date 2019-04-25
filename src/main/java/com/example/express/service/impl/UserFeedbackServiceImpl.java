@@ -107,8 +107,14 @@ public class UserFeedbackServiceImpl extends ServiceImpl<UserFeedbackMapper, Use
                 .type(userFeedback.getFeedbackType().getType())
                 .status(userFeedback.getFeedbackStatus().getStatus())
                 .content(userFeedback.getContent())
-                .result(userFeedback.getResult())
-                .createDate(userFeedback.getCreateDate()).build();
+                .createDate(userFeedback.getCreateDate())
+                .updateDate(userFeedback.getUpdateDate()).build();
+
+        if(StringUtils.isNotBlank(userFeedback.getHandler())) {
+            String handlerName = sysUserService.getFrontName(userFeedback.getHandler());
+            vo.setHandlerName(handlerName);
+            vo.setResult(userFeedback.getResult());
+        }
 
         return vo;
     }

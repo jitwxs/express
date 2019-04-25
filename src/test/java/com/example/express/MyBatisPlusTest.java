@@ -1,11 +1,15 @@
 package com.example.express;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.example.express.common.util.StringUtils;
+import com.example.express.domain.bean.OrderInfo;
 import com.example.express.domain.bean.SysUser;
 import com.example.express.service.SysUserService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -38,5 +42,15 @@ public class MyBatisPlusTest extends BaseTests {
             } catch (Exception ignored) {
             }
         }).start();
+    }
+
+    @Test
+    public void testWrapperSql() {
+        QueryWrapper<OrderInfo> wrapper = new QueryWrapper<>();
+        wrapper.eq("status", 1);
+        wrapper.ge("create_date", new Date());
+        wrapper.eq("user_id", "1");
+        String sqlSelect = wrapper.getSqlSelect();
+        System.out.println(sqlSelect);
     }
 }

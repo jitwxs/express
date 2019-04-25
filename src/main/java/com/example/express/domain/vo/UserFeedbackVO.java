@@ -1,5 +1,7 @@
 package com.example.express.domain.vo;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Data;
@@ -32,10 +34,18 @@ public class UserFeedbackVO implements Serializable {
      */
     private Integer status;
     /**
+     * 处理人
+     */
+    private String handlerName;
+    /**
      * 处理结果
      */
     private String result;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime createDate;
+
+    @TableField(fill = FieldFill.UPDATE)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private LocalDateTime updateDate;
 }

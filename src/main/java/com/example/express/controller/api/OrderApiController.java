@@ -1,22 +1,19 @@
 package com.example.express.controller.api;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.express.common.util.StringUtils;
 import com.example.express.domain.ResponseResult;
-import com.example.express.domain.bean.OrderInfo;
 import com.example.express.domain.bean.SysUser;
+import com.example.express.domain.enums.ResponseErrorCodeEnum;
 import com.example.express.domain.vo.BootstrapTableVO;
 import com.example.express.domain.vo.OrderVO;
+import com.example.express.exception.CustomException;
 import com.example.express.service.OrderInfoService;
 import com.example.express.service.OrderPaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Date;
 
 /**
  * API订单接口
@@ -33,6 +30,7 @@ public class OrderApiController {
 
     /**
      * 获取个人所有订单
+     * @param type 0:正常订单；1：已删除订单
      * @author jitwxs
      * @date 2019/4/24 22:21
      */
@@ -40,29 +38,33 @@ public class OrderApiController {
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_COURIER')")
     public BootstrapTableVO<OrderVO> listSelfOrder(@RequestParam(required = false, defaultValue = "1") Integer current,
                                                    @RequestParam(required = false, defaultValue = "10") Integer size,
-                                                   @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
-                                                   @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate,
-                                                   String status, String id,
+                                                   String type, String startDate, String endDate, String status, String id,
                                                    @AuthenticationPrincipal SysUser sysUser) {
-        Page<OrderInfo> page = new Page<>(current, size);
+        Integer isDelete = StringUtils.toInteger(type, -1);
+        if(isDelete == -1) {
+            throw new CustomException(ResponseErrorCodeEnum.PARAMETER_ERROR);
+        }
+
+        Page<OrderVO> page = new Page<>(current, size);
         Integer orderStatus = StringUtils.toInteger(status, -1);
 
-        QueryWrapper<OrderInfo> wrapper = new QueryWrapper<>();
+        StringBuilder sql = new StringBuilder();
         if(orderStatus != -1) {
-            wrapper.eq("status", status);
+            sql.append(" AND info.status = ").append(orderStatus);
         }
-        if(startDate != null) {
-            wrapper.ge("create_date", startDate);
+        if(StringUtils.isNotBlank(startDate)) {
+            sql.append(" AND info.create_date > '").append(startDate).append("'");
         }
-        if(endDate != null) {
-            wrapper.le("create_date", endDate);
+        if(StringUtils.isNotBlank(endDate)) {
+            sql.append(" AND info.create_date < '").append(endDate).append("'");
         }
         if(StringUtils.isNotBlank(id)) {
-            wrapper.eq("id", id);
-        }
-        wrapper.eq("user_id", sysUser.getId());
+            sql.append(" AND info.id = ").append(id);
 
-        return orderInfoService.pageOrderVO(page, wrapper);
+        }
+        sql.append(" AND info.user_id = ").append(sysUser.getId());
+
+        return orderInfoService.pageOrderVO(page, sql.toString(), isDelete);
     }
 
     /**

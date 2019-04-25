@@ -82,38 +82,4 @@ public class PublicApiController {
 
         return ResponseResult.success(list);
     }
-
-    /**
-     * 订单状态
-     * @author jitwxs
-     * @date 2019/4/24 23:24
-     */
-    @GetMapping("/order-status")
-    public ResponseResult listOrderStatus() {
-        List<Map<String,Object>> result = new ArrayList<>();
-        for(OrderStatusEnum enums :OrderStatusEnum.values()) {
-            Map<String,Object> map = new HashMap<>();
-            map.put("id",enums.getStatus());
-            map.put("name",enums.getName());
-            result.add(map);
-        }
-        return ResponseResult.success(result);
-    }
-
-    /**
-     * 支付状态
-     * @author jitwxs
-     * @date 2019/4/24 23:24
-     */
-    @GetMapping("/payment-status")
-    public ResponseResult lisPaymentStatus() {
-        List<Map<String,Object>> result = new ArrayList<>();
-        for(PaymentStatusEnum enums :PaymentStatusEnum.values()) {
-            Map<String,Object> map = new HashMap<>();
-            map.put("id",enums.getStatus());
-            map.put("name",enums.getName());
-            result.add(map);
-        }
-        return ResponseResult.success(result);
-    }
 }
