@@ -156,7 +156,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
         if(checkExistByUsername(username)) {
             transactionManager.rollback(status);
-            return ResponseResult.failure(ResponseErrorCodeEnum.USERNAME_EXIST_ERROR);
+            return ResponseResult.failure(ResponseErrorCodeEnum.USERNAME_EXIST);
         }
 
         SysUser user = SysUser.builder()
@@ -166,7 +166,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
         if(!this.retBool(sysUserMapper.insert(user))) {
             transactionManager.rollback(status);
-            return ResponseResult.failure(ResponseErrorCodeEnum.REGISTER_ERROR);
+            return ResponseResult.failure(ResponseErrorCodeEnum.REGISTRY_ERROR);
         }
 
         transactionManager.commit(status);
@@ -185,7 +185,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 .role(SysRoleEnum.DIS_FORMAL).build();
 
         if(!this.retBool(sysUserMapper.insert(user))) {
-            return ResponseResult.failure(ResponseErrorCodeEnum.REGISTER_ERROR);
+            return ResponseResult.failure(ResponseErrorCodeEnum.REGISTRY_ERROR);
         }
         return ResponseResult.success();
     }
@@ -213,7 +213,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
 
         if(checkExistByUsername(username)) {
-            return ResponseResult.failure(ResponseErrorCodeEnum.USERNAME_EXIST_ERROR);
+            return ResponseResult.failure(ResponseErrorCodeEnum.USERNAME_EXIST);
         }
 
         user.setUsername(username);

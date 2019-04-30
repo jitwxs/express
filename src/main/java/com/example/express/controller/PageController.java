@@ -3,6 +3,7 @@ package com.example.express.controller;
 import com.example.express.common.constant.SecurityConstant;
 import com.example.express.domain.bean.SysUser;
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,7 +19,7 @@ import java.io.IOException;
 @Controller
 public class PageController extends BaseController {
     /**
-     * 跳转到登陆成功页
+     * 登陆成功页
      */
     @RequestMapping(SecurityConstant.LOGIN_SUCCESS_URL)
     public void showSuccessPage(@AuthenticationPrincipal SysUser sysUser, HttpServletResponse response) throws IOException {
@@ -39,7 +40,7 @@ public class PageController extends BaseController {
      * 跳转到登录页
      */
     @RequestMapping(SecurityConstant.UN_AUTHENTICATION_URL)
-    public String showAuthenticationPage(HttpServletRequest request, ModelMap map) {
+    public String showAuthenticationPage(HttpServletRequest request, HttpServletResponse response, ModelMap map) {
         AuthenticationException exception =
                 (AuthenticationException)request.getSession()
                         .getAttribute("SPRING_SECURITY_LAST_EXCEPTION");
@@ -52,6 +53,7 @@ public class PageController extends BaseController {
         }
 
         request.getSession().removeAttribute("SPRING_SECURITY_LAST_EXCEPTION");
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
         return "login";
     }
 

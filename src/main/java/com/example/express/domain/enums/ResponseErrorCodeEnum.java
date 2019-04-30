@@ -3,62 +3,85 @@ package com.example.express.domain.enums;
 import lombok.Getter;
 
 /**
- * 错误码美剧
+ * 错误码枚举
  * @date 2019/4/16 23:51
  */
 @Getter
 public enum ResponseErrorCodeEnum {
-    SUCCESS(0, "成功"),
-    PARAMETER_ERROR(1000, "参数错误"),
-    ROLE_ERROR(1001, "角色错误"),
-    USERNAME_EXIST_ERROR(1002, "用户名已被注册，请更换用户名"),
-    TEL_INVALID(1003, "手机号码不合法"),
-    REGISTRY_ERROR(1004, "注册失败"),
-    THIRD_LOGIN_ERROR(1005, "三方登陆失败"),
-    USER_NOT_EXIST(1006, "用户不存在"),
-    EXIST_UNFINISHED_ORDER(1007, "当前存在未完成的订单"),
-    ORDER_CREATE_ERROR(1008, "订单创建失败"),
-    ORDER_PAYMENT_CREATE_ERROR(1008, "订单支付信息创建失败"),
-    FEEDBACK_TYPE_ERROR(1009, "反馈类型错误"),
-    FEEDBACK_NOT_EMPTY(1010, "反馈内容不能为空"),
-    FEEDBACk_LENGTH_OVER_255(1011, "反馈内容过长，请控制在255字符内"),
-    ORDER_NOT_EXIST(1012, "订单不存在"),
-    NOT_APPLY_REAL_NAME(1013, "未完成实名认证"),
-    ORDER_PAYMENT_SYNC_ERROR(1014, "订单支付状态同步失败"),
-    ORDER_NOT_EXIT(1013, "订单不存在"),
+    /* SUCCESS */
+    SUCCESS(0, 200, "成功"),
 
-    OPERATION_NOT_SUPPORT(1976, "操作不支持"),
-    IDCARD_OR_REALNAME_EXIST(1977, "您已绑定实名信息"),
-    STUDENT_IDCARD_NOT_NUMBER(1978, "学号必须为纯数字"),
-    SCHOOL_NOT_EXIST(1979, "高校不存在"),
-    TEL_EXIST(1980, "该手机号已被注册，请更换其他手机号"),
-    USERNAME_DISABLE_MODIFY(1981, "用户名不支持修改"),
-    PASSWORD_RESET_ERROR(1982, "密码重置失败"),
-    PASSWORD_IS_EMPTY(1983, "密码不能为空"),
-    REGISTER_ERROR(1984, "注册失败"),
-    REAL_NAME_INVALID(1985, "姓名中含有非法字符"),
-    SCHOOL_INVALID(1986, "高校不合法"),
-    ID_CARD_INVALID(1987, "身份证号不合法"),
-    SMS_SEND_INTERVAL_TOO_SHORT(1988, "短信发送间隔不足%s分钟"),
-    SMS_EXPIRE(1989, "短信验证码失效，请重新发送"),
-    SEND_SMS_ERROR(1990, "发送短信失败"),
-    PASSWORD_ERROR(1991, "密码输入错误，请检查用户名和密码"),
-    TEL_NOT_EXIST(1992, "该手机号码尚未注册，请先注册再登录"),
-    SMS_TEL_NOT_MATCH(1993, "申请的手机号码与登录手机号码不匹配"),
-    SMS_CODE_NOT_EXIST(1994, "请先获取短信验证码"),
-    VERIFY_CODE_ERROR(1995, "验证码输入错误"),
-    LOGIN_ERROR(1996, "登陆失败"),
-    SESSION_EXPIRE(1997, "Session已过期，请重新登录"),
-    OPERATION_ERROR(1998, "操作失败"),
-    SYSTEM_ERROR(1999, "系统错误")
+    /* Bad Request */
+    PARAMETER_ERROR(400001, 400, "参数错误"),
+    SYSTEM_ERROR(400002, 400, "系统错误"),
+    OPERATION_ERROR(400003, 400, "操作失败"),
+    VERIFY_CODE_ERROR(400004, 400, "验证码输入错误"),
+    SCHOOL_NOT_EXIST(400005, 400, "高校不存在"),
+    REAL_NAME_INVALID(400006, 400, "姓名中含有非法字符"),
+    ID_CARD_INVALID(400007, 400, "身份证号不合法"),
+    STUDENT_IDCARD_NOT_NUMBER(400008, 400, "学号必须为纯数字"),
+    REGISTRY_ERROR(400009, 400, "注册失败"),
+
+    TEL_INVALID(400101, 400, "手机号码不合法"),
+    SMS_SEND_INTERVAL_TOO_SHORT(400102, 400, "短信发送间隔不足%s分钟"),
+    SMS_CODE_NOT_EXIST(400103, 400, "请先获取短信验证码"),
+    SMS_EXPIRE(400104, 400, "短信验证码已过期，请重新发送"),
+    SEND_SMS_ERROR(400105, 400, "发送短信失败"),
+    SMS_TEL_NOT_MATCH(400106, 400, "申请的手机号码与登录手机号码不匹配"),
+
+    PASSWORD_RESET_ERROR(400201, 400, "密码重置失败"),
+    PASSWORD_IS_EMPTY(400202, 400, "密码不能为空"),
+    PASSWORD_ERROR(400203, 400, "密码输入错误，请检查用户名和密码"),
+
+    ORDER_CREATE_ERROR(400701, 400, "订单创建失败"),
+    ORDER_PAYMENT_CREATE_ERROR(400702, 400, "订单支付信息创建失败"),
+    ORDER_PAYMENT_SYNC_ERROR(400703, 400, "订单支付状态同步失败"),
+
+    FEEDBACK_TYPE_ERROR(400801, 400, "反馈类型错误"),
+    FEEDBACK_NOT_EMPTY(400802, 400, "反馈内容不能为空"),
+    STR_LENGTH_OVER(400803, 400, "%s内容过长，请控制在%s字符内"),
+
+    /* Unauthorized */
+    LOGIN_ERROR(401001, 401, "登陆失败"),
+    THIRD_LOGIN_ERROR(401002, 401, "三方登陆失败"),
+    SESSION_EXPIRE(401003, 401, "Session已过期，请重新登录"),
+
+    /* Forbidden */
+    ROLE_ERROR(403001, 403, "角色错误"),
+    OPERATION_NOT_SUPPORT(403002, 403, "操作不支持"),
+
+    /* Too Many Requests */
+    REQUEST_TOO_HIGH(429001, 429, "接口请求过于频繁"),
+
+    /* Conflict */
+    USER_NOT_EXIST(409001, 409, "用户不存在"),
+    USERNAME_EXIST(409002, 409,"用户名已被注册，请更换用户名"),
+    USERNAME_DISABLE_MODIFY(409003, 409, "用户名不支持修改"),
+
+    IDCARD_OR_REALNAME_EXIST(409101, 409, "您已绑定实名信息"),
+    TEL_EXIST(409102, 409, "该手机号已被注册，请更换其他手机号"),
+    TEL_NOT_EXIST(409103, 409, "该手机号码尚未注册，请先注册再登录"),
+
+    NOT_APPLY_REAL_NAME(409201, 409, "未完成实名认证"),
+
+    ORDER_NOT_EXIST(409701, 409, "订单不存在"),
+    EXIST_UNFINISHED_ORDER(409702, 409, "当前存在未完成的订单"),
     ;
 
+    /**
+     * EXPRESS ERROR CODE
+     */
     private int code;
+    /**
+     * HTTP STATUS
+     */
+    private int status;
 
     private String msg;
 
-    ResponseErrorCodeEnum(int code, String msg) {
+    ResponseErrorCodeEnum(int code, int status, String msg) {
         this.code = code;
+        this.status = status;
         this.msg = msg;
     }
 }

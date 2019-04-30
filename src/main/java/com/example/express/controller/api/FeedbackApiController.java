@@ -139,7 +139,7 @@ public class FeedbackApiController extends BaseApiController {
             return ResponseResult.failure(ResponseErrorCodeEnum.FEEDBACK_NOT_EMPTY);
         }
         if(content.length() > CONTENT_MAX_LENGTH) {
-            return ResponseResult.failure(ResponseErrorCodeEnum.FEEDBACk_LENGTH_OVER_255);
+            return ResponseResult.failure(ResponseErrorCodeEnum.STR_LENGTH_OVER, new Object[]{"反馈结果", CONTENT_MAX_LENGTH});
         }
         if(StringUtils.isNotBlank(orderId)) {
             if(!orderInfoService.isExist(orderId)) {
@@ -177,7 +177,7 @@ public class FeedbackApiController extends BaseApiController {
             return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
         }
         if(result.length() > CONTENT_MAX_LENGTH) {
-            return ResponseResult.failure(ResponseErrorCodeEnum.FEEDBACk_LENGTH_OVER_255);
+            return ResponseResult.failure(ResponseErrorCodeEnum.STR_LENGTH_OVER, new Object[]{"反馈结果", CONTENT_MAX_LENGTH});
         }
 
         feedback.setHandler(sysUser.getId());

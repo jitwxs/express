@@ -86,8 +86,8 @@ public class OrderController extends BaseController {
         Map<String,String> map = new HashMap<>(16);
         map.put("out_trade_no", String.valueOf(orderId));
         map.put("total_amount", String.valueOf(money));
-        map.put("subject", "快递代拿");
-        map.put("body", "快递代拿在线支付");
+        map.put("subject", "在线支付");
+        map.put("body", "大学校园快递代取管理系统");
         // 销售产品码
         map.put("product_code","FAST_INSTANT_TRADE_PAY");
 

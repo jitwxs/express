@@ -255,7 +255,7 @@ public class AuthController {
 
         // 校验 schoolId
         if(!dataSchoolService.isExist(school)) {
-            return ResponseResult.failure(ResponseErrorCodeEnum.SCHOOL_INVALID);
+            return ResponseResult.failure(ResponseErrorCodeEnum.SCHOOL_NOT_EXIST);
         }
         // 校验 studentIdCard
         if(!StringUtils.isNumeric(studentIdCard)) {

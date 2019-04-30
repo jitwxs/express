@@ -1,11 +1,13 @@
 package com.example.express.controller.api;
 
+import com.example.express.aop.RequestRateLimit;
 import com.example.express.common.util.StringUtils;
 import com.example.express.domain.ResponseResult;
 import com.example.express.domain.bean.DataCompany;
 import com.example.express.domain.bean.DataSchool;
 import com.example.express.domain.enums.OrderStatusEnum;
 import com.example.express.domain.enums.PaymentStatusEnum;
+import com.example.express.domain.enums.RateLimitEnum;
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
 import com.example.express.domain.vo.DataAreaVO;
 import com.example.express.service.DataAreaService;

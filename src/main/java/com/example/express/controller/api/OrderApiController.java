@@ -35,7 +35,7 @@ public class OrderApiController {
     public ResponseResult getOrderDesc(@PathVariable String id) {
         OrderDescVO descVO = orderInfoService.getDescVO(id);
         if(descVO == null) {
-            return ResponseResult.failure(ResponseErrorCodeEnum.ORDER_NOT_EXIT);
+            return ResponseResult.failure(ResponseErrorCodeEnum.ORDER_NOT_EXIST);
         }
 
         return ResponseResult.success(descVO);

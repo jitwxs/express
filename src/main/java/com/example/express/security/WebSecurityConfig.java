@@ -102,12 +102,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .userDetailsService(userDetailService).and()
                 .authorizeRequests()
                     // 如果有允许匿名的url，填在下面
-                    .antMatchers(
-                            SecurityConstant.VALIDATE_CODE_URL_PREFIX + "/*", SecurityConstant.THIRD_LOGIN_URL_PREFIX + "/*",
-                            "/auth/register", "/register",
-                            "/api/v1/public/*").permitAll()
-                    .anyRequest()
-                    .authenticated().and()
+                    .antMatchers(SecurityConstant.VALIDATE_CODE_URL_PREFIX + "/**").permitAll()
+                    .antMatchers(SecurityConstant.THIRD_LOGIN_URL_PREFIX + "/**").permitAll()
+                    .antMatchers("/auth/register", "/register").permitAll()
+                    .antMatchers("/api/v1/public/**").permitAll()
+                    .anyRequest().authenticated().and()
                 // 关闭CSRF跨域
                 .csrf().disable();
     }
