@@ -21,6 +21,7 @@ public enum ResponseErrorCodeEnum {
     ID_CARD_INVALID(400007, 400, "身份证号不合法"),
     STUDENT_IDCARD_NOT_NUMBER(400008, 400, "学号必须为纯数字"),
     REGISTRY_ERROR(400009, 400, "注册失败"),
+    UPLOAD_FILE_NOT_EXIST(400010, 400, "上传文件不存在"),
 
     TEL_INVALID(400101, 400, "手机号码不合法"),
     SMS_SEND_INTERVAL_TOO_SHORT(400102, 400, "短信发送间隔不足%s分钟"),
@@ -31,7 +32,7 @@ public enum ResponseErrorCodeEnum {
 
     PASSWORD_RESET_ERROR(400201, 400, "密码重置失败"),
     PASSWORD_IS_EMPTY(400202, 400, "密码不能为空"),
-    PASSWORD_ERROR(400203, 400, "密码输入错误，请检查用户名和密码"),
+    PASSWORD_ERROR(400203, 400, "密码输入错误，请检查密码"),
 
     ORDER_CREATE_ERROR(400701, 400, "订单创建失败"),
     ORDER_PAYMENT_CREATE_ERROR(400702, 400, "订单支付信息创建失败"),
@@ -49,6 +50,7 @@ public enum ResponseErrorCodeEnum {
     /* Forbidden */
     ROLE_ERROR(403001, 403, "角色错误"),
     OPERATION_NOT_SUPPORT(403002, 403, "操作不支持"),
+    NO_PERMISSION(403003, 403, "您没有权限访问"),
 
     /* Too Many Requests */
     REQUEST_TOO_HIGH(429001, 429, "接口请求过于频繁"),

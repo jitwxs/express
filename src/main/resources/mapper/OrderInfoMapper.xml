@@ -5,7 +5,7 @@
         UPDATE `order_info` set has_delete=#{hasDelete}, delete_type=#{deleteType} WHERE id = #{id}
     </update>
 
-    <select id="pageOrderVO" resultType="com.example.express.domain.vo.OrderVO">
+    <select id="pageUserOrderVO" resultType="com.example.express.domain.vo.UserOrderVO">
         SELECT
             info.id,
             info.odd,
@@ -21,6 +21,24 @@
             ON info.company = cp.id
         WHERE
             info.id = payment.order_id AND info.has_delete = #{has_delete} ${sql}
+    </select>
+    <select id="pageCourierOrderVO" resultType="com.example.express.domain.vo.CourierOrderVO">
+        SELECT
+            info.id,
+            info.odd,
+            cp.name as company,
+            info.rec_name AS recName,
+            info.rec_tel AS recTel,
+            info.rec_address AS recAddress,
+            info.remark AS remark,
+            info.status AS orderStatus,
+            info.create_date
+        FROM
+            order_payment as payment,
+            order_info as info LEFT JOIN data_company as cp
+            ON info.company = cp.id
+        WHERE
+            info.id = payment.order_id ${sql}
     </select>
     <select id="selectByIdIgnoreDelete" resultType="com.example.express.domain.bean.OrderInfo">
         SELECT * FROM `order_info` WHERE id = #{id}

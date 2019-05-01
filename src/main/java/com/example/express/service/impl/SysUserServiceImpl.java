@@ -2,6 +2,7 @@ package com.example.express.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.example.express.common.constant.RedisKeyConstant;
 import com.example.express.common.util.CollectionUtils;
 import com.example.express.common.util.IDValidateUtils;
 import com.example.express.common.util.StringUtils;
@@ -14,10 +15,12 @@ import com.example.express.domain.enums.ThirdLoginTypeEnum;
 import com.example.express.domain.vo.UserInfoVO;
 import com.example.express.mapper.DataSchoolMapper;
 import com.example.express.mapper.SysUserMapper;
+import com.example.express.service.DataSchoolService;
 import com.example.express.service.OrderInfoService;
 import com.example.express.service.SmsService;
 import com.example.express.service.SysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,24 +30,49 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import javax.servlet.http.HttpSession;
+import java.io.Serializable;
 import java.util.List;
 
 @Service
 public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> implements SysUserService {
     @Autowired
     private SysUserMapper sysUserMapper;
-    @Autowired
-    private DataSchoolMapper dataSchoolMapper;
 
     @Autowired
     private SmsService smsService;
     @Autowired
     private OrderInfoService orderInfoService;
+    @Autowired
+    private DataSchoolService dataSchoolService;
 
+    @Autowired
+    private RedisTemplate<String, SysUser> redisTemplate;
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
     private DataSourceTransactionManager transactionManager;
+
+    @Override
+    public SysUser getById(Serializable id) {
+        SysUser user = (SysUser) redisTemplate.opsForHash().get(RedisKeyConstant.SYS_USER, id);
+        if(user != null) {
+            return user;
+        }
+        user = super.getById(id);
+
+        redisTemplate.opsForHash().put(RedisKeyConstant.SYS_USER, id, user);
+        return user;
+    }
+
+    @Override
+    public boolean updateById(SysUser entity) {
+        boolean update = super.updateById(entity);
+        if(update) {
+            redisTemplate.opsForHash().delete(RedisKeyConstant.SYS_USER, entity.getId());
+        }
+
+        return update;
+    }
 
     @Override
     public SysUser getByName(String username) {
@@ -74,7 +102,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    public UserInfoVO getUserInfo(SysUser user) {
+    public UserInfoVO getUserInfo(String userId) {
+        SysUser user = getById(userId);
         SysRoleEnum userRole = user.getRole();
 
         UserInfoVO vo = UserInfoVO.builder()
@@ -88,20 +117,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 .idCard(user.getIdCard())
                 .realName(user.getRealName()).build();
 
-        DataSchool school = dataSchoolMapper.selectById(user.getSchoolId());
+        DataSchool school = dataSchoolService.getById(user.getSchoolId());
         if(school != null) {
             vo.setSchool(school.getName());
         }
-
-        if(userRole != SysRoleEnum.USER && userRole != SysRoleEnum.COURIER) {
-            vo.setCanChangeRole("0");
-        } else {
-            if(orderInfoService.isExistUnfinishedOrder(user.getId(), userRole)) {
-                vo.setCanChangeRole("0");
-            } else {
-                vo.setCanChangeRole("1");
-            }
-        }
+        vo.setCanChangeRole(canChangeRole(user) ? "1" : "0");
 
         return vo;
     }
@@ -117,6 +137,35 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             return false;
         }
         return true;
+    }
+
+    @Override
+    public boolean canChangeRole(SysUser user) {
+        SysRoleEnum role = user.getRole();
+        switch (role) {
+            case USER:
+                // user --> courier : 实名 + 不存在未完成单
+                return checkApplyRealName(user) && !orderInfoService.isExistUnfinishedOrder(user.getId(), role);
+            case COURIER:
+                // courier --> user :
+                return !orderInfoService.isExistUnfinishedOrder(user.getId(), role);
+            default:
+                return false;
+        }
+    }
+
+    @Override
+    public boolean checkPassword(String userId, String password) {
+        SysUser user = getById(userId);
+        if(user == null) {
+            return false;
+        }
+
+        if(StringUtils.isBlank(user.getPassword())) {
+            return false;
+        }
+
+        return passwordEncoder.matches(password, user.getPassword());
     }
 
     @Override
@@ -203,6 +252,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         if(!this.retBool(sysUserMapper.updateById(user))) {
             return ResponseResult.failure(ResponseErrorCodeEnum.PASSWORD_RESET_ERROR);
         }
+
+
         return ResponseResult.success();
     }
 
@@ -267,7 +318,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Override
     public ResponseResult setSchoolInfo(SysUser user, Integer schoolId, String studentIdCard) {
-        DataSchool dataSchool = dataSchoolMapper.selectById(schoolId);
+        DataSchool dataSchool = dataSchoolService.getById(schoolId);
         if(dataSchool == null) {
             return ResponseResult.failure(ResponseErrorCodeEnum.SCHOOL_NOT_EXIST);
         }
@@ -284,14 +335,15 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    public ResponseResult changeRole(SysUser user) {
+    public ResponseResult changeRole(String userId) {
+        SysUser user = getById(userId);
         SysRoleEnum role = user.getRole();
         if(role != SysRoleEnum.USER && role != SysRoleEnum.COURIER) {
             return ResponseResult.failure(ResponseErrorCodeEnum.OPERATION_NOT_SUPPORT);
         }
 
-        boolean can = orderInfoService.isExistUnfinishedOrder(user.getId(), role);
-        if(!can) {
+        boolean isExist = orderInfoService.isExistUnfinishedOrder(user.getId(), role);
+        if(isExist) {
             return ResponseResult.failure(ResponseErrorCodeEnum.EXIST_UNFINISHED_ORDER);
         }
 

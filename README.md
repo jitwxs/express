@@ -7,7 +7,7 @@
 1. **前端：** Thymeleaf、Bootstrap、Ajax、Jquery、Echarts
 2. **开发环境：** IDEA 、SpringBoot 2.1、Maven
 3. **数据库与缓存**：MySQL 5.7、Redis、Guava Cache
-4. **三方服务**：腾讯云短信服务、腾讯云对象存储、支付宝支付（沙箱）、百度人脸识别
+4. **三方服务**：腾讯云短信服务、支付宝支付（沙箱）、百度人脸识别
 5. **安全框架**：Spring Security
 6. **其他技术**：API 接口限速、二级缓存
 

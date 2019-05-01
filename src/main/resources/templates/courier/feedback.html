@@ -21,13 +21,52 @@
             <div class="col-md-10">
                 <!-- Nav tabs -->
                 <ul class="nav nav-tabs" role="tablist">
-                    <li role="presentation" class="active"><a href="#history_tab" aria-controls="history-feedback" role="tab" data-toggle="tab">我的反馈</a></li>
-                    <li role="presentation"><a href="#handle_tab" aria-controls="history-feedback" role="tab" data-toggle="tab">处理反馈</a></li>
+                    <li role="presentation" class="active"><a href="#handle_tab" aria-controls="history-feedback" role="tab" data-toggle="tab">处理反馈</a></li>
+                    <li role="presentation"><a href="#history_tab" aria-controls="history-feedback" role="tab" data-toggle="tab">我的反馈</a></li>
                     <li role="presentation"><a href="#create_tab" aria-controls="create-feedback" role="tab" data-toggle="tab">立即反馈</a></li>
                 </ul>
                 <!-- Tab panes -->
                 <div class="tab-content">
-                    <div role="tabpanel" class="tab-pane fade in active" id="history_tab">
+                    <div role="tabpanel" class="tab-pane fade in active" id="handle_tab">
+                        <div class="panel panel-info">
+                            <div class="panel-heading">
+                                <form class="form-inline">
+                                    <div class="form-group">
+                                        <label for="inputType1">反馈类型</label>
+                                        <select id="inputType1" class="form-control">
+                                            <option value=1>订单反馈</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputStatus1">反馈状态</label>
+                                        <select id="inputStatus1" class="form-control">
+                                            <option value=-1>所有状态</option>
+                                            <option value=1>等待处理</option>
+                                            <option value=2>处理中</option>
+                                            <option value=3>处理完毕</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputStartDate1" class="ml10">起</label>
+                                        <input type="date" id="inputStartDate1" class="form-control ml10">
+                                        <label for="inputEndDate1" class="ml10">讫</label>
+                                        <input type="date" id="inputEndDate1" class="form-control ml10">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputId1">反馈号</label>
+                                        <input type="text" class="form-control" id="inputId1">
+                                    </div>
+                                    <button type="button" class="btn btn-info ml10" onclick="flushHandleTable()">
+                                        <span class="glyphicon glyphicon-search"></span> 查询
+                                    </button>
+                                </form>
+                            </div>
+                            <div class="panel-body">
+                                <table id="tb_handle"></table>
+                            </div>
+                        </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane fade" id="history_tab">
                         <div class="panel panel-info">
                             <div class="panel-heading">
                                 <form class="form-inline">
@@ -75,48 +114,6 @@
                                     <strong>提示！</strong> 撤销反馈仅能撤“等待处理”状态反馈
                                 </div>
                                 <table id="tb_history"></table>
-                            </div>
-                        </div>
-                    </div>
-                    <div role="tabpanel" class="tab-pane fade" id="handle_tab">
-                        <div class="panel panel-info">
-                            <div class="panel-heading">
-                                <form class="form-inline">
-                                    <div class="form-group">
-                                        <label for="inputType1">反馈类型</label>
-                                        <select id="inputType1" class="form-control">
-                                            <option value=-1>所有类型</option>
-                                            <option value=1>订单反馈</option>
-                                            <option value=2>意见反馈</option>
-                                            <option value=3>BUG反馈</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="inputStatus1">反馈状态</label>
-                                        <select id="inputStatus1" class="form-control">
-                                            <option value=-1>所有状态</option>
-                                            <option value=1>等待处理</option>
-                                            <option value=2>处理中</option>
-                                            <option value=3>处理完毕</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="inputStartDate1" class="ml10">起</label>
-                                        <input type="date" id="inputStartDate1" class="form-control ml10">
-                                        <label for="inputEndDate1" class="ml10">讫</label>
-                                        <input type="date" id="inputEndDate1" class="form-control ml10">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="inputId1">反馈号</label>
-                                        <input type="text" class="form-control" id="inputId1">
-                                    </div>
-                                    <button type="button" class="btn btn-info ml10" onclick="flushHandleTable()">
-                                        <span class="glyphicon glyphicon-search"></span> 查询
-                                    </button>
-                                </form>
-                            </div>
-                            <div class="panel-body">
-                                <table id="tb_handle"></table>
                             </div>
                         </div>
                     </div>
@@ -215,11 +212,11 @@
                     verify: "验证码不能为空"
                 },
                 submitHandler: function (form) {
-                    sendJson(HTTP.PSOT, "/auth/code/check-img", {"code": $("#inputVerify").val()}, false, function (res) {
+                    sendJson(HTTP.POST, "/auth/code/check-img", {"code": $("#inputVerify").val()}, false, function (res) {
                         if (res.code !== 0) {
                             layer.msg(res.msg,{icon:2});
                         } else {
-                            sendJson(HTTP.PSOT, "/api/v1/feedback", $("#feedbackForm").serialize(), false, function (res) {
+                            sendJson(HTTP.POST, "/api/v1/feedback", $("#feedbackForm").serialize(), false, function (res) {
                                 if (res.code !== 0) {
                                     layer.msg(res.msg,{icon:2});
                                 } else {
@@ -373,18 +370,12 @@
                         title: '反馈内容',
                         width: 200
                     }, {
-                        field: 'handlerName',
-                        title: '处理人'
-                    }, {
                         field: 'result',
                         title: '处理结果',
                         width: 200
                     }, {
                         field: 'createDate',
                         title: '反馈时间'
-                    }, {
-                        field: 'updateDate',
-                        title: '处理时间'
                     }, {
                         field: 'id',
                         title: '操作',
@@ -402,7 +393,6 @@
                     size: params.limit,                             //页面大小
                     current: (params.offset / params.limit) + 1,   //页码
                     // 筛选参数
-                    type: $("#inputType1").val(),
                     id: $("#inputId1").val(),
                     status: $("#inputStatus1").val(),
                     startDate: $("#inputStartDate1").val(),

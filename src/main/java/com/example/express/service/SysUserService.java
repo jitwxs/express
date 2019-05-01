@@ -3,6 +3,7 @@ package com.example.express.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.express.domain.ResponseResult;
 import com.example.express.domain.bean.SysUser;
+import com.example.express.domain.enums.SysRoleEnum;
 import com.example.express.domain.enums.ThirdLoginTypeEnum;
 import com.example.express.domain.vo.UserInfoVO;
 
@@ -24,7 +25,7 @@ public interface SysUserService extends IService<SysUser> {
     /**
      * 获取用户信息
      */
-    UserInfoVO getUserInfo(SysUser user);
+    UserInfoVO getUserInfo(String userId);
     /**
      * 根据用户名判断用户是否存在
      */
@@ -37,6 +38,14 @@ public interface SysUserService extends IService<SysUser> {
      * 是否实名认证
      */
     boolean checkApplyRealName(SysUser user);
+    /**
+     * 能否切换角色
+     */
+    boolean canChangeRole(SysUser user);
+    /**
+     * 校验密码
+     */
+    boolean checkPassword(String userId, String password);
     /**
      * 三方登陆逻辑
      */
@@ -79,7 +88,7 @@ public interface SysUserService extends IService<SysUser> {
      * 切换角色
      * user -> courier
      */
-    ResponseResult changeRole(SysUser user);
+    ResponseResult changeRole(String userId);
     /**
      * 获取 frontName
      */

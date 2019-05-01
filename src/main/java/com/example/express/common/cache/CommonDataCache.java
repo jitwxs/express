@@ -29,14 +29,17 @@ public class CommonDataCache {
 
     /**
      * 行政区域数据缓存
+     * key: parentId
      */
     public static LoadingCache<Integer, List<DataArea>> dataAreaCache;
     /**
      * 学校数据缓存
+     * key: 省份
      */
     public static LoadingCache<Integer, List<DataSchool>> dataSchoolCache;
     /**
      * 学校数据缓存
+     * key: schoolId
      */
     public static LoadingCache<Integer, DataCompany> dataCompanyCache;
 

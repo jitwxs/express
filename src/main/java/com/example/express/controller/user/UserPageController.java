@@ -75,7 +75,7 @@ public class UserPageController extends BaseController {
     @RequestMapping("/info")
     public String showInfoPage(@AuthenticationPrincipal SysUser sysUser,ModelMap map) {
         initModelMap(map, sysUser);
-        UserInfoVO userInfo = sysUserService.getUserInfo(sysUser);
+        UserInfoVO userInfo = sysUserService.getUserInfo(sysUser.getId());
         map.put("info", userInfo);
         return "user/info";
     }
@@ -86,8 +86,6 @@ public class UserPageController extends BaseController {
     @RequestMapping("/recycle")
     public String showRecyclePage(@AuthenticationPrincipal SysUser sysUser,ModelMap map) {
         initModelMap(map, sysUser);
-        UserInfoVO userInfo = sysUserService.getUserInfo(sysUser);
-        map.put("info", userInfo);
         return "user/recycle";
     }
 
@@ -97,8 +95,6 @@ public class UserPageController extends BaseController {
     @RequestMapping("/log")
     public String showLogPage(@AuthenticationPrincipal SysUser sysUser,ModelMap map) {
         initModelMap(map, sysUser);
-        UserInfoVO userInfo = sysUserService.getUserInfo(sysUser);
-        map.put("info", userInfo);
         return "user/log";
     }
 
@@ -108,8 +104,6 @@ public class UserPageController extends BaseController {
     @RequestMapping("/feedback")
     public String showFeedbackPage(@AuthenticationPrincipal SysUser sysUser,ModelMap map) {
         initModelMap(map, sysUser);
-        UserInfoVO userInfo = sysUserService.getUserInfo(sysUser);
-        map.put("info", userInfo);
         return "user/feedback";
     }
 
@@ -119,8 +113,6 @@ public class UserPageController extends BaseController {
     @RequestMapping("/address")
     public String showAddressPage(@AuthenticationPrincipal SysUser sysUser,ModelMap map) {
         initModelMap(map, sysUser);
-        UserInfoVO userInfo = sysUserService.getUserInfo(sysUser);
-        map.put("info", userInfo);
         return "user/address";
     }
 }

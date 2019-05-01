@@ -5,7 +5,7 @@
  Source Server Type    : MySQL
  Source Server Version : 50719
  Source Host           : localhost:3306
- Source Schema         : express1
+ Source Schema         : express
 
  Target Server Type    : MySQL
  Target Server Version : 50719

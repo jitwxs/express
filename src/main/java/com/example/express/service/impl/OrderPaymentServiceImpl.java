@@ -155,8 +155,9 @@ public class OrderPaymentServiceImpl extends ServiceImpl<OrderPaymentMapper, Ord
 
                 return ResponseResult.success();
             } else {
-                log.error("【支付宝查询】错误，错误码：{}，错误信息：{}", code, responseMap.get("sub_msg"));
-                return ResponseResult.failure(ResponseErrorCodeEnum.ORDER_PAYMENT_SYNC_ERROR);
+                String errorMsg = responseMap.get("sub_msg");
+                log.error("【支付宝查询】错误，错误码：{}，错误信息：{}", code, errorMsg);
+                return ResponseResult.failure(ResponseErrorCodeEnum.ORDER_PAYMENT_SYNC_ERROR.getCode(), errorMsg);
             }
         } catch (Exception e) {
             log.error("【支付宝查询】异常，异常信息：{}", e.getMessage());

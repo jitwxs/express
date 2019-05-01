@@ -4,10 +4,14 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.express.common.util.StringUtils;
 import com.example.express.domain.ResponseResult;
 import com.example.express.domain.bean.SysUser;
+import com.example.express.domain.enums.OrderStatusEnum;
+import com.example.express.domain.enums.PaymentStatusEnum;
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
+import com.example.express.domain.enums.SysRoleEnum;
 import com.example.express.domain.vo.BootstrapTableVO;
+import com.example.express.domain.vo.CourierOrderVO;
 import com.example.express.domain.vo.OrderDescVO;
-import com.example.express.domain.vo.OrderVO;
+import com.example.express.domain.vo.UserOrderVO;
 import com.example.express.exception.CustomException;
 import com.example.express.service.OrderInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +26,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/api/v1/order")
-public class OrderApiController {
+public class OrderApiController extends BaseApiController {
     @Autowired
     private OrderInfoService orderInfoService;
 
@@ -32,7 +36,14 @@ public class OrderApiController {
      * @date 2019/4/25 23:36
      */
     @GetMapping("/{id}")
-    public ResponseResult getOrderDesc(@PathVariable String id) {
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_COURIER') or hasRole('ROLE_ADMIN')")
+    public ResponseResult getOrderDesc(@PathVariable String id,
+                                       @AuthenticationPrincipal SysUser sysUser) {
+        //  普通用户仅允许访问自己订单
+        if(sysUser.getRole() == SysRoleEnum.USER && !orderInfoService.isUserOrder(id, sysUser.getId())) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.NO_PERMISSION);
+        }
+
         OrderDescVO descVO = orderInfoService.getDescVO(id);
         if(descVO == null) {
             return ResponseResult.failure(ResponseErrorCodeEnum.ORDER_NOT_EXIST);
@@ -42,23 +53,25 @@ public class OrderApiController {
     }
 
     /**
-     * 获取个人所有订单
+     * 获取所有订单
+     * - 普通用户：userId = self
+     * - 配送员：courierId = self
+     * - 管理员：无限制
      * @param type 0:正常订单；1：已删除订单
      * @author jitwxs
      * @date 2019/4/24 22:21
      */
     @GetMapping("/list")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_COURIER')")
-    public BootstrapTableVO<OrderVO> listSelfOrder(@RequestParam(required = false, defaultValue = "1") Integer current,
-                                                   @RequestParam(required = false, defaultValue = "10") Integer size,
-                                                   String type, String startDate, String endDate, String status, String id,
-                                                   @AuthenticationPrincipal SysUser sysUser) {
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_COURIER') or hasRole('ROLE_ADMIN')")
+    public BootstrapTableVO listSelfOrder(@RequestParam(required = false, defaultValue = "1") Integer current,
+                                                       @RequestParam(required = false, defaultValue = "10") Integer size,
+                                                       String type, String startDate, String endDate, String status, String id,
+                                                       @AuthenticationPrincipal SysUser sysUser) {
         Integer isDelete = StringUtils.toInteger(type, -1);
         if(isDelete == -1) {
             throw new CustomException(ResponseErrorCodeEnum.PARAMETER_ERROR);
         }
 
-        Page<OrderVO> page = new Page<>(current, size);
         Integer orderStatus = StringUtils.toInteger(status, -1);
 
         StringBuilder sql = new StringBuilder();
@@ -73,44 +86,123 @@ public class OrderApiController {
         }
         if(StringUtils.isNotBlank(id)) {
             sql.append(" AND info.id = ").append(id);
-
         }
-        sql.append(" AND info.user_id = ").append(sysUser.getId());
 
-        return orderInfoService.pageOrderVO(page, sql.toString(), isDelete);
+        Page page = new Page<>(current, size);
+        switch (sysUser.getRole()) {
+            case USER:
+                sql.append(" AND info.user_id = '").append(sysUser.getId()).append("'");
+                return orderInfoService.pageUserOrderVO(page, sql.toString(), isDelete);
+            case COURIER:
+                sql.append(" AND info.courier_id = '").append(sysUser.getId()).append("'");
+                return orderInfoService.pageCourierOrderVO(page, sql.toString());
+            case ADMIN:
+                // TODO
+                return new BootstrapTableVO();
+            default:
+                return new BootstrapTableVO();
+        }
     }
 
     /**
-     * 批量删除订单，仅能删除个人订单
+     * 获取所有状态为等待派送（支付成功）订单
+     */
+    @GetMapping("/wait-list")
+    @PreAuthorize("hasRole('ROLE_COURIER')")
+    public BootstrapTableVO<CourierOrderVO> listWaitDistOrder(@RequestParam(required = false, defaultValue = "1") Integer current,
+                                                              @RequestParam(required = false, defaultValue = "10") Integer size,
+                                                              String startDate, String endDate, String id) {
+        Page<CourierOrderVO> page = new Page<>(current, size);
+
+        StringBuilder sql = new StringBuilder();
+        sql.append(" AND info.status = ").append(OrderStatusEnum.WAIT_DIST.getStatus());
+        sql.append(" AND payment.status = ").append(PaymentStatusEnum.TRADE_SUCCESS.getStatus());
+
+        if(StringUtils.isNotBlank(startDate)) {
+            sql.append(" AND info.create_date > '").append(startDate).append("'");
+        }
+        if(StringUtils.isNotBlank(endDate)) {
+            sql.append(" AND info.create_date < '").append(endDate).append("'");
+        }
+        if(StringUtils.isNotBlank(id)) {
+            sql.append(" AND info.id = ").append(id);
+        }
+
+        return orderInfoService.pageCourierOrderVO(page, sql.toString());
+    }
+
+    /**
+     * 配送员批量接单
+     */
+    @PostMapping("/batch-accept")
+    @PreAuthorize("hasRole('ROLE_COURIER')")
+    public ResponseResult batchAccept(String[] ids, @AuthenticationPrincipal SysUser sysUser) {
+        return orderInfoService.batchAcceptOrder(ids, sysUser.getId());
+    }
+
+    /**
+     * 订单异常
+     */
+    @PostMapping("/error")
+    @PreAuthorize("hasRole('ROLE_COURIER') or hasRole('ROLE_ADMIN')")
+    public ResponseResult errorOrder(String id, String remark) {
+        if(StringUtils.isAnyBlank(id, remark)) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
+        }
+        if(remark.length() > CONTENT_MAX_LENGTH) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.STR_LENGTH_OVER, new Object[]{"异常信息", CONTENT_MAX_LENGTH});
+        }
+
+        return orderInfoService.handleOrder(id, OrderStatusEnum.ERROR, remark);
+    }
+
+    /**
+     * 订单完成
+     */
+    @PostMapping("/complete")
+    @PreAuthorize("hasRole('ROLE_COURIER') or hasRole('ROLE_ADMIN')")
+    public ResponseResult completeOrder(String id, String remark) {
+        if(StringUtils.isAnyBlank(id, remark)) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
+        }
+        if(remark.length() > CONTENT_MAX_LENGTH) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.STR_LENGTH_OVER, new Object[]{"成功信息", CONTENT_MAX_LENGTH});
+        }
+
+        return orderInfoService.handleOrder(id, OrderStatusEnum.COMPLETE, remark);
+    }
+
+    /**
+     * 用户批量删除订单，仅能删除个人订单
      * 状态为订单完成或订单异常
      * @author jitwxs
      * @date 2019/4/24 23:08
      */
     @PostMapping("/batch-delete")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_COURIER')")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseResult batchDelete(String[] ids, @AuthenticationPrincipal SysUser sysUser) {
         return orderInfoService.batchDeleteOrder(ids, sysUser.getId());
     }
 
     /**
-     * 批量撤销订单，仅能删除个人订单
+     * 用户批量撤销订单，仅能撤销个人订单
      * 状态为未接单
      * @author jitwxs
      * @date 2019/4/25 0:11
      */
     @PostMapping("/batch-cancel")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_COURIER')")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseResult batchCancel(String[] ids, @AuthenticationPrincipal SysUser sysUser) {
         return orderInfoService.batchCancelOrder(ids, sysUser.getId());
     }
 
     /**
-     * 批量恢复订单，仅能恢复个人订单
+     * 用户批量恢复订单，仅能恢复个人订单
      * @author jitwxs
      * @date 2019/4/26 1:58
      */
     @PostMapping("/batch-rollback")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_COURIER')")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseResult batchRollback(String[] ids, @AuthenticationPrincipal SysUser sysUser) {
         return orderInfoService.batchRollback(ids, sysUser.getId());
     }

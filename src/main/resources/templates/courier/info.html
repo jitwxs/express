@@ -95,13 +95,17 @@
                             </div>
                         </div>
                     </form>
+                </div><hr>
+                <!-- 角色切换 -->
+                <div class="alert alert-danger alert-dismissible fade in" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    <h4>切换普通用户</h4>
+                    <p>成为普通用户后您将可以进行下单。与此同时您将丧失接单和配送的权利，请确保当前不存在未完成的订单。</p>
+                    <p>
+                        <button type="button" onclick="changeRole()" id="changeRoleBtn" th:class="${info.canChangeRole == '0' ? 'disabled btn btn-danger' : 'btn btn-danger'}">立即切换</button>
+                    </p>
                 </div>
             </div>
-        </div><hr>
-        <!-- 角色切换 -->
-        <div class="row col-md-offset-3">
-            <button type="button" onclick="applyCourierRole()"
-                    th:class="${info.canChangeRole == '0' ? 'disabled btn btn-warning' : 'btn btn-warning'}">申请普通用户</button>
         </div>
     </div>
 
@@ -379,23 +383,37 @@
         }
     }
 
-    function applyCourierRole() {
-        let msg = '申请后您将拥有配送快递的权利，同时您将失去下单的权利，确定要申请吗？';
+    function changeRole() {
+        if($("#changeRoleBtn").hasClass("disabled")) {
+            return false;
+        }
+
+        let msg = '此操作具有一定危险性，即将校验密码，如未设置密码，请先设置密码。';
         layer.confirm(msg, {
             btn: ['确定','取消']
         }, function(){
-            sendJson(HTTP.GET, "/api/v1/public/school/province/" + id, null, false, function (res) {
-                if (res.code === 0) {
-                    let html = '', data = res.data;
-                    for(let i = 0; i<data.length; i++) {
-                        html += '<option value="'+data[i].id+'">'+data[i].name+'</option>\n';
+            layer.prompt({title:"输入密码", formType:1},function(val, index) {
+                // 校验密码
+                sendJson(HTTP.POST, "/api/v1/setting/check-password", {"password": val}, false, function (res) {
+                    if (res.code === 0) {
+                        layer.close(index);
+                        // 切换角色
+                        sendJson(HTTP.POST, "/api/v1/setting/apply-role", {"password": val}, false, function (res) {
+                            if (res.code === 0) {
+                                layer.msg("切换成功，即将重新登录！", {icon: 1});
+                                setTimeout("new function(){window.location.href='/logout'}","3000");
+                            } else {
+                                layer.msg(res.msg, {icon: 2});
+                            }
+                        }, function () {
+                            layer.msg("未知错误", {icon: 2});
+                        });
+                    } else {
+                        layer.msg(res.msg, {icon: 2});
                     }
-                    $("#inputSchool").html(html);
-                } else {
-                    layer.msg(res.msg, {icon: 2});
-                }
-            }, function () {
-                layer.msg("未知错误", {icon: 2});
+                }, function () {
+                    layer.msg("未知错误", {icon: 2});
+                });
             });
         }, function(){
         });

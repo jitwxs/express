@@ -8,12 +8,13 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
+ * 普通用户端，OrderVO
  * @author jitwxs
  * @date 2019年04月24日 22:24
  */
 @Data
 @Builder
-public class OrderVO implements Serializable {
+public class UserOrderVO implements Serializable {
     /**
      * 订单号
      */

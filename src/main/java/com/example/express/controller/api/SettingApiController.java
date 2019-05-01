@@ -5,13 +5,20 @@ import com.example.express.domain.ResponseResult;
 import com.example.express.domain.bean.SysUser;
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
 import com.example.express.service.SysUserService;
+import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.io.File;
+import java.util.Iterator;
 
 /**
  * API 设置信息
@@ -23,6 +30,19 @@ import javax.servlet.http.HttpSession;
 public class SettingApiController {
     @Autowired
     private SysUserService sysUserService;
+
+    /**
+     * 校验密码
+     */
+    @PostMapping("/check-password")
+    public ResponseResult checkPassword(String password, @AuthenticationPrincipal SysUser sysUser) {
+        if(StringUtils.isBlank(password)) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
+        }
+
+        boolean isMatch = sysUserService.checkPassword(sysUser.getId(), password);
+        return isMatch ? ResponseResult.success() : ResponseResult.failure(ResponseErrorCodeEnum.PASSWORD_ERROR);
+    }
 
     /**
      * 修改密码
@@ -89,7 +109,11 @@ public class SettingApiController {
      * 仅支持 user <-> courier
      */
     @PostMapping("/apply-role")
-    public ResponseResult changeRole(@AuthenticationPrincipal SysUser sysUser) {
-        return sysUserService.changeRole(sysUser);
+    public ResponseResult changeRole(String password, @AuthenticationPrincipal SysUser sysUser) {
+        if(!sysUserService.checkPassword(sysUser.getId(), password)) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.PASSWORD_ERROR);
+        }
+
+        return sysUserService.changeRole(sysUser.getId());
     }
 }

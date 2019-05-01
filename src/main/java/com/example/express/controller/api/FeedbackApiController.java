@@ -40,7 +40,6 @@ public class FeedbackApiController extends BaseApiController {
      * - 管理员：所有记录
      */
     @GetMapping("/list")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_COURIER')")
     public BootstrapTableVO<UserFeedbackVO> listSelfFeedback(@RequestParam(required = false, defaultValue = "1") Integer current,
                                                          @RequestParam(required = false, defaultValue = "10") Integer size,
                                                          String type, String status, String id,
@@ -83,6 +82,7 @@ public class FeedbackApiController extends BaseApiController {
 
     /**
      * 获取配送员需要处理反馈列表
+     * 所有无人处理，或者处理人是当前用户，且创建人非当前用户的订单反馈
      * @author jitwxs
      * @date 2019/4/25 22:58
      */
@@ -90,7 +90,7 @@ public class FeedbackApiController extends BaseApiController {
     @PreAuthorize("hasRole('ROLE_COURIER')")
     public BootstrapTableVO<UserFeedbackVO> listHandleOrder(@RequestParam(required = false, defaultValue = "1") Integer current,
                                                             @RequestParam(required = false, defaultValue = "10") Integer size,
-                                                            String type, String status, String id,
+                                                            String status, String id,
                                                             @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
                                                             @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate,
                                                             @AuthenticationPrincipal SysUser sysUser) {
@@ -101,10 +101,6 @@ public class FeedbackApiController extends BaseApiController {
         if(FeedbackStatusEnum.getByStatus(feedStatus) != null) {
             wrapper.eq("status", feedStatus);
         }
-        Integer feedbackType1 = StringUtils.toInteger(type, -1);
-        if(FeedbackTypeEnum.getByType(feedbackType1) != null) {
-            wrapper.eq("type", feedbackType1);
-        }
         if(StringUtils.isNotBlank(id)) {
             wrapper.eq("id", id);
         }
@@ -114,7 +110,10 @@ public class FeedbackApiController extends BaseApiController {
         if(endDate != null) {
             wrapper.le("create_date", endDate);
         }
-        wrapper.eq("handler", sysUser.getId());
+
+        wrapper.eq("type", FeedbackTypeEnum.ORDER.getType());
+        wrapper.eq("handler", sysUser.getId()).or().isNull("handler");
+        wrapper.ne("user_id", sysUser.getId());
 
         return userFeedbackService.pageUserFeedbackVO(page, wrapper);
     }

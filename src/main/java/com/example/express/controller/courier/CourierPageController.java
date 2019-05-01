@@ -55,20 +55,9 @@ public class CourierPageController extends BaseController {
     @RequestMapping("/info")
     public String showInfoPage(@AuthenticationPrincipal SysUser sysUser,ModelMap map) {
         initModelMap(map, sysUser);
-        UserInfoVO userInfo = sysUserService.getUserInfo(sysUser);
+        UserInfoVO userInfo = sysUserService.getUserInfo(sysUser.getId());
         map.put("info", userInfo);
         return "courier/info";
-    }
-
-    /**
-     * 回收站页面
-     */
-    @RequestMapping("/recycle")
-    public String showRecyclePage(@AuthenticationPrincipal SysUser sysUser,ModelMap map) {
-        initModelMap(map, sysUser);
-        UserInfoVO userInfo = sysUserService.getUserInfo(sysUser);
-        map.put("info", userInfo);
-        return "courier/recycle";
     }
 
     /**
@@ -77,8 +66,6 @@ public class CourierPageController extends BaseController {
     @RequestMapping("/log")
     public String showLogPage(@AuthenticationPrincipal SysUser sysUser,ModelMap map) {
         initModelMap(map, sysUser);
-        UserInfoVO userInfo = sysUserService.getUserInfo(sysUser);
-        map.put("info", userInfo);
         return "courier/log";
     }
 
@@ -88,8 +75,6 @@ public class CourierPageController extends BaseController {
     @RequestMapping("/feedback")
     public String showFeedbackPage(@AuthenticationPrincipal SysUser sysUser,ModelMap map) {
         initModelMap(map, sysUser);
-        UserInfoVO userInfo = sysUserService.getUserInfo(sysUser);
-        map.put("info", userInfo);
         return "courier/feedback";
     }
 }

@@ -14,8 +14,9 @@ import com.example.express.domain.enums.OrderStatusEnum;
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
 import com.example.express.domain.enums.SysRoleEnum;
 import com.example.express.domain.vo.BootstrapTableVO;
+import com.example.express.domain.vo.CourierOrderVO;
 import com.example.express.domain.vo.OrderDescVO;
-import com.example.express.domain.vo.OrderVO;
+import com.example.express.domain.vo.UserOrderVO;
 import com.example.express.mapper.OrderInfoMapper;
 import com.example.express.service.DataCompanyService;
 import com.example.express.service.OrderInfoService;
@@ -32,6 +33,9 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author oker
+ */
 @Service
 public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo> implements OrderInfoService {
     @Autowired
@@ -59,7 +63,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         } else if(roleEnum == SysRoleEnum.COURIER) {
             count = orderInfoMapper.selectCount(new QueryWrapper<OrderInfo>()
                     .eq("courier_id", userId)
-                    .in("status", OrderStatusEnum.WAIT_DIST.getStatus(), OrderStatusEnum.TRANSPORT.getStatus()));
+                    .in("status",  OrderStatusEnum.TRANSPORT.getStatus()));
         }
 
         return count != 0;
@@ -130,11 +134,23 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     }
 
     @Override
-    public BootstrapTableVO<OrderVO> pageOrderVO(Page<OrderVO> page, String selectSql, int isDelete) {
-        BootstrapTableVO<OrderVO> vo = new BootstrapTableVO<>();
+    public BootstrapTableVO<UserOrderVO> pageUserOrderVO(Page<UserOrderVO> page, String selectSql, int isDelete) {
+        BootstrapTableVO<UserOrderVO> vo = new BootstrapTableVO<>();
 
-        IPage<OrderVO> selectPage = orderInfoMapper.pageOrderVO(page, selectSql, isDelete);
+        IPage<UserOrderVO> selectPage = orderInfoMapper.pageUserOrderVO(page, selectSql, isDelete);
         vo.setTotal(selectPage.getTotal());
+        vo.setRows(selectPage.getRecords());
+
+        return vo;
+    }
+
+    @Override
+    public BootstrapTableVO<CourierOrderVO> pageCourierOrderVO(Page<CourierOrderVO> page, String sql) {
+        BootstrapTableVO<CourierOrderVO> vo = new BootstrapTableVO<>();
+
+        IPage<CourierOrderVO> selectPage = orderInfoMapper.pageCourierOrderVO(page, sql);
+        vo.setTotal(selectPage.getTotal());
+
         vo.setRows(selectPage.getRecords());
 
         return vo;
@@ -207,6 +223,48 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         }};
 
         return ResponseResult.success(count);
+    }
+
+    @Override
+    public ResponseResult batchAcceptOrder(String[] ids, String userId) {
+        int success = 0;
+        for(String orderId: ids) {
+            OrderInfo orderInfo = orderInfoMapper.selectById(orderId);
+            orderInfo.setCourierId(userId);
+            orderInfo.setOrderStatus(OrderStatusEnum.TRANSPORT);
+            if(this.retBool(orderInfoMapper.updateById(orderInfo))) {
+                success++;
+            }
+        }
+
+        int finalSuccess = success;
+        Map<String, Integer> count = new HashMap<String, Integer>(16) {{
+            put("success", finalSuccess);
+            put("error", ids.length - finalSuccess);
+        }};
+
+        return ResponseResult.success(count);
+    }
+
+    @Override
+    public ResponseResult handleOrder(String orderId, OrderStatusEnum targetStatus, String remark) {
+        OrderInfo orderInfo = getById(orderId);
+        if(orderInfo == null) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.ORDER_NOT_EXIST);
+        }
+        if(orderInfo.getOrderStatus() != OrderStatusEnum.TRANSPORT) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.OPERATION_NOT_SUPPORT);
+        }
+
+        orderInfo.setOrderStatus(targetStatus);
+        if(StringUtils.isNotBlank(remark)) {
+            orderInfo.setCourierRemark(remark);
+        }
+        if(this.retBool(orderInfoMapper.updateById(orderInfo))) {
+            return ResponseResult.success();
+        } else {
+            return ResponseResult.failure(ResponseErrorCodeEnum.OPERATION_ERROR);
+        }
     }
 
     @Override

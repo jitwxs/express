@@ -4,15 +4,16 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.express.domain.ResponseResult;
 import com.example.express.domain.bean.OrderInfo;
+import com.example.express.domain.enums.OrderStatusEnum;
 import com.example.express.domain.enums.SysRoleEnum;
 import com.example.express.domain.vo.BootstrapTableVO;
+import com.example.express.domain.vo.CourierOrderVO;
 import com.example.express.domain.vo.OrderDescVO;
-import com.example.express.domain.vo.OrderVO;
+import com.example.express.domain.vo.UserOrderVO;
 
 public interface OrderInfoService extends IService<OrderInfo> {
     /**
      * 检查是否有未完成的订单
-     * 订单状态为 WAIT_DIST 或 TRANSPORT 的订单
      * @param roleEnum ROLE_USER: order表userId；ROLE_COURIER:order表courierId
      */
     boolean isExistUnfinishedOrder(String userId, SysRoleEnum roleEnum);
@@ -42,9 +43,15 @@ public interface OrderInfoService extends IService<OrderInfo> {
 
     /**
      * 分页查询订单
+     * 适用：普通用户端
      * @param isDelete 0：未删除；1：已删除
      */
-    BootstrapTableVO<OrderVO> pageOrderVO(Page<OrderVO> page, String selectSql, int isDelete);
+    BootstrapTableVO<UserOrderVO> pageUserOrderVO(Page<UserOrderVO> page, String selectSql, int isDelete);
+    /**
+     * 分页查询订单
+     * 适用：配送员端
+     */
+    BootstrapTableVO<CourierOrderVO> pageCourierOrderVO(Page<CourierOrderVO> page, String sql);
     /**
      * 批量删除订单
      */
@@ -56,5 +63,13 @@ public interface OrderInfoService extends IService<OrderInfo> {
     /**
      * 批量恢复订单
      */
-    ResponseResult batchRollback(String[] ids, String id);
+    ResponseResult batchRollback(String[] ids, String userId);
+    /**
+     * 批量接单
+     */
+    ResponseResult batchAcceptOrder(String[] ids, String userId);
+    /**
+     * 异常/完成，订单派送
+     */
+    ResponseResult handleOrder(String orderId, OrderStatusEnum targetStatus, String remark);
 }

@@ -52,7 +52,7 @@ public class RequestRateLimitAspect {
         if(authentication instanceof AnonymousAuthenticationToken) {
             userKey = getIpAddress(request);
         } else {
-            SysUser user = (SysUser) authentication.getDetails();
+            SysUser user = (SysUser) authentication.getPrincipal();
             userKey = user.getId();
         }
 
@@ -61,7 +61,7 @@ public class RequestRateLimitAspect {
         // 拼接限速 key
         String limitKey = String.format("express_api_request_limit_rate_%s_%s_%s", userKey, method.getName(), uri);
         if(redisService.checkRequestRateLimit(limitKey, limit[1], limit[0], TimeUnit.SECONDS, userAgent)) {
-            response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
+//            response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
             return ResponseResult.failure(ResponseErrorCodeEnum.REQUEST_TOO_HIGH);
         }
 
