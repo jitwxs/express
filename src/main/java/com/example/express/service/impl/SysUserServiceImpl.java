@@ -208,8 +208,6 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
     }
 
-
-
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public ResponseResult registryByUsername(String username, String password) {
@@ -262,7 +260,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
         user.setPassword(passwordEncoder.encode(newPassword));
 
-        if(!this.retBool(sysUserMapper.updateById(user))) {
+        if(!updateById(user)) {
             return ResponseResult.failure(ResponseErrorCodeEnum.PASSWORD_RESET_ERROR);
         }
 
@@ -283,7 +281,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         user.setUsername(username);
         user.setPassword(passwordEncoder.encode(password));
 
-        if(!this.retBool(sysUserMapper.updateById(user))) {
+        if(!updateById(user)) {
             return ResponseResult.failure(ResponseErrorCodeEnum.OPERATION_ERROR);
         }
         return ResponseResult.success();
@@ -305,7 +303,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
         user.setRealName(realName);
         user.setIdCard(idCard);
-        if(!this.retBool(sysUserMapper.updateById(user))) {
+        if(!updateById(user)) {
             return ResponseResult.failure(ResponseErrorCodeEnum.OPERATION_ERROR);
         }
         return ResponseResult.success();
@@ -323,7 +321,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
 
         user.setTel(tel);
-        if(!this.retBool(sysUserMapper.updateById(user))) {
+        if(!updateById(user)) {
             return ResponseResult.failure(ResponseErrorCodeEnum.OPERATION_ERROR);
         }
         return ResponseResult.success();
@@ -341,7 +339,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
         user.setSchoolId(schoolId);
         user.setStudentIdCard(studentIdCard);
-        if(!this.retBool(sysUserMapper.updateById(user))) {
+        if(!updateById(user)) {
             return ResponseResult.failure(ResponseErrorCodeEnum.OPERATION_ERROR);
         }
         return ResponseResult.success();
@@ -370,7 +368,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             user.setRole(SysRoleEnum.USER);
         }
 
-        if(!this.retBool(sysUserMapper.updateById(user))) {
+        if(!updateById(user)) {
             return ResponseResult.failure(ResponseErrorCodeEnum.OPERATION_ERROR);
         }
         return ResponseResult.success();
