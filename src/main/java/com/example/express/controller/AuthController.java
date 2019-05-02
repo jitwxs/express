@@ -1,15 +1,12 @@
 package com.example.express.controller;
 
+import com.example.express.aop.RequestRateLimit;
 import com.example.express.common.constant.SecurityConstant;
 import com.example.express.common.constant.SessionKeyConstant;
 import com.example.express.common.util.*;
 import com.example.express.domain.ResponseResult;
 import com.example.express.domain.bean.SysUser;
-import com.example.express.domain.enums.ResponseErrorCodeEnum;
-import com.example.express.domain.enums.SexEnum;
-import com.example.express.domain.enums.SysRoleEnum;
-import com.example.express.domain.enums.ThirdLoginTypeEnum;
-import com.example.express.exception.CustomException;
+import com.example.express.domain.enums.*;
 import com.example.express.security.validate.third.ThirdLoginAuthenticationToken;
 import com.example.express.service.DataSchoolService;
 import com.example.express.service.OAuthService;
@@ -83,6 +80,7 @@ public class AuthController {
      * 获取短信验证码
      * @date 2019/4/17 22:40
      */
+    @RequestRateLimit(limit = RateLimitEnum.RRLimit_1_60)
     @GetMapping(SecurityConstant.VALIDATE_CODE_URL_PREFIX + "/sms")
     public ResponseResult sendSms(String mobile, HttpSession session) {
         if(StringUtils.isBlank(mobile)) {
@@ -93,11 +91,11 @@ public class AuthController {
         }
 
         // 如果Session中验证信息非空，判断是否超过间隔时间
-        Long lastTimestamp = (Long) session.getAttribute(SessionKeyConstant.SMS_TIMESTAMP);
+        Object lastTimestamp = session.getAttribute(SessionKeyConstant.SMS_TIMESTAMP);
         // 间隔分钟
         int intervalMins = Integer.parseInt(smsIntervalMins);
         if (lastTimestamp != null) {
-            long waitSeconds = (System.currentTimeMillis() - lastTimestamp) / 1000;
+            long waitSeconds = (System.currentTimeMillis() - Long.parseLong((String)lastTimestamp)) / 1000;
             if (waitSeconds < intervalMins * 60) {
                 ResponseResult.failure(ResponseErrorCodeEnum.SMS_SEND_INTERVAL_TOO_SHORT, new Object[]{smsIntervalMins});
             }

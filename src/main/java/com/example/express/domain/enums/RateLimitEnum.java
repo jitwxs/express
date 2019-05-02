@@ -8,6 +8,7 @@ public enum RateLimitEnum {
     RRLimit_1_5("1/5"),
     RRLimit_10_1("10/1"),
     RRLimit_1_10("1/10"),
+    RRLimit_1_60("1/60"),
     ;
 
     private String limit;

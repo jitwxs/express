@@ -210,7 +210,7 @@
                                         <input type="text" class="form-control" id="telCode" name="code" placeholder="请输入验证码">
                                     </div>
                                     <div class="col-md-6 col-sm-12 col-lg-6 col-xs-12 telCode">
-                                        <button type="button" class="btn btn-info btn-block" id="getTelCode" onclick="sendMsg()" >获取验证码</button>
+                                        <button type="button" class="btn btn-info btn-block" id="getTelCode" >获取验证码</button>
                                     </div>
                                 </div>
                             </div>
@@ -336,30 +336,66 @@
     let send = document.getElementById("getTelCode");
     let times=60;
     let timer=null;
+    //添加cookie
+    function addCookie(name,value,expiresHours){
+        var cookieString=name+"="+escape(value);
+        //判断是否设置过期时间,0代表关闭浏览器时失效
+        if(expiresHours>0){
+            var date=new Date();
+            date.setTime(date.getTime()+expiresHours*1000);
+            cookieString=cookieString+";expires=" + date.toUTCString();
+        }
+        document.cookie=cookieString;
+    }
+    //修改cookie的值
+    function editCookie(name,value,expiresHours){
+        var cookieString=name+"="+escape(value);
+        if(expiresHours>0){
+            var date=new Date();
+            date.setTime(date.getTime()+expiresHours*1000); //单位是毫秒
+            cookieString=cookieString+";expires=" + date.toGMTString();
+        }
+        document.cookie=cookieString;
+    }
+    //根据名字获取cookie的值
+    function getCookieValue(name){
+        var strCookie=document.cookie;
+        var arrCookie=strCookie.split("; ");
+        for(var i=0;i<arrCookie.length;i++){
+            var arr=arrCookie[i].split("=");
+            if(arr[0]==name){
+                return unescape(arr[1]);
+                break;
+            }else{
+                return "";
+                break;
+            }
+        }
+    }
 
-    function sendMsg() {
-        let tel = $("#inputTel").val();
-        if(!isPoneAvailable(tel)) {
+    $(function(){
+        $("#getTelCode").click(function (){
+            sendCode($("#getTelCode"));
+        });
+        v = getCookieValue("userInfoCookie");//获取cookie值
+        if(v>0){
+            settime($("#getTelCode"));//开始倒计时
+        }
+    });
+    //送验证码
+    function sendCode(obj){
+        let phonenum = $("#inputTel").val();
+        console.log(phonenum);
+        // let result = isPhoneNum();
+        if(!isPoneAvailable(phonenum)) {
             layer.msg("手机号码不合法", {icon: 7});
             return false;
         }
-        sendJson(HTTP.GET, '/auth/code/sms?mobile=' + tel, null, false, function (res) {
+        sendJson(HTTP.GET, '/auth/code/sms?mobile=' + phonenum, null, false, function (res) {
                 if (res.code === 0) {
                     layer.msg("短信发送成功", {icon: 1});
-
-                    // 定时器
-                    timer=setInterval(function(){
-                        times--;
-                        if(times<=0){
-                            send.value='发送验证码';
-                            clearInterval(timer);
-                            times=60;
-                            send.disabled=false;    //是否可点击
-                        }else{
-                            send.innerText =times+'秒后重试';
-                            send.disabled=true;
-                        }
-                    },1000);
+                    addCookie("userInfoCookie",60,60);//添加cookie记录,有效时间60s
+                    settime(obj);//开始倒计
                 } else {
                     layer.msg(res.msg, {icon: 2});
                 }
@@ -367,6 +403,25 @@
             function () {
                 layer.msg("未知错误", {icon: 2});
             });
+
+    }
+
+    //开始倒计时
+    let countdown;
+    function settime(obj) {
+        countdown=getCookieValue("userInfoCookie");
+        if (countdown == 0) {
+            obj.removeAttr("disabled");
+            document.getElementById("getTelCode").innerText = '重新获取验证码';
+            return;
+        } else {
+            obj.attr("disabled", true);
+            document.getElementById("getTelCode").innerText = countdown + 's之后重新发送';
+            // obj.val("重新发送(" + countdown + ")");
+            countdown--;
+            editCookie("userInfoCookie",countdown,countdown+1);
+        }
+        setTimeout(function() { settime(obj) },1000) //每1000毫秒执行一次
     }
     
     function showModel(type) {

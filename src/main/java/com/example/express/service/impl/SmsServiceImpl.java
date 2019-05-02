@@ -65,7 +65,8 @@ public class SmsServiceImpl implements SmsService {
                 setSmsSession(session, tel, code);
                 return ResponseErrorCodeEnum.SUCCESS;
             } else {
-                log.error("验证码发送失败，手机号：{}", tel);
+                // TODO 处理服务端错误码
+                log.error("验证码发送失败，手机号：{}，错误信息：{}", tel, result.errMsg);
                 return ResponseErrorCodeEnum.SEND_SMS_ERROR;
             }
         } catch (Exception e) {
