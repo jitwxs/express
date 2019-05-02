@@ -11,16 +11,19 @@ import java.util.Arrays;
  */
 @Getter
 public enum SexEnum implements IEnum<Integer> {
-    MALE(1, "男"),
-    FEMALE(0, "女");
+    MALE(1, "male", "男"),
+    FEMALE(0, "female", "女");
 
     private int type;
 
     private String name;
 
-    SexEnum(int type, String name) {
+    private String cname;
+
+    SexEnum(int type, String name, String cname) {
         this.type = type;
         this.name = name;
+        this.cname = cname;
     }
 
     @Override
@@ -30,5 +33,9 @@ public enum SexEnum implements IEnum<Integer> {
 
     public static SexEnum getByType(int type) {
         return Arrays.stream(values()).filter(e -> e.getType() == type).findFirst().orElse(null);
+    }
+
+    public static SexEnum getByName(String name) {
+        return Arrays.stream(values()).filter(e -> e.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
     }
 }

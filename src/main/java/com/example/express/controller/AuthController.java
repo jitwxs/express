@@ -8,10 +8,7 @@ import com.example.express.domain.ResponseResult;
 import com.example.express.domain.bean.SysUser;
 import com.example.express.domain.enums.*;
 import com.example.express.security.validate.third.ThirdLoginAuthenticationToken;
-import com.example.express.service.DataSchoolService;
-import com.example.express.service.OAuthService;
-import com.example.express.service.SmsService;
-import com.example.express.service.SysUserService;
+import com.example.express.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,17 +23,20 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
 import java.util.Map;
 
 @Slf4j
 @RestController
 public class AuthController {
     @Autowired
-    private SysUserService sysUserService;
+    private AipService aipService;
+    @Autowired
+    private SmsService smsService;
     @Autowired
     private OAuthService oAuthService;
     @Autowired
-    private SmsService smsService;
+    private SysUserService sysUserService;
     @Autowired
     private DataSchoolService dataSchoolService;
     @Autowired
@@ -157,7 +157,7 @@ public class AuthController {
         Map<String, String> resultMap = HttpClientUtils.params2Map(result);
         // 如果返回结果中包含access_token，表示成功
         if(!resultMap.containsKey("access_token")) {
-            throw  new Exception("获取token失败");
+            throw new Exception("获取token失败");
         }
         // 得到token
         String accessToken = resultMap.get("access_token");
@@ -202,10 +202,60 @@ public class AuthController {
     }
 
     /**
+     * 人脸登录
+     * @author jitwxs
+     * @date 2019/5/3 0:47
+     */
+    @SuppressWarnings("Duplicates")
+    @PostMapping("/auth/face-login")
+    public void faceLogin(String data, HttpSession session, HttpServletResponse response) throws IOException {
+        ResponseResult result = aipService.faceSearchByBase64(data);
+        if(result.getCode() != ResponseErrorCodeEnum.SUCCESS.getCode()) {
+            session.setAttribute(SecurityConstant.LAST_EXCEPTION, result);
+            response.sendRedirect(SecurityConstant.UN_AUTHENTICATION_URL);
+            return;
+        }
+
+        // 人脸登录和三方登录一样，无需鉴权，因此使用三方登录的方式注入框架即可
+        SysUser sysUser = (SysUser) result.getData();
+        ThirdLoginAuthenticationToken token = new ThirdLoginAuthenticationToken(sysUser.getId());
+        Authentication authentication = authenticationManager.authenticate(token);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // 跳转首页
+        response.sendRedirect(SecurityConstant.LOGIN_SUCCESS_URL);
+    }
+
+    /**
+     * 人脸注册前校验
+     * @author jitwxs
+     * @date 2019/5/3 0:23
+     */
+    @PostMapping("/auth/face-check")
+    public ResponseResult faceCheck(HttpSession session, String data) {
+        String base64Prefix = "data:image/png;base64,";
+        if(StringUtils.isBlank(data)) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
+        }
+        if(data.startsWith(base64Prefix)) {
+            data = data.substring(base64Prefix.length());
+        }
+        ResponseResult result = aipService.faceDetectByBase64(data, true);
+        if(result.getCode() != ResponseErrorCodeEnum.SUCCESS.getCode()) {
+            return result;
+        }
+
+        // 暂存face_token
+        session.setAttribute(SessionKeyConstant.REGISTER_FACE_TOKEN, result.getData());
+        return ResponseResult.success();
+    }
+
+    /**
      * 用户注册
      * @param type 注册类型 1：用户名密码；2：短信验证码；3：人脸
      * @date 2019/4/17 0:06
      */
+    @SuppressWarnings("unchecked")
     @PostMapping("/auth/register")
     public ResponseResult register(Integer type, String username, String password,
                                    String tel, String code, HttpSession session) {
@@ -225,10 +275,17 @@ public class AuthController {
                 if(!StringUtils.isValidTel(tel)) {
                     return ResponseResult.failure(ResponseErrorCodeEnum.TEL_INVALID);
                 }
-                return sysUserService.registryBTel(tel, code, session);
+                return sysUserService.registryByTel(tel, code, session);
             case 3:
-                // TODO 人脸注册
-                return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
+                // 读取face_token
+                Map<String, String> map = (Map<String, String>) session.getAttribute(SessionKeyConstant.REGISTER_FACE_TOKEN);
+                String faceToken = map.get("face_token");
+                String gender = map.get("gender");
+                if(StringUtils.isAnyBlank(faceToken, gender)) {
+                    return ResponseResult.failure(ResponseErrorCodeEnum.NOT_FACE_TO_REGISTRY);
+                }
+
+                return sysUserService.registryByFace(faceToken, gender);
             default:
                 return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
         }

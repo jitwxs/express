@@ -5,8 +5,6 @@ import com.example.express.common.util.StringUtils;
 import com.example.express.domain.ResponseResult;
 import com.example.express.domain.bean.DataCompany;
 import com.example.express.domain.bean.DataSchool;
-import com.example.express.domain.enums.OrderStatusEnum;
-import com.example.express.domain.enums.PaymentStatusEnum;
 import com.example.express.domain.enums.RateLimitEnum;
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
 import com.example.express.domain.vo.DataAreaVO;
@@ -14,15 +12,10 @@ import com.example.express.service.AipService;
 import com.example.express.service.DataAreaService;
 import com.example.express.service.DataCompanyService;
 import com.example.express.service.DataSchoolService;
-import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
 
-import javax.servlet.http.HttpServletRequest;
-import java.io.*;
-import java.util.*;
+import java.util.List;
 
 /**
  * API公开信息
@@ -100,6 +93,6 @@ public class PublicApiController {
         if(data.startsWith(base64Prefix)) {
             data = data.substring(base64Prefix.length());
         }
-        return aipService.faceDetectByBase64(data);
+        return aipService.faceDetectByBase64(data, false);
     }
 }

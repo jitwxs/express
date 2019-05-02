@@ -12,16 +12,14 @@ import com.example.express.domain.ResponseResult;
 import com.example.express.domain.bean.DataSchool;
 import com.example.express.domain.bean.SysUser;
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
+import com.example.express.domain.enums.SexEnum;
 import com.example.express.domain.enums.SysRoleEnum;
 import com.example.express.domain.enums.ThirdLoginTypeEnum;
 import com.example.express.domain.vo.BootstrapTableVO;
 import com.example.express.domain.vo.admin.AdminUserInfoVO;
 import com.example.express.domain.vo.user.UserInfoVO;
 import com.example.express.mapper.SysUserMapper;
-import com.example.express.service.DataSchoolService;
-import com.example.express.service.OrderInfoService;
-import com.example.express.service.SmsService;
-import com.example.express.service.SysUserService;
+import com.example.express.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -45,6 +43,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     private SysUserMapper sysUserMapper;
 
     @Autowired
+    private AipService aipService;
+    @Autowired
     private SmsService smsService;
     @Autowired
     private OrderInfoService orderInfoService;
@@ -52,9 +52,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     private DataSchoolService dataSchoolService;
 
     @Autowired
-    private RedisTemplate<String, SysUser> redisTemplate;
-    @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private RedisTemplate<String, SysUser> redisTemplate;
     @Autowired
     private DataSourceTransactionManager transactionManager;
 
@@ -234,7 +234,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    public ResponseResult registryBTel(String tel, String code, HttpSession session) {
+    public ResponseResult registryByTel(String tel, String code, HttpSession session) {
         ResponseErrorCodeEnum codeEnum = smsService.check(session, tel, code);
         if(codeEnum != ResponseErrorCodeEnum.SUCCESS) {
             return ResponseResult.failure(codeEnum);
@@ -247,6 +247,33 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         if(!this.retBool(sysUserMapper.insert(user))) {
             return ResponseResult.failure(ResponseErrorCodeEnum.REGISTRY_ERROR);
         }
+        return ResponseResult.success();
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    @Override
+    public ResponseResult registryByFace(String faceToken, String gender) {
+        DefaultTransactionDefinition definition = new DefaultTransactionDefinition();
+        TransactionStatus status = transactionManager.getTransaction(definition);
+
+        // 初始化user
+        SysUser user = SysUser.builder()
+                .role(SysRoleEnum.DIS_FORMAL)
+                .sex(SexEnum.getByName(gender))
+                .build();
+
+        if(!this.retBool(sysUserMapper.insert(user))) {
+            transactionManager.rollback(status);
+            return ResponseResult.failure(ResponseErrorCodeEnum.REGISTRY_ERROR);
+        }
+
+        ResponseResult result = aipService.faceRegistryByFaceToken(faceToken, user.getId());
+        if(result.getCode() != ResponseErrorCodeEnum.SUCCESS.getCode()) {
+            transactionManager.rollback(status);
+            return result;
+        }
+
+        transactionManager.commit(status);
         return ResponseResult.success();
     }
 

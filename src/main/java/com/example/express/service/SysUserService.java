@@ -64,7 +64,14 @@ public interface SysUserService extends IService<SysUser> {
      * @author jitwxs
      * @date 2019/4/22 0:39
      */
-    ResponseResult registryBTel(String tel, String code, HttpSession session);
+    ResponseResult registryByTel(String tel, String code, HttpSession session);
+    /**
+     * 人脸注册
+     * @author jitwxs
+     * @date 2019/5/3 0:34
+     * @param gender male:男性 female:女性
+     */
+    ResponseResult registryByFace(String faceToken, String gender);
     /**
      * 修改密码
      */

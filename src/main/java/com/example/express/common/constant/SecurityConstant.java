@@ -25,7 +25,10 @@ public class SecurityConstant {
      * 手机验证码登录请求处理url
      */
     public static final String LOGIN_PROCESSING_URL_MOBILE = "/auth/mobile-login";
-
+    /**
+     * 人脸登录请求处理url
+     */
+    public static final String LOGIN_PROCESSING_URL_FACE = "/auth/face-login";
     /**
      * 手机验证码登录手机号表单字段名
      */
@@ -38,7 +41,6 @@ public class SecurityConstant {
      * 验证码登陆表单字段名
      */
     public static final String VALIDATE_CODE_PARAMETER = "verifyCode";
-
     /**
      * 三方登陆相关 Url 前缀
      */

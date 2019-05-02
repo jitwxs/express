@@ -28,21 +28,21 @@ public class AipServiceImpl implements AipService {
     private SysUserService sysUserService;
 
     private static String GROUP_ID = "1";
-    private static String BASE_64 = "BASE64";
-    /**
-     * 最小被接收的人脸分数
-     */
-    private static double MIN_ACCEPT_SCORE = 90;
 
     @Override
-    public ResponseResult faceDetectByBase64(String image) {
+    public ResponseResult faceDetectByBase64(String image, boolean isQuality) {
         HashMap<String, String> options = new HashMap<>();
-        options.put("face_field", "gender,face_type");
+
+        StringBuffer sb = new StringBuffer("gender,face_type");
+        if(isQuality) {
+            sb.append(",quality");
+        }
+        options.put("face_field", sb.toString());
         options.put("max_face_num", "1");
         options.put("face_type", "LIVE");
 
         // 人脸检测
-        JSONObject res = client.detect(image, BASE_64, options);
+        JSONObject res = client.detect(image, "BASE64", options);
         log.info("res: {}", res);
         // 校验错误
         Integer errorCode = (Integer)res.get("error_code");
@@ -70,6 +70,48 @@ public class AipServiceImpl implements AipService {
             return ResponseResult.failure(ResponseErrorCodeEnum.NOT_REAL_FACE);
         }
 
+        if(isQuality) {
+            // 质量限制，参考官方推荐 http://ai.baidu.com/docs#/Face-Java-SDK/ca2bad80
+
+            // 人脸旋转
+            JSONObject angel = (JSONObject) faceMap.get("angel");
+            if((Double)angel.get("yaw") > 20 || (Double)angel.get("pitch") > 20 || (Double)angel.get("roll") > 20) {
+                return ResponseResult.failure(ResponseErrorCodeEnum.FACE_ANGEL_BAD);
+            }
+
+            JSONObject quality = (JSONObject) faceMap.get("quality");
+            // 模糊度范围
+            if((Double)quality.get("blur") >= 0.7) {
+                return ResponseResult.failure(ResponseErrorCodeEnum.FACE_BLUR_BAD);
+            }
+            // 光照范围
+            if((Integer)quality.get("illumination") <= 40) {
+                return ResponseResult.failure(ResponseErrorCodeEnum.FACE_ILLUMINATION_BAD);
+            }
+            // 人脸完整度
+            if((Integer)quality.get("completeness") != 1) {
+                return ResponseResult.failure(ResponseErrorCodeEnum.FACE_ILLUMINATION_BAD);
+            }
+            // 遮挡范围
+            JSONObject occlusion = (JSONObject) quality.get("occlusion");
+            if((Double)occlusion.get("left_eye") > 0.6 || (Double)occlusion.get("right_eye") > 0.6 ) {
+                return ResponseResult.failure(ResponseErrorCodeEnum.FACE_EYE_OCCLUSION_BAD);
+            }
+            if((Double)occlusion.get("nose") > 0.7) {
+                return ResponseResult.failure(ResponseErrorCodeEnum.FACE_NOSE_OCCLUSION_BAD);
+            }
+            if((Double)occlusion.get("mouse") > 0.7) {
+                return ResponseResult.failure(ResponseErrorCodeEnum.FACE_MOUSE_OCCLUSION_BAD);
+            }
+            if((Double)occlusion.get("left_cheek") > 0.8 || (Double)occlusion.get("right_cheek") > 0.8 ) {
+                return ResponseResult.failure(ResponseErrorCodeEnum.FACE_CHEEK_OCCLUSION_BAD);
+            }
+            if((Double)occlusion.get("chin") > 0.6) {
+                return ResponseResult.failure(ResponseErrorCodeEnum.FACE_CHIN_OCCLUSION_BAD);
+            }
+        }
+
+        // 返回数据
         Map<String, String> resultMap = new HashMap<>();
         // faceToken
         resultMap.put("face_token", (String)faceMap.get("face_token"));
@@ -77,6 +119,39 @@ public class AipServiceImpl implements AipService {
         resultMap.put("gender", (String)((JSONObject) faceMap.get("gender")).get("type"));
 
         return ResponseResult.success(resultMap);
+    }
+
+    @Override
+    public ResponseResult faceRegistryByFaceToken(String faceToken, String userId) {
+        HashMap<String, String> options = new HashMap<>(16);
+        options.put("quality_control", "NORMAL");
+        options.put("liveness_control", "NORMAL");
+
+        SysUser sysUser = sysUserService.getById(userId);
+        // 人脸注册
+        JSONObject res = client.addUser(faceToken, "FACE_TOKEN", GROUP_ID, userId, options);
+        // 校验错误
+        Integer errorCode = (Integer)res.get("error_code");
+        if(errorCode != 0) {
+            log.info("错误码：{}，错误信息：{}", errorCode, res.get("error_msg"));
+            return ResponseResult.failure(ResponseErrorCodeEnum.OPERATION_ERROR.getCode(), (String)res.get("error_msg"));
+        }
+        /*
+         {
+          "face_token": "2fa64a88a9d5118916f9a303782a97d3",
+          "location": {
+              "left": 117,
+              "top": 131,
+              "width": 172,
+              "height": 170,
+              "rotation": 4
+          }
+        }
+         */
+        sysUser.setFaceToken(faceToken);
+        boolean isUpdate = sysUserService.updateById(sysUser);
+
+        return isUpdate ? ResponseResult.success() : ResponseResult.failure(ResponseErrorCodeEnum.FACE_ADD_ERROR);
     }
 
     @Override
@@ -91,7 +166,7 @@ public class AipServiceImpl implements AipService {
         options.put("max_user_num", "1");
 
         // 人脸搜索
-        JSONObject res = client.search(image, BASE_64, GROUP_ID, options);
+        JSONObject res = client.search(image, "BASE64", GROUP_ID, options);
         // 校验错误
         Integer errorCode = (Integer)res.get("error_code");
         if(errorCode != 0) {
@@ -118,8 +193,9 @@ public class AipServiceImpl implements AipService {
         }
         JSONObject userMap = (JSONObject)userList.get(0);
 
+        // 低于95，不认为是合法用户
         Double score = (Double) userMap.get("score");
-        if(score < MIN_ACCEPT_SCORE) {
+        if(score < 95) {
             return ResponseResult.failure(ResponseErrorCodeEnum.NOT_ACCORD_WITH_MIN_REQUIREMENT);
         }
 
@@ -129,35 +205,25 @@ public class AipServiceImpl implements AipService {
     }
 
     @Override
-    public ResponseResult addFaceByBase64(String image, String userId) {
-        HashMap<String, String> options = new HashMap<>();
+    public ResponseResult faceUpdateByFaceToken(String faceToken, String userId) {
+        // 传入可选参数调用接口
+        HashMap<String, String> options = new HashMap<>(16);
         options.put("quality_control", "NORMAL");
         options.put("liveness_control", "NORMAL");
 
-        SysUser sysUser = sysUserService.getById(userId);
-        // 人脸注册
-        JSONObject res = client.addUser(image, BASE_64, GROUP_ID, userId, options);
+        // 人脸更新
+        JSONObject res = client.updateUser(faceToken, "FACE_TOKEN", GROUP_ID, userId, options);
         // 校验错误
         Integer errorCode = (Integer)res.get("error_code");
         if(errorCode != 0) {
             log.info("错误码：{}，错误信息：{}", errorCode, res.get("error_msg"));
             return ResponseResult.failure(ResponseErrorCodeEnum.OPERATION_ERROR.getCode(), (String)res.get("error_msg"));
-        }
-        /*
-         {
-          "face_token": "2fa64a88a9d5118916f9a303782a97d3",
-          "location": {
-              "left": 117,
-              "top": 131,
-              "width": 172,
-              "height": 170,
-              "rotation": 4
-          }
-        }
-         */
-        sysUser.setFaceToken((String) res.get("face_token"));
-        boolean isUpdate = sysUserService.updateById(sysUser);
+        } else {
+            SysUser sysUser = sysUserService.getById(userId);
+            sysUser.setFaceToken(faceToken);
+            boolean isUpdate = sysUserService.updateById(sysUser);
 
-        return isUpdate ? ResponseResult.success() : ResponseResult.failure(ResponseErrorCodeEnum.FACE_ADD_ERROR);
+            return isUpdate ? ResponseResult.success() : ResponseResult.failure(ResponseErrorCodeEnum.FACE_UPDATE_ERROR);
+        }
     }
 }
