@@ -1,6 +1,7 @@
 package com.example.express.controller;
 
 import com.example.express.common.constant.SecurityConstant;
+import com.example.express.domain.ResponseResult;
 import com.example.express.domain.bean.SysUser;
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
 import org.springframework.http.HttpStatus;
@@ -12,8 +13,8 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 @Controller
@@ -40,19 +41,21 @@ public class PageController extends BaseController {
      * 跳转到登录页
      */
     @RequestMapping(SecurityConstant.UN_AUTHENTICATION_URL)
-    public String showAuthenticationPage(HttpServletRequest request, HttpServletResponse response, ModelMap map) {
-        AuthenticationException exception =
-                (AuthenticationException)request.getSession()
-                        .getAttribute("SPRING_SECURITY_LAST_EXCEPTION");
+    public String showAuthenticationPage(HttpSession session, HttpServletResponse response, ModelMap map) {
+        Object exception = session.getAttribute(SecurityConstant.LAST_EXCEPTION);
         if(exception != null) {
             if(exception instanceof BadCredentialsException) {
                 map.put("message", ResponseErrorCodeEnum.PASSWORD_ERROR.getMsg());
-            } else {
-                map.put("message", exception.getMessage());
+            } else if (exception instanceof AuthenticationException ){
+                map.put("message", ((AuthenticationException)exception).getMessage());
+            } else if (exception instanceof ResponseResult) {
+                map.put("message", ((ResponseResult) exception).getMsg());
+            } else if (exception instanceof String) {
+                map.put("message", exception);
             }
         }
 
-        request.getSession().removeAttribute("SPRING_SECURITY_LAST_EXCEPTION");
+        session.removeAttribute(SecurityConstant.LAST_EXCEPTION);
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         return "login";
     }

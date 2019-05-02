@@ -1,6 +1,5 @@
 package com.example.express.security.validate.third;
 
-import com.example.express.security.authentication.ThirdLoginUserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -10,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ThidLoginAuthenticationSecurityConfig extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
     @Autowired
-    private ThirdLoginUserDetailsServiceImpl userDetailsService;
+    private ThirdLoginUserDetailsService userDetailsService;
 
     @Override
     public void configure(HttpSecurity http) throws Exception {

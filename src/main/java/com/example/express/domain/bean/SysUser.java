@@ -70,10 +70,15 @@ public class SysUser implements UserDetails, CredentialsContainer {
      */
     private String thirdLoginId;
     /**
-     * 逻辑删除
+     * 是否启用
+     * 1：启用；0：禁用
      */
-    @TableLogic
-    private Integer hasDelete;
+    private Integer hasEnable;
+    /**
+     * 解冻时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private LocalDateTime lockDate;
 
     @TableField(fill = FieldFill.INSERT)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
@@ -92,16 +97,27 @@ public class SysUser implements UserDetails, CredentialsContainer {
     }
 
     /**
-     * 用户是否过期
+     * 是否未冻结
      */
     @Override
-    public boolean isAccountNonExpired() {
-        return hasDelete == 0;
+    public boolean isAccountNonLocked() {
+        if(this.lockDate == null) {
+            return true;
+        }
+
+        return LocalDateTime.now().isAfter(this.lockDate);
+    }
+    /**
+     * 是否启用
+     */
+    @Override
+    public boolean isEnabled() {
+        return this.hasEnable == 1;
     }
 
     @Override
-    public boolean isAccountNonLocked() {
-        return true;
+    public void eraseCredentials() {
+        this.password = null;
     }
 
     @Override
@@ -110,12 +126,7 @@ public class SysUser implements UserDetails, CredentialsContainer {
     }
 
     @Override
-    public boolean isEnabled() {
+    public boolean isAccountNonExpired() {
         return true;
-    }
-
-    @Override
-    public void eraseCredentials() {
-        this.password = null;
     }
 }

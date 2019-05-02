@@ -1,7 +1,7 @@
 package com.example.express.config;
 
 import com.example.express.common.constant.SecurityConstant;
-import com.example.express.security.validate.code.VerifyServlet;
+import com.example.express.security.validate.tradition.VerifyServlet;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

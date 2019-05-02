@@ -1,4 +1,4 @@
-package com.example.express.security.validate.code;
+package com.example.express.security.validate.tradition;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletException;

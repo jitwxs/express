@@ -64,4 +64,6 @@ public class SecurityConstant {
      * 验证码错误 Url
      */
     public static final String VALIDATE_CODE_ERR_URL = VALIDATE_CODE_URL_PREFIX + "/error";
+
+    public static final String LAST_EXCEPTION = "SPRING_SECURITY_LAST_EXCEPTION";
 }

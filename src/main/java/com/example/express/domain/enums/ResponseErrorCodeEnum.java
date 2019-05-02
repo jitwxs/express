@@ -46,6 +46,10 @@ public enum ResponseErrorCodeEnum {
     LOGIN_ERROR(401001, 401, "登陆失败"),
     THIRD_LOGIN_ERROR(401002, 401, "三方登陆失败"),
     SESSION_EXPIRE(401003, 401, "Session已过期，请重新登录"),
+    ACCOUNT_LOCKED(401004, 401, "账户已冻结，解冻时间为%s"),
+    ACCOUNT_DISABLE(401005, 401, "账户失效，如有疑问，请联系管理员"),
+    ACCOUNT_EXPIRE(401006, 401, "账户过期，如有疑问，请联系管理员"),
+    PASSWORD_EXPIRE(401007, 401, "密码已过期"),
 
     /* Forbidden */
     ROLE_ERROR(403001, 403, "角色错误"),

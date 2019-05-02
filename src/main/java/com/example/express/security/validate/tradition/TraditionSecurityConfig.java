@@ -1,4 +1,4 @@
-package com.example.express.security.validate.mobile;
+package com.example.express.security.validate.tradition;
 
 import com.example.express.security.handler.DefaultAuthenticationFailureHandler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,22 +9,26 @@ import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.stereotype.Component;
 
+/**
+ * 验证码登陆相关安全设置
+ * @author jitwxs
+ * @since 2019/1/8 23:58
+ */
 @Component
-public class SmsCodeAuthenticationSecurityConfig extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
+public class TraditionSecurityConfig extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
     @Autowired
-    private SmsUserDetailsService userDetailsService;
+    private TraditionUserDetailsService userDetailsService;
     @Autowired
     private DefaultAuthenticationFailureHandler defaultAuthenticationFailureHandler;
-    @Autowired
-    private SmsCodeAuthenticationProvider provider;
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
-        SmsCodeAuthenticationFilter filter = new SmsCodeAuthenticationFilter();
+        TraditionAuthenticationFilter filter = new TraditionAuthenticationFilter();
         filter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
-
-        provider.setUserDetailsService(userDetailsService);
         filter.setAuthenticationFailureHandler(defaultAuthenticationFailureHandler);
+
+        TraditionAuthenticationProvider provider = new TraditionAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService);
 
         http.authenticationProvider(provider)
                 .addFilterAfter(filter, UsernamePasswordAuthenticationFilter.class);

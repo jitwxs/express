@@ -1,68 +1,56 @@
-package com.example.express.security.validate.mobile;
+package com.example.express.security.validate.tradition;
 
-import com.example.express.common.constant.SecurityConstant;
 import com.example.express.domain.bean.SysUser;
-import com.example.express.domain.enums.ResponseErrorCodeEnum;
-import com.example.express.security.exception.DefaultAuthException;
-import com.example.express.service.SmsService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.stereotype.Component;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import javax.servlet.http.HttpServletRequest;
 import java.time.format.DateTimeFormatter;
 
 /**
- * 短信登陆鉴权 Provider，要求实现 AuthenticationProvider 接口
- * @author jitwxs
- * @since 2019/1/9 13:59
+ * @author xiangsheng.wu
+ * @date 2019年05月01日 20:51
  */
 @Slf4j
-@Component
-public class SmsCodeAuthenticationProvider implements AuthenticationProvider {
+public class TraditionAuthenticationProvider implements AuthenticationProvider {
     private UserDetailsService userDetailsService;
-    @Autowired
-    private SmsService smsService;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        SmsCodeAuthenticationToken authenticationToken = (SmsCodeAuthenticationToken) authentication;
+        TraditionAuthenticationToken authenticationToken = (TraditionAuthenticationToken) authentication;
 
-        String mobile = (String) authenticationToken.getPrincipal();
+        String inputName = (String) authenticationToken.getPrincipal();
+        String inputPassword = (String) authenticationToken.getCredentials();
 
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-        String code = request.getParameter(SecurityConstant.LOGIN_MOBILE_CODE_PARAMETER);
+        // userDetails为数据库中查询到的用户信息
+        UserDetails userDetails = userDetailsService.loadUserByUsername(inputName);
 
-        // 校验短信
-        ResponseErrorCodeEnum codeEnum = smsService.check(request.getSession(), mobile, code);
-        if(codeEnum != ResponseErrorCodeEnum.SUCCESS) {
-            throw new DefaultAuthException(codeEnum);
+        // 如果是自定义AuthenticationProvider，需要手动密码校验
+        if (!new BCryptPasswordEncoder().matches(inputPassword, userDetails.getPassword())) {
+            throw new BadCredentialsException("密码错误");
         }
-
-        UserDetails userDetails = userDetailsService.loadUserByUsername(mobile);
 
         // 校验账户状态
         authenticationChecks(userDetails);
 
         // 此时鉴权成功后，应当重新 new 一个拥有鉴权的 authenticationResult 返回
-        SmsCodeAuthenticationToken authenticationResult = new SmsCodeAuthenticationToken(userDetails, userDetails.getAuthorities());
+        TraditionAuthenticationToken authenticationResult = new TraditionAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
         authenticationResult.setDetails(authenticationToken.getDetails());
 
         return authenticationResult;
     }
 
+
+
     @Override
     public boolean supports(Class<?> authentication) {
-        // 判断 authentication 是不是 SmsCodeAuthenticationToken 的子类或子接口
-        return SmsCodeAuthenticationToken.class.isAssignableFrom(authentication);
+        // 这里不要忘记，和UsernamePasswordAuthenticationToken比较
+        return authentication.equals(TraditionAuthenticationToken.class);
     }
 
     public void setUserDetailsService(UserDetailsService userDetailsService) {

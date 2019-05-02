@@ -1,7 +1,7 @@
 package com.example.express.security.validate.third;
 
-import com.example.express.security.validate.mobile.SmsCodeAuthenticationToken;
-import org.springframework.security.authentication.AuthenticationProvider;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
  * @author jitwxs
  * @since 2019/1/9 13:59
  */
+@Slf4j
 public class ThirdLoginAuthenticationProvider implements AuthenticationProvider {
     private UserDetailsService userDetailsService;
 
@@ -36,12 +37,8 @@ public class ThirdLoginAuthenticationProvider implements AuthenticationProvider 
 
     @Override
     public boolean supports(Class<?> authentication) {
-        // 判断 authentication 是不是 SmsCodeAuthenticationToken 的子类或子接口
+        // 判断 handler 是不是 SmsCodeAuthenticationToken 的子类或子接口
         return ThirdLoginAuthenticationToken.class.isAssignableFrom(authentication);
-    }
-
-    public UserDetailsService getUserDetailsService() {
-        return userDetailsService;
     }
 
     public void setUserDetailsService(UserDetailsService userDetailsService) {

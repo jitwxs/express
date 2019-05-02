@@ -19,9 +19,14 @@ import com.example.express.service.DataSchoolService;
 import com.example.express.service.OrderInfoService;
 import com.example.express.service.SmsService;
 import com.example.express.service.SysUserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.security.authentication.AccountExpiredException;
+import org.springframework.security.authentication.CredentialsExpiredException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
@@ -31,8 +36,10 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import javax.servlet.http.HttpSession;
 import java.io.Serializable;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+@Slf4j
 @Service
 public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> implements SysUserService {
     @Autowired
@@ -192,10 +199,17 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 return ResponseResult.failure(ResponseErrorCodeEnum.THIRD_LOGIN_ERROR);
             }
         }
-
         transactionManager.commit(status);
-        return ResponseResult.success(sysUser);
+
+        ResponseResult checkAccountStatus = checkAccountStatus(sysUser);
+        if(checkAccountStatus.getCode() != ResponseErrorCodeEnum.SUCCESS.getCode()) {
+            return checkAccountStatus;
+        } else {
+            return ResponseResult.success(sysUser);
+        }
     }
+
+
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
@@ -386,5 +400,31 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 .role(SysRoleEnum.DIS_FORMAL).build();
 
         return this.retBool(sysUserMapper.insert(user));
+    }
+
+    private ResponseResult checkAccountStatus(SysUser user) {
+        if (!user.isAccountNonLocked()) {
+            log.debug("User account is locked");
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+            return ResponseResult.failure(ResponseErrorCodeEnum.ACCOUNT_LOCKED, new Object[]{user.getLockDate().format(formatter)});
+        }
+
+        if (!user.isEnabled()) {
+            log.debug("User account is disabled");
+            return ResponseResult.failure(ResponseErrorCodeEnum.ACCOUNT_DISABLE);
+        }
+
+        if (!user.isAccountNonExpired()) {
+            log.debug("User account is expired");
+            return ResponseResult.failure(ResponseErrorCodeEnum.ACCOUNT_EXPIRE);
+        }
+
+        if (!user.isCredentialsNonExpired()) {
+            log.debug("User credentials is expired");
+            return ResponseResult.failure(ResponseErrorCodeEnum.PASSWORD_EXPIRE);
+        }
+
+        return ResponseResult.success();
     }
 }

@@ -134,7 +134,7 @@ public class AuthController {
      * @param state 应与发送时一致
      */
     @RequestMapping(SecurityConstant.QQ_CALLBACK_URL)
-    public void qqCallback(String code, String state, HttpServletResponse response) throws Exception {
+    public void qqCallback(String code, String state, HttpSession session, HttpServletResponse response) throws Exception {
         // 验证state，如果不一致，可能被CSRF攻击
         if(!oAuthService.checkState(state)) {
             throw new Exception("State验证失败");
@@ -175,7 +175,9 @@ public class AuthController {
         // 三方登陆
         ResponseResult result1 = sysUserService.thirdLogin(openId, ThirdLoginTypeEnum.QQ);
         if(result1.getCode() != ResponseErrorCodeEnum.SUCCESS.getCode()) {
-            throw new CustomException(result1);
+            session.setAttribute(SecurityConstant.LAST_EXCEPTION, result1);
+            response.sendRedirect(SecurityConstant.UN_AUTHENTICATION_URL);
+            return;
         }
 
         // 注入框架

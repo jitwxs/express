@@ -1,9 +1,9 @@
 package com.example.express.security;
 
 import com.example.express.common.constant.SecurityConstant;
-import com.example.express.security.authentication.DefaultAuthenticationFailureHandler;
-import com.example.express.security.authentication.DefaultUserDetailsServiceImpl;
-import com.example.express.security.validate.code.ValidateCodeSecurityConfig;
+import com.example.express.security.handler.DefaultAuthenticationFailureHandler;
+import com.example.express.security.validate.tradition.TraditionUserDetailsService;
+import com.example.express.security.validate.tradition.TraditionSecurityConfig;
 import com.example.express.security.validate.mobile.SmsCodeAuthenticationSecurityConfig;
 import com.example.express.security.validate.third.ThidLoginAuthenticationSecurityConfig;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,9 +32,9 @@ import javax.sql.DataSource;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
-    private DefaultUserDetailsServiceImpl userDetailService;
+    private TraditionUserDetailsService userDetailService;
     @Autowired
-    private ValidateCodeSecurityConfig validateCodeSecurityConfig;
+    private TraditionSecurityConfig traditionSecurityConfig;
     @Autowired
     private SmsCodeAuthenticationSecurityConfig smsCodeAuthenticationSecurityConfig;
     @Autowired
@@ -78,16 +78,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                // 添加关于验证码登录的配置
-                .apply(validateCodeSecurityConfig).and()
+                // 不同登陆方式的配置
+                .apply(traditionSecurityConfig).and()
                 .apply(smsCodeAuthenticationSecurityConfig).and()
                 .apply(thidLoginAuthenticationSecurityConfig).and()
                 // 设置登陆页
                 .formLogin()
                     // 没有权限时跳转的Url
                     .loginPage(SecurityConstant.UN_AUTHENTICATION_URL)
-                    // 默认登陆Url
-                    .loginProcessingUrl(SecurityConstant.LOGIN_PROCESSING_URL_FORM)
                     // 设置登陆成功/失败处理逻辑
                     .defaultSuccessUrl(SecurityConstant.LOGIN_SUCCESS_URL)
                     .failureHandler(defaultAuthenticationFailureHandler)
