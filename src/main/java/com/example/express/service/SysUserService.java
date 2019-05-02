@@ -1,11 +1,14 @@
 package com.example.express.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.express.domain.ResponseResult;
 import com.example.express.domain.bean.SysUser;
-import com.example.express.domain.enums.SysRoleEnum;
 import com.example.express.domain.enums.ThirdLoginTypeEnum;
-import com.example.express.domain.vo.UserInfoVO;
+import com.example.express.domain.vo.BootstrapTableVO;
+import com.example.express.domain.vo.admin.AdminUserInfoVO;
+import com.example.express.domain.vo.user.UserInfoVO;
 
 import javax.servlet.http.HttpSession;
 
@@ -93,4 +96,8 @@ public interface SysUserService extends IService<SysUser> {
      * 获取 frontName
      */
     String getFrontName(String userId);
+    /**
+     * 获取 AdminUserInfoVO 列表
+     */
+    BootstrapTableVO<AdminUserInfoVO> pageAdminUserInfoVO(Page<SysUser> sysUserPage, QueryWrapper<SysUser> wrapper);
 }

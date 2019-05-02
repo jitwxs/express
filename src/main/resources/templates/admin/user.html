@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>用户管理 - Express</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}" href="../../static/assets/css/bootstrap.min.css"/>
+    <link rel="stylesheet" th:href="@{/assets/css/bootstrap-table.css}" href="../../static/assets/css/bootstrap-table.css"/>
+    <link rel="stylesheet" th:href="@{/assets/css/express.css}" href="../../static/assets/css/express.css"/>
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- 头部 -->
+        <nav th:replace="/admin/module/nav::html"></nav>
+        <!-- 主体 -->
+        <div class="row">
+            <!-- 左侧菜单 -->
+            <div th:replace="/admin/module/sidebar::html"></div>
+            <div class="col-md-10">
+                <!-- 筛选条件 -->
+                <div class="panel-heading">
+                    <form class="form-inline">
+                        <div class="form-group">
+                            <label for="inputEnableStatus">启用状态</label>
+                            <select id="inputEnableStatus" class="form-control">
+                                <option value="-1">不筛选</option>
+                                <option value="1">启用</option>
+                                <option value="0">禁用</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputLock">账户冻结</label>
+                            <select id="inputLock" class="form-control">
+                                <option value="-1">不筛选</option>
+                                <option value="1">冻结</option>
+                                <option value="0">未冻结</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputRel">实名认证</label>
+                            <select id="inputRel" class="form-control">
+                                <option value="-1">不筛选</option>
+                                <option value="1">已认证</option>
+                                <option value="0">未认证</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputThird">三方登录</label>
+                            <select id="inputThird" class="form-control">
+                                <option value="-1">不筛选</option>
+                                <option value="0">未绑定</option>
+                                <option value="1">QQ登陆</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputId">用户ID</label>
+                            <input type="text" class="form-control" id="inputId">
+                        </div>
+                        <div class="form-group">
+                            <label for="inputUsername">用户名</label>
+                            <input type="text" class="form-control" id="inputUsername">
+                        </div>
+                        <div class="form-group">
+                            <label for="inputTel">手机号码</label>
+                            <input type="text" class="form-control" id="inputTel">
+                        </div>
+                        <button type="button" class="btn btn-info ml10" onclick="flushTable()">条件查询</button>
+                    </form>
+                </div>
+                <div class="panel-body">
+                    <table id="tb_user"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/assets/js/http.js}" src="../../static/assets/js/http.js"></script>
+    <script th:src="@{/assets/js/express.js}" src="../../static/assets/js/express.js"></script>
+    <script th:src="@{/assets/js/jquery.min.js}" src="../../static/assets/js/jquery.min.js"></script>
+    <script th:src="@{/assets/js/jquery.validate.min.js}" src="../../static/assets/js/jquery.validate.min.js"></script>
+    <script th:src="@{/assets/layer/layer.js}" src="../../static/assets/layer/layer.js"></script>
+    <script th:src="@{/assets/js/bootstrap.min.js}" src="../../static/assets/js/bootstrap.min.js"></script>
+    <script th:src="@{/assets/js/bootstrap-table.min.js}" src="../../static/assets/js/bootstrap-table.min.js"></script>
+    <script th:src="@{/assets/js/bootstrap-table-export.min.js}" src="../../static/assets/js/bootstrap-table-export.min.js"></script>
+    <script th:src="@{/assets/js/bootstrap-table-zh-CN.min.js}" src="../../static/assets/js/bootstrap-table-zh-CN.min.js"></script>
+    <script th:src="@{/assets/js/tableExport.min.js}" src="../../static/assets/js/tableExport.min.js"></script>
+    <script>
+        $(function () {
+            $("#user-sidebar").addClass('active');
+
+            //1、初始化Table
+            var oTable = new TableInit();
+            oTable.Init();
+        });
+
+        var TableInit = function () {
+            let oTableInit = new Object();
+            //初始化Table
+            oTableInit.Init = function () {
+                $('#tb_user').bootstrapTable({
+                    url: '/api/v1/user/list',          //请求后台的URL（*）
+                    method: HTTP.GET,                   //请求方式（*）
+                    toolbar: '#toolbar',                //工具按钮组id
+                    striped: true,                      //是否显示行间隔色
+                    cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+                    pagination: true,                   //是否显示分页（*）
+                    sortable: false,                    //是否启用排序
+                    sortOrder: "asc",                   //排序方式
+                    queryParams: oTableInit.queryParams,//传递参数（*）
+                    sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+                    pageNumber:1,                       //初始化加载第一页，默认第一页
+                    pageSize: 10,                       //每页的记录行数（*）
+                    pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+                    search: false,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端。后台分页时意义不大
+                    showColumns: true,                  //是否显示所有的列
+                    showRefresh: true,                  //是否显示刷新按钮
+                    minimumCountColumns: 2,             //最少允许的列数
+                    clickToSelect: true,                //是否启用点击选中行
+                    // height: 750,                     //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+                    uniqueId: "id",                     //每一行的唯一标识，一般为主键列
+                    showToggle:false,                   //是否显示详细视图和列表视图的切换按钮
+                    cardView: false,                    //是否显示详细视图
+                    detailView: false,                  //是否显示父子表
+                    showExport: true,                   //是否显示导出
+                    exportDataType: "basic",            //导出的模式是当前页basic、所有数据all、选中数据selected。
+                    columns: [{
+                        field: 'id',
+                        title: '用户ID'
+                    }, {
+                        field: 'role',
+                        title: '用户权限',
+                        formatter: roleFormatter
+                    }, {
+                        field: 'username',
+                        title: '用户名'
+                    }, {
+                        field: 'tel',
+                        title: '手机号码'
+                    }, {
+                        field: 'thirdLogin',
+                        title: '三方登录'
+                    }, {
+                        field: 'hasReal',
+                        title: '实名状态',
+                        formatter: realFormatter
+                    }, {
+                        field: 'hasEnable',
+                        title: '启用状态',
+                        formatter: enableFormatter
+                    }, {
+                        field: 'lockDate',
+                        title: '冻结时间',
+                        formatter: lockFormatter
+                    }, {
+                        field: 'createDate',
+                        title: '注册时间'
+                    }, {
+                        field: 'id',
+                        title: '操作',
+                        width: 120,
+                        align: 'center',
+                        valign: 'middle',
+                        formatter: actionFormatter
+                    }]
+                });
+            };
+
+            // 传递给后台的参数
+            oTableInit.queryParams = function (params) {
+                return {   //这里的键的名字和后台参数必须一致
+                    size: params.limit,                             //页面大小
+                    current: (params.offset / params.limit) + 1,   //页码
+                    // 筛选参数
+                    id: $("#inputId").val(),
+                    tel: $("#inputTel").val(),
+                    username: $("#inputUsername").val(),
+                    isEnable: $("#inputEnableStatus").val(),
+                    isLock: $("#inputLock").val(),
+                    isReal: $("#inputRel").val(),
+                    isThird: $("#inputThird").val()
+                };
+            };
+            return oTableInit;
+        };
+
+        //操作栏的格式化
+        function actionFormatter(value, row, index) {
+            let id = "'" + value + "'", result = '';
+
+            // 不允许操作管理员
+            if( row.role === 1) {
+                return result;
+            }
+
+            // 启用/禁用
+            if(row.hasEnable) {
+                result += '<button class="btn btn-xs btn-danger" onclick="changeStatus(1,'+id+')" title="禁用">禁用</button>\n';
+            } else {
+                result += '<button class="btn btn-xs btn-success" onclick="changeStatus(2,'+id+')" title="启用">启用</button>\n';
+            }
+
+            // 冻结时间
+            if(row.lockDate === null || row.lockDate === '') {
+                result += '<button class="btn btn-xs btn-danger" onclick="changeStatus(3,'+id+')" title="冻结">冻结</button>\n';
+            } else {
+                result += '<button class="btn btn-xs btn-success" onclick="changeStatus(4,'+id+')" title="解冻">解冻</button>\n';
+            }
+
+            return result;
+        }
+        function roleFormatter(value, row, index) {
+            switch (value) {
+                case -1:
+                    return '<span style="color:gray">非正式用户</span>';
+                case 1:
+                    return '<span>系统管理员</span>';
+                case 2:
+                    return '<span>配送员</span>';
+                case 3:
+                    return '<span>普通用户</span>';
+            }
+        }
+        function realFormatter(value, row, index) {
+            if(value) {
+                return '<span style="color:gray">已实名</span>';
+            } else {
+                return '<span style="color:red">未实名</span>';
+            }
+        }
+        function enableFormatter(value, row, index) {
+            if(value) {
+                return '<span style="color:gray">启用</span>';
+            } else {
+                return '<span style="color:red">禁用</span>';
+            }
+        }
+        function lockFormatter(value, row, index) {
+            if(value === null || value === '') {
+                return '<span style="color:gray">未冻结</span>';
+            } else {
+                return '<span style="color:red">'+value+'</span>';
+            }
+        }
+
+        function changeStatus(type, id) {
+            // 1. 禁用；2：启用；3：冻结；4：解冻
+            if(type === 3) {
+                layer.prompt({title:"冻结小时", formType:0},function(val, index) {
+                    sendJson(HTTP.POST, "/api/v1/user/"+id+"/status", {"type": type, "hour": val}, false, function (res) {
+                        if(res.code === 0) {
+                            layer.msg("操作成功",{icon:1});
+                            layer.close(index);
+                            flushTable();
+                        } else {
+                            layer.msg(res.msg,{icon:2});
+                        }
+                    }, function () {
+                        layer.msg("未知错误",{icon:2});
+                    });
+                });
+            } else {
+                sendJson(HTTP.POST, "/api/v1/user/"+id+"/status", {"type": type}, false, function (res) {
+                    if(res.code === 0) {
+                        layer.msg("操作成功",{icon:1});
+                        flushTable();
+                    } else {
+                        layer.msg(res.msg,{icon:2});
+                    }
+                }, function () {
+                    layer.msg("未知错误",{icon:2});
+                });
+            }
+        }
+
+        function flushTable() {
+            $("#tb_user").bootstrapTable('refresh',{url : '/api/v1/user/list'} );
+        }
+    </script>
+</body>
+</html>

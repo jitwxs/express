@@ -7,9 +7,10 @@ import com.example.express.domain.bean.OrderInfo;
 import com.example.express.domain.enums.OrderStatusEnum;
 import com.example.express.domain.enums.SysRoleEnum;
 import com.example.express.domain.vo.BootstrapTableVO;
-import com.example.express.domain.vo.CourierOrderVO;
+import com.example.express.domain.vo.admin.AdminOrderVO;
+import com.example.express.domain.vo.courier.CourierOrderVO;
 import com.example.express.domain.vo.OrderDescVO;
-import com.example.express.domain.vo.UserOrderVO;
+import com.example.express.domain.vo.user.UserOrderVO;
 
 public interface OrderInfoService extends IService<OrderInfo> {
     /**
@@ -25,13 +26,18 @@ public interface OrderInfoService extends IService<OrderInfo> {
      * @date 2019/4/25 0:13
      */
     boolean manualDelete(String orderId, int hasDelete, int deleteType);
-
     /**
      * 是否是某位用户的订单
      * @author jitwxs
      * @date 2019/4/26 0:53
      */
     boolean isUserOrder(String orderId, String userId);
+    /**
+     * 是否是某位配送员的订单
+     * @author jitwxs
+     * @date 2019/4/26 0:53
+     */
+    boolean isCourierOrder(String orderId, String courierId);
     /**
      * 生成订单 & 订单支付
      * @author jitwxs
@@ -46,12 +52,17 @@ public interface OrderInfoService extends IService<OrderInfo> {
      * 适用：普通用户端
      * @param isDelete 0：未删除；1：已删除
      */
-    BootstrapTableVO<UserOrderVO> pageUserOrderVO(Page<UserOrderVO> page, String selectSql, int isDelete);
+    BootstrapTableVO<UserOrderVO> pageUserOrderVO(Page<UserOrderVO> page, String sql, int isDelete);
     /**
      * 分页查询订单
      * 适用：配送员端
      */
     BootstrapTableVO<CourierOrderVO> pageCourierOrderVO(Page<CourierOrderVO> page, String sql);
+    /**
+     * 分页查询订单
+     * 适用：管理员端
+     */
+    BootstrapTableVO<AdminOrderVO> pageAdminOrderVO(Page<AdminOrderVO> page, String sql);
     /**
      * 批量删除订单
      */
@@ -69,7 +80,11 @@ public interface OrderInfoService extends IService<OrderInfo> {
      */
     ResponseResult batchAcceptOrder(String[] ids, String userId);
     /**
-     * 异常/完成，订单派送
+     * 异常/完成
      */
     ResponseResult handleOrder(String orderId, OrderStatusEnum targetStatus, String remark);
+    /**
+     * 批量异常/完成
+     */
+    ResponseResult batchHandleOrder(String[] ids, OrderStatusEnum targetStatus, String remark);
 }

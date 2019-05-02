@@ -1,4 +1,4 @@
-package com.example.express.controller.courier;
+package com.example.express.controller.admin;
 
 import com.example.express.controller.BaseController;
 import com.example.express.domain.bean.SysUser;
@@ -12,14 +12,14 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
- * 配送员页面 Controller
+ * 管理员页面 Controller
  * @author xiangsheng.wu
- * @date 2019年04月23日 14:38
+ * @date 2019年05月02日 14:38
  */
 @Controller
-@RequestMapping("/courier")
-@PreAuthorize("hasRole('ROLE_COURIER')")
-public class CourierPageController extends BaseController {
+@RequestMapping("/admin")
+@PreAuthorize("hasRole('ROLE_ADMIN')")
+public class AdminPageController extends BaseController {
     @Autowired
     private SysUserService sysUserService;
 
@@ -29,24 +29,43 @@ public class CourierPageController extends BaseController {
     @RequestMapping("/dashboard")
     public String showDashboardPage(@AuthenticationPrincipal SysUser sysUser, ModelMap map) {
         initModelMap(map, sysUser);
-        return "courier/dashboard";
+        return "admin/dashboard";
     }
+
     /**
-     * 接单大厅页面
+     * 订单管理页面
      */
     @RequestMapping("/order")
     public String showOrderPage(@AuthenticationPrincipal SysUser sysUser, ModelMap map) {
         initModelMap(map, sysUser);
-        return "courier/order";
+        return "admin/order";
     }
 
     /**
-     * 订单列表页面
+     * 反馈管理页面
      */
-    @RequestMapping("/history")
-    public String showHistory(@AuthenticationPrincipal SysUser sysUser, ModelMap map) {
+    @RequestMapping("/feedback")
+    public String showFeedbackPage(@AuthenticationPrincipal SysUser sysUser,ModelMap map) {
         initModelMap(map, sysUser);
-        return "courier/history";
+        return "admin/feedback";
+    }
+
+    /**
+     * 用户管理页面
+     */
+    @RequestMapping("/user")
+    public String showUser(@AuthenticationPrincipal SysUser sysUser, ModelMap map) {
+        initModelMap(map, sysUser);
+        return "admin/user";
+    }
+
+    /**
+     * 收益管理页面
+     */
+    @RequestMapping("/profit")
+    public String showProfit(@AuthenticationPrincipal SysUser sysUser, ModelMap map) {
+        initModelMap(map, sysUser);
+        return "admin/profit";
     }
 
     /**
@@ -57,24 +76,15 @@ public class CourierPageController extends BaseController {
         initModelMap(map, sysUser);
         UserInfoVO userInfo = sysUserService.getUserInfo(sysUser.getId());
         map.put("info", userInfo);
-        return "courier/info";
+        return "admin/info";
     }
 
     /**
-     * 操作日志页面
+     * 日志管理页面
      */
     @RequestMapping("/log")
     public String showLogPage(@AuthenticationPrincipal SysUser sysUser,ModelMap map) {
         initModelMap(map, sysUser);
-        return "courier/log";
-    }
-
-    /**
-     * 反馈建议页面
-     */
-    @RequestMapping("/feedback")
-    public String showFeedbackPage(@AuthenticationPrincipal SysUser sysUser,ModelMap map) {
-        initModelMap(map, sysUser);
-        return "courier/feedback";
+        return "admin/log";
     }
 }

@@ -4,7 +4,6 @@ import com.example.express.common.constant.SecurityConstant;
 import com.example.express.domain.ResponseResult;
 import com.example.express.domain.bean.SysUser;
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -56,7 +55,6 @@ public class PageController extends BaseController {
         }
 
         session.removeAttribute(SecurityConstant.LAST_EXCEPTION);
-        response.setStatus(HttpStatus.UNAUTHORIZED.value());
         return "login";
     }
 

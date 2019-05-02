@@ -384,7 +384,7 @@
             layer.confirm("是否要手动更新支付状态？", {
                 btn: ['确定','取消']
             }, function(){
-                sendArray(HTTP.POST, "/api/v1/payment/sync", {"orderId": id}, false, function (res) {
+                sendJson(HTTP.POST, "/api/v1/payment/sync", {"orderId": id}, false, function (res) {
                     if(res.code === 0) {
                         layer.msg("同步成功",{icon:1});
                         flushTable();

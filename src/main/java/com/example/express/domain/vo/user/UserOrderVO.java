@@ -1,4 +1,4 @@
-package com.example.express.domain.vo;
+package com.example.express.domain.vo.user;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
@@ -8,13 +8,13 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 配送员端，OrderVO
+ * 普通用户端，OrderVO
  * @author jitwxs
  * @date 2019年04月24日 22:24
  */
 @Data
 @Builder
-public class CourierOrderVO implements Serializable {
+public class UserOrderVO implements Serializable {
     /**
      * 订单号
      */
@@ -28,25 +28,21 @@ public class CourierOrderVO implements Serializable {
      */
     private String company;
     /**
-     * 收件人
+     * 支付状态
      */
-    private String recName;
+    private Integer paymentStatus;
     /**
-     * 收件电话
+     * 支付金额
      */
-    private String recTel;
-    /**
-     * 收货地址
-     */
-    private String recAddress;
-    /**
-     * 备注
-     */
-    private String remark;
+    private String payment;
     /**
      * 订单状态
      */
     private Integer orderStatus;
+    /**
+     * 删除原因
+     */
+    private Integer deleteType;
     /**
      * 下单时间
      */
