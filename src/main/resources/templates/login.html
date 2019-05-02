@@ -2,18 +2,18 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>登录 - Express</title>
     <link th:href="@{/assets/css/bootstrap.min.css}" href="../static/assets/css/bootstrap.min.css" rel="stylesheet">
-    <link th:href="@{/assets/css/login.css}" href="../static/assets/css/login.css" rel="stylesheet">
+    <link th:href="@{/assets/css/login.css}" href="../static/assets/css/.css" rel="stylesheet">
 </head>
 <body>
 <div class="container">
-    <div class="row">
-        <div class="col-md-6  col-lg-6" >
+    <div class="row" style="z-index:1000">
+        <div class="col-md-4  col-lg-5" >
         </div>
-        <div class="col-md-6 col-sm-12 col-lg-6 col-xs-12 left">
+        <div class="col-md-8 col-sm-12 col-lg-7 col-xs-12 left" >
             <div class="main">
                 <div class="mt10 pull-right">
                     <a href="/register"><i class="glyphicon glyphicon-forward"></i>立即注册</a>
@@ -179,6 +179,7 @@
                     streams.stop();
                     videoTimer = null;
                 }
+                clearInterval(timers)
             }
             let previousTab = $(e.relatedTarget).text();
             $(".active-tab span").html(activeTab);
@@ -187,6 +188,7 @@
     });
     // 获取摄像头使用权限
     let file ,streams;
+    var timers = null;
     //访问用户媒体设备的兼容方法
     function getUserMedia(constraints, success, error) {
         if (navigator.mediaDevices.getUserMedia) {
@@ -230,18 +232,18 @@
             alert('不支持访问用户媒体');
         }
     }
-    function sendImg(){
-        let timer, isSend = true;
-        timer = setTimeout(function () {
-            if(true) {
-                isSend = false;
+    let isSend = true;
 
+    function sendImg(){
+        timers = setInterval(function () {
+            if(isSend) {
+                isSend = false;
                 context.drawImage(video, 0, 0, 480, 320);
                 let image = canvas.toDataURL('image/png');
                 sendJson(HTTP.POST, '/api/v1/public/face-detect', {'data': image}, false, function (res) {
                         if (res.code === 0) {
                             layer.msg("人脸检测成功", {icon: 1});
-                            timer = null;
+                            timers = null;
                             streams.stop();//结束关闭流
                         } else {
                             isSend = true;
@@ -253,8 +255,7 @@
                     });
             }
 
-        },1000);
-
+        },2000);
     }
 </script>
 </body>
