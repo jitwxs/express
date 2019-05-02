@@ -176,6 +176,8 @@
     <script th:src="@{/assets/layer/layer.js}" src="../../static/assets/layer/layer.js"></script>
     <script th:src="@{/assets/js/bootstrap.min.js}" src="../../static/assets/js/bootstrap.min.js"></script>
     <script>
+        let cookieName = 'userInfoCookie';
+
         $(function () {
             $("#info-sidebar").addClass('active');
 
@@ -183,7 +185,7 @@
             $("#getTelCode").click(function () {
                 sendCode($("#getTelCode"));
             });
-            let v = getCookieValue("userInfoCookie");//获取cookie值
+            let v = getCookieValue(cookieName);//获取cookie值
             if (v > 0) {
                 setTime($("#getTelCode"));//开始倒计时
             }
@@ -199,7 +201,7 @@
             sendJson(HTTP.GET, '/auth/code/sms?mobile=' + phoneNum, null, false, function (res) {
                     if (res.code === 0) {
                         layer.msg("短信发送成功", {icon: 1});
-                        addCookie("userInfoCookie", 60, 60);//添加cookie记录,有效时间60s
+                        addCookie(cookieName, 60, 60);//添加cookie记录,有效时间60s
                         setTime(obj);//开始倒计
                     } else {
                         layer.msg(res.msg, {icon: 2});
@@ -212,7 +214,7 @@
 
         //开始倒计时
         function setTime(obj) {
-            let countdown = getCookieValue("userInfoCookie");
+            let countdown = getCookieValue(cookieName);
             if (countdown === 0) {
                 obj.removeAttr("disabled");
                 document.getElementById("getTelCode").innerText = '重新获取验证码';
@@ -221,7 +223,7 @@
                 obj.attr("disabled", true);
                 document.getElementById("getTelCode").innerText = countdown + 's之后重新发送';
                 countdown--;
-                editCookie("userInfoCookie", countdown, countdown + 1);
+                editCookie(cookieName, countdown, countdown + 1);
             }
             setTimeout(function () {
                 setTime(obj)

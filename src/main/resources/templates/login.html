@@ -65,8 +65,8 @@
                     <div class="tab-pane fade" id="phone">
                         <form role="form" action="/auth/mobile-login" method="post">
                             <div class="form-group">
-                                <label for="telphone">手机号</label>
-                                <input type="text" class="form-control" id="telphone" name="mobile" placeholder="请输入手机号">
+                                <label for="inputTel">手机号</label>
+                                <input type="text" class="form-control" id="inputTel" name="mobile" placeholder="请输入手机号">
                             </div>
                             <div class="form-group">
                                 <label for="telCode">验证码</label>
@@ -102,83 +102,42 @@
 <script th:src="@{/assets/layer/layer.js}" src="../static/assets/layer/layer.js"></script>
 <script th:src="@{/assets/js/bootstrap.min.js}" src="../static/assets/js/bootstrap.min.js"></script>
 <script>
+    let cookieName = 'loginCookie';
+
     $(function () {
+        // 传递消息
         let text = $("#messageInfo").val();
-        if(text != null && text !== '') {
+        if (text != null && text !== '') {
             layer.msg(text, {icon: 2});
-            $("#messageInfo").val('123');
-            console.log($("#messageInfo").val())
+            $("#messageInfo").val('');
+        }
+
+        // 验证码
+        $("#getTelCode").click(function () {
+            sendCode($("#getTelCode"));
+        });
+        let v = getCookieValue(cookieName);//获取cookie值
+        if (v > 0) {
+            setTime($("#getTelCode"));//开始倒计时
         }
     });
-    let send = document.getElementById("getTelCode");
-    let times=60;
-    let timer=null;
-    let videoTimer = null;
+
     function refresh(obj) { obj.src = "/auth/code/getVerifyCode?" + Math.random(); }
 
     function mouseover(obj) { obj.style.cursor = "pointer"; }
 
-    //发送验证码时添加cookie
-    function addCookie(name,value,expiresHours){
-        var cookieString=name+"="+escape(value);
-        //判断是否设置过期时间,0代表关闭浏览器时失效
-        if(expiresHours>0){
-            var date=new Date();
-            date.setTime(date.getTime()+expiresHours*1000);
-            cookieString=cookieString+";expires=" + date.toUTCString();
-        }
-        document.cookie=cookieString;
-    }
-    //修改cookie的值
-    function editCookie(name,value,expiresHours){
-        var cookieString=name+"="+escape(value);
-        if(expiresHours>0){
-            var date=new Date();
-            date.setTime(date.getTime()+expiresHours*1000); //单位是毫秒
-            cookieString=cookieString+";expires=" + date.toGMTString();
-        }
-        document.cookie=cookieString;
-    }
-    //根据名字获取cookie的值
-    function getCookieValue(name){
-        var strCookie=document.cookie;
-        var arrCookie=strCookie.split("; ");
-        for(var i=0;i<arrCookie.length;i++){
-            var arr=arrCookie[i].split("=");
-            if(arr[0]==name){
-                return unescape(arr[1]);
-                break;
-            }else{
-                return "";
-                break;
-            }
-        }
-
-    }
-    function sendMsg() {
-        let tel = $("#telphone").val();
-        if(!isPoneAvailable(tel)) {
+    // 发送验证码
+    function sendCode(obj) {
+        let phoneNum = $("#inputTel").val();
+        if (!isPoneAvailable(phoneNum)) {
             layer.msg("手机号码不合法", {icon: 7});
             return false;
         }
-
-        sendJson(HTTP.GET, '/auth/code/sms?mobile=' + tel, null, false, function (res) {
+        sendJson(HTTP.GET, '/auth/code/sms?mobile=' + phoneNum, null, false, function (res) {
                 if (res.code === 0) {
                     layer.msg("短信发送成功", {icon: 1});
-
-                    // 定时器
-                    timer=setInterval(function(){
-                        times--;
-                        if(times<=0){
-                            send.value='发送验证码';
-                            clearInterval(timer);
-                            times=60;
-                            send.disabled=false;    //是否可点击
-                        }else{
-                            send.innerText =times+'秒后重试';
-                            send.disabled=true;
-                        }
-                    },1000);
+                    addCookie(cookieName, 60, 60);//添加cookie记录,有效时间60s
+                    setTime(obj);//开始倒计
                 } else {
                     layer.msg(res.msg, {icon: 2});
                 }
@@ -187,40 +146,10 @@
                 layer.msg("未知错误", {icon: 2});
             });
     }
-    $(function(){
-        $("#getTelCode").click(function (){
-            sendCode($("#getTelCode"));
-        });
-        v = getCookieValue("loginCookie");//获取cookie值
-        if(v>0){
-            settime($("#getTelCode"));//开始倒计时
-        }
-    });
-    //发送验证码
-    function sendCode(obj){
-        let phonenum = $("#telphone").val();
-        console.log(phonenum);
-        if(!isPoneAvailable(phonenum)) {
-            layer.msg("手机号码不合法", {icon: 7});
-            return false;
-        }
-        sendJson(HTTP.GET, '/auth/code/sms?mobile=' + phonenum, null, false, function (res) {
-                if (res.code === 0) {
-                    layer.msg("短信发送成功", {icon: 1});
-                    addCookie("loginCookie",60,60);//添加cookie记录,有效时间60s
-                    settime(obj);//开始倒计
-                } else {
-                    layer.msg(res.msg, {icon: 2});
-                }
-            },
-            function () {
-                layer.msg("未知错误", {icon: 2});
-            });
-    }
+
     //开始倒计时
-    let countdown;
-    function settime(obj) {
-        countdown=getCookieValue("loginCookie");
+    function setTime(obj) {
+        let countdown = getCookieValue(cookieName);
         if (countdown == 0) {
             obj.removeAttr("disabled");
             document.getElementById("getTelCode").innerText = '重新获取验证码';
@@ -228,13 +157,16 @@
         } else {
             obj.attr("disabled", true);
             document.getElementById("getTelCode").innerText = countdown + 's之后重新发送';
-            // obj.val("重新发送(" + countdown + ")");
             countdown--;
-            editCookie("loginCookie",countdown,countdown+1);
+            editCookie(cookieName, countdown, countdown + 1);
         }
-        setTimeout(function() { settime(obj) },1000) //每1000毫秒执行一次
+        setTimeout(function () {
+            setTime(obj)
+        }, 1000) //每1000毫秒执行一次
     }
+
     // 切换tab页
+    let videoTimer = null;
     $(function(){
         $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
             // 获取已激活的标签页的名称

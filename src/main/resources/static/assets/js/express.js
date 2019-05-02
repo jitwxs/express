@@ -33,7 +33,7 @@ function editCookie(name, value, expiresHours) {
 //根据名字获取cookie的值
 function getCookieValue(name) {
     let strCookie = document.cookie;
-    let arrCookie = strCookie.split("; ");
+    let arrCookie = strCookie.split(";");
     for (let i = 0; i < arrCookie.length; i++) {
         let arr = arrCookie[i].split("=");
         if (arr[0] === name) {
