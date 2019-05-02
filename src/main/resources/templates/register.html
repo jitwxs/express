@@ -19,6 +19,7 @@
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" class="active"><a href="#registryUsername" aria-controls="username" role="tab" data-toggle="tab">用户名注册</a></li>
             <li role="presentation"><a href="#registryTel" aria-controls="tel" role="tab" data-toggle="tab">手机号注册</a></li>
+            <li role="presentation"><a href="#registryFace" aria-controls="face" role="tab" data-toggle="tab">人脸注册</a></li>
         </ul>
         <!-- Tab panes -->
         <div class="tab-content">
@@ -74,6 +75,12 @@
                     </div>
                     <button type="submit" class="btn btn-success btn-lg btn-block">注册</button>
                 </form>
+            </div>4
+            <div  role="tabpanel" class="tab-pane"  id="registryFace">
+                <div class="capture">
+                    <video id="video" autoplay></video>
+                    <canvas id="canvas" width="480" height="320" style="display: none;"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -89,6 +96,94 @@
     let cookieName = 'registryCookie';
     let  countdown;
     $(function(){
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+            // 获取已激活的标签页的名称
+            let activeTab = $(e.target).text();
+            // 获取前一个激活的标签页的名称
+            if (activeTab == "人脸注册") {
+                startCamera();
+            } else {
+                if(streams) {
+                    streams.stop();
+                    videoTimer = null;
+                }
+            }
+            let previousTab = $(e.relatedTarget).text();
+            $(".active-tab span").html(activeTab);
+            $(".previous-tab span").html(previousTab);
+        });
+    });
+    let file ,streams;
+    //访问用户媒体设备的兼容方法
+    function getUserMedia(constraints, success, error) {
+        if (navigator.mediaDevices.getUserMedia) {
+            //最新的标准API
+            navigator.mediaDevices.getUserMedia(constraints).then(success).catch(error);
+        } else if (navigator.webkitGetUserMedia) {
+            //webkit核心浏览器
+            navigator.webkitGetUserMedia(constraints,success, error)
+        } else if (navigator.mozGetUserMedia) {
+            //firfox浏览器
+            navigator.mozGetUserMedia(constraints, success, error);
+        } else if (navigator.getUserMedia) {
+            //旧版API
+            navigator.getUserMedia(constraints, success, error);
+        }
+    }
+    let video = document.getElementById('video');
+    let canvas = document.getElementById('canvas');
+    let context = canvas.getContext('2d');
+
+    function success(stream) {
+        //兼容webkit核心浏览器
+        let CompatibleURL = window.URL || window.webkitURL;
+        //将视频流设置为video元素的源
+        streams = stream.getTracks()[0];
+        //video.src = CompatibleURL.createObjectURL(stream);
+        video.srcObject = stream;
+        video.play();
+        sendImg();
+    }
+
+    function error(error) {
+        console.log(`访问用户媒体设备失败${error.name}, ${error.message}`);
+    }
+
+    function startCamera(){
+        if (navigator.mediaDevices.getUserMedia || navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia) {
+            //调用用户媒体设备, 访问摄像头
+            getUserMedia({video : {width: 480, height: 320}}, success, error);
+        } else {
+            alert('不支持访问用户媒体');
+        }
+    }
+    function sendImg(){
+        let timer, isSend = true;
+        timer = setTimeout(function () {
+            if(true) {
+                isSend = false;
+
+                context.drawImage(video, 0, 0, 480, 320);
+                let image = canvas.toDataURL('image/png');
+                sendJson(HTTP.POST, '/api/v1/public/face-detect', {'data': image}, false, function (res) {
+                        if (res.code === 0) {
+                            layer.msg("人脸检测成功", {icon: 1});
+                            timer = null;
+                            streams.stop();//结束关闭流
+                        } else {
+                            isSend = true;
+                            layer.msg(res.msg, {icon: 2});
+                        }
+                    },
+                    function () {
+                        layer.msg("未知错误", {icon: 2});
+                    });
+            }
+
+        },1000);
+
+    }
+    $(function(){
         // 验证码
         $("#getTelCode").click(function () {
             sendCode($("#getTelCode"));
@@ -98,7 +193,6 @@
             setTime($("#getTelCode"));//开始倒计时
         }
     });
-
     // 发送验证码
     function sendCode(obj) {
         let phoneNum = $("#inputTel").val();
