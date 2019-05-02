@@ -55,7 +55,7 @@ public enum ResponseErrorCodeEnum {
     /* Forbidden */
     ROLE_ERROR(403001, 403, "角色错误"),
     OPERATION_NOT_SUPPORT(403002, 403, "操作不支持"),
-    NO_PERMISSION(403003, 403, "您没有权限访问"),
+    NO_PERMISSION(403003, 403, "您没有权限操作"),
 
     /* Too Many Requests */
     REQUEST_TOO_HIGH(429001, 429, "接口请求过于频繁"),

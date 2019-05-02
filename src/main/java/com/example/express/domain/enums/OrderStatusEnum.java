@@ -39,8 +39,8 @@ public enum  OrderStatusEnum  implements IEnum<Integer> {
         this.status = status;
     }
 
-    public static OrderStatusEnum getByName(String name) {
-        return Arrays.stream(values()).filter(e -> e.getName().equals(name)).findFirst().orElse(null);
+    public static OrderStatusEnum getByStatus(Integer status) {
+        return Arrays.stream(values()).filter(e -> e.getStatus() == status).findFirst().orElse(null);
     }
 
     @Override

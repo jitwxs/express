@@ -9,16 +9,14 @@
         SELECT
             info.id,
             info.odd,
-            cp.name as company,
+            info.company as company,
             info.status AS order_status,
             payment.payment AS payment,
             payment.status AS payment_status,
             info.delete_type AS delete_type,
             info.create_date
         FROM
-            order_payment as payment,
-            order_info as info LEFT JOIN data_company as cp
-            ON info.company = cp.id
+            order_payment as payment, order_info as info
         WHERE
             info.id = payment.order_id AND info.has_delete = #{has_delete} ${sql}
     </select>
@@ -26,21 +24,38 @@
         SELECT
             info.id,
             info.odd,
-            cp.name as company,
-            info.rec_name AS recName,
-            info.rec_tel AS recTel,
-            info.rec_address AS recAddress,
+            info.company as company,
+            info.rec_name AS rec_name,
+            info.rec_tel AS rec_tel,
+            info.rec_address AS rec_address,
             info.remark AS remark,
-            info.status AS orderStatus,
+            info.status AS order_status,
             info.create_date
         FROM
-            order_payment as payment,
-            order_info as info LEFT JOIN data_company as cp
-            ON info.company = cp.id
+            order_payment as payment, order_info as info
         WHERE
             info.id = payment.order_id ${sql}
     </select>
     <select id="selectByIdIgnoreDelete" resultType="com.example.express.domain.bean.OrderInfo">
         SELECT * FROM `order_info` WHERE id = #{id}
+    </select>
+    <select id="pageAdminOrderVO" resultType="com.example.express.domain.vo.admin.AdminOrderVO">
+        SELECT
+            info.id,
+            info.odd,
+            info.company as company,
+            info.rec_name AS rec_name,
+            info.rec_tel AS rec_tel,
+            info.rec_address AS rec_address,
+            info.remark AS remark,
+            info.status AS order_status,
+            payment.status AS payment_status,
+            info.courier_id AS courier_id,
+            info.courier_remark AS courier_remark,
+            info.create_date
+        FROM
+            order_payment as payment, order_info as info
+        WHERE
+            info.id = payment.order_id ${sql}
     </select>
 </mapper>

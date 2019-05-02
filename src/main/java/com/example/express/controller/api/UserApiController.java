@@ -6,11 +6,13 @@ import com.example.express.common.util.StringUtils;
 import com.example.express.domain.ResponseResult;
 import com.example.express.domain.bean.SysUser;
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
+import com.example.express.domain.enums.SysRoleEnum;
 import com.example.express.domain.vo.BootstrapTableVO;
 import com.example.express.domain.vo.admin.AdminUserInfoVO;
 import com.example.express.service.SysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -43,7 +45,7 @@ public class UserApiController {
     public BootstrapTableVO<AdminUserInfoVO> listUser(@RequestParam(required = false, defaultValue = "1") Integer current,
                                                       @RequestParam(required = false, defaultValue = "10") Integer size,
                                                       String isReal, String isEnable, String isLock, String isThird,
-                                                      String id,  String username, String tel) {
+                                                      String id,  String username, String tel, @AuthenticationPrincipal SysUser sysUser) {
         QueryWrapper<SysUser> wrapper = new QueryWrapper<>();
         Integer enable = StringUtils.toInteger(isEnable, -1);
         if (enable != -1) {
@@ -71,7 +73,11 @@ public class UserApiController {
 
         if (StringUtils.isNotBlank(id)) {
             wrapper.eq("id", id);
+        } else{
+            // 不显示当前用户
+            wrapper.ne("id", sysUser.getId());
         }
+
         if (StringUtils.isNotBlank(username)) {
             wrapper.like("username", username);
         }
@@ -95,6 +101,10 @@ public class UserApiController {
         Integer op = StringUtils.toInteger(type, -1);
 
         SysUser user = sysUserService.getById(id);
+        if(user.getRole() == SysRoleEnum.ADMIN) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.NO_PERMISSION);
+        }
+
         switch (op) {
             case 1:
                 user.setHasEnable(0);

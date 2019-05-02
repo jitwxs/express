@@ -14,6 +14,7 @@ import com.example.express.domain.enums.OrderStatusEnum;
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
 import com.example.express.domain.enums.SysRoleEnum;
 import com.example.express.domain.vo.BootstrapTableVO;
+import com.example.express.domain.vo.admin.AdminOrderVO;
 import com.example.express.domain.vo.courier.CourierOrderVO;
 import com.example.express.domain.vo.OrderDescVO;
 import com.example.express.domain.vo.user.UserOrderVO;
@@ -134,10 +135,18 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     }
 
     @Override
-    public BootstrapTableVO<UserOrderVO> pageUserOrderVO(Page<UserOrderVO> page, String selectSql, int isDelete) {
+    public BootstrapTableVO<UserOrderVO> pageUserOrderVO(Page<UserOrderVO> page, String sql, int isDelete) {
         BootstrapTableVO<UserOrderVO> vo = new BootstrapTableVO<>();
 
-        IPage<UserOrderVO> selectPage = orderInfoMapper.pageUserOrderVO(page, selectSql, isDelete);
+        IPage<UserOrderVO> selectPage = orderInfoMapper.pageUserOrderVO(page, sql, isDelete);
+
+        // 设置快递公司
+        for(UserOrderVO orderVO : selectPage.getRecords()) {
+            if(StringUtils.isNotBlank(orderVO.getCompany())) {
+                orderVO.setCompany(dataCompanyService.getByCache(StringUtils.toInteger(orderVO.getCompany())).getName());
+            }
+        }
+
         vo.setTotal(selectPage.getTotal());
         vo.setRows(selectPage.getRecords());
 
@@ -149,8 +158,37 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         BootstrapTableVO<CourierOrderVO> vo = new BootstrapTableVO<>();
 
         IPage<CourierOrderVO> selectPage = orderInfoMapper.pageCourierOrderVO(page, sql);
-        vo.setTotal(selectPage.getTotal());
 
+        // 设置快递公司
+        for(CourierOrderVO orderVO : selectPage.getRecords()) {
+            if(StringUtils.isNotBlank(orderVO.getCompany())) {
+                orderVO.setCompany(dataCompanyService.getByCache(StringUtils.toInteger(orderVO.getCompany())).getName());
+            }
+        }
+
+        vo.setTotal(selectPage.getTotal());
+        vo.setRows(selectPage.getRecords());
+
+        return vo;
+    }
+
+    @Override
+    public BootstrapTableVO<AdminOrderVO> pageAdminOrderVO(Page<AdminOrderVO> page, String sql) {
+        BootstrapTableVO<AdminOrderVO> vo = new BootstrapTableVO<>();
+
+        IPage<AdminOrderVO> selectPage = orderInfoMapper.pageAdminOrderVO(page, sql);
+
+        // 设置快递公司、设置courier
+        for(AdminOrderVO orderVO : selectPage.getRecords()) {
+            if(StringUtils.isNotBlank(orderVO.getCourier())) {
+                orderVO.setCourier(sysUserService.getFrontName(orderVO.getCourier()));
+            }
+            if(StringUtils.isNotBlank(orderVO.getCompany())) {
+                orderVO.setCompany(dataCompanyService.getByCache(StringUtils.toInteger(orderVO.getCompany())).getName());
+            }
+        }
+
+        vo.setTotal(selectPage.getTotal());
         vo.setRows(selectPage.getRecords());
 
         return vo;
@@ -230,6 +268,12 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         int success = 0;
         for(String orderId: ids) {
             OrderInfo orderInfo = orderInfoMapper.selectById(orderId);
+
+            // 限定订单状态为未接单
+            if(orderInfo.getOrderStatus() != OrderStatusEnum.WAIT_DIST) {
+                continue;
+            }
+
             orderInfo.setCourierId(userId);
             orderInfo.setOrderStatus(OrderStatusEnum.TRANSPORT);
             if(this.retBool(orderInfoMapper.updateById(orderInfo))) {
@@ -252,8 +296,13 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         if(orderInfo == null) {
             return ResponseResult.failure(ResponseErrorCodeEnum.ORDER_NOT_EXIST);
         }
-        if(orderInfo.getOrderStatus() != OrderStatusEnum.TRANSPORT) {
-            return ResponseResult.failure(ResponseErrorCodeEnum.OPERATION_NOT_SUPPORT);
+
+        // 限定订单状态，非未接单
+        if(orderInfo.getOrderStatus() == OrderStatusEnum.WAIT_DIST) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.OPERATION_ERROR);
+        }
+        if(orderInfo.getOrderStatus() == targetStatus) {
+            return ResponseResult.success();
         }
 
         orderInfo.setOrderStatus(targetStatus);
@@ -268,6 +317,39 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     }
 
     @Override
+    public ResponseResult batchHandleOrder(String[] ids, OrderStatusEnum targetStatus, String remark) {
+        int success = 0;
+        for(String orderId : ids) {
+           OrderInfo orderInfo = orderInfoMapper.selectById(orderId);
+
+           // 限定订单状态，非未接单
+           if(orderInfo.getOrderStatus() == OrderStatusEnum.WAIT_DIST) {
+               continue;
+           }
+           if(orderInfo.getOrderStatus() == targetStatus) {
+               continue;
+           }
+
+           orderInfo.setOrderStatus(targetStatus);
+           if(StringUtils.isNotBlank(remark)) {
+               orderInfo.setCourierRemark(remark);
+           }
+
+           if(this.retBool(orderInfoMapper.updateById(orderInfo))) {
+               success++;
+           }
+       }
+
+        int finalSuccess = success;
+        Map<String, Integer> count = new HashMap<String, Integer>(16) {{
+            put("success", finalSuccess);
+            put("error", ids.length - finalSuccess);
+        }};
+
+        return ResponseResult.success(count);
+    }
+
+    @Override
     public boolean manualDelete(String orderId, int hasDelete, int deleteType) {
         return orderInfoMapper.manualDelete(orderId, hasDelete, deleteType);
     }
@@ -279,5 +361,14 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             return false;
         }
         return info.getUserId().equals(userId);
+    }
+
+    @Override
+    public boolean isCourierOrder(String orderId, String courierId) {
+        OrderInfo info = getById(orderId);
+        if(info == null || StringUtils.isBlank(info.getCourierId())) {
+            return false;
+        }
+        return info.getCourierId().equals(courierId);
     }
 }

@@ -323,7 +323,7 @@
 
         function completeOrder(id) {
             layer.prompt({title:"订单完成", formType:2},function(val, index) {
-                sendArray(HTTP.POST, "/api/v1/order/complete", {
+                sendJson(HTTP.POST, "/api/v1/order/complete", {
                     "id": id,
                     "remark": val
                 }, false, function (res) {
@@ -342,7 +342,7 @@
 
         function errorComplete(id) {
             layer.prompt({title:"订单异常", formType:2},function(val, index) {
-                sendArray(HTTP.POST, "/api/v1/order/error", {
+                sendJson(HTTP.POST, "/api/v1/order/error", {
                     "id": id,
                     "remark": val
                 }, false, function (res) {

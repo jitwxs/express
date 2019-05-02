@@ -64,25 +64,33 @@ public class OrderApiController extends BaseApiController {
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_COURIER') or hasRole('ROLE_ADMIN')")
     public BootstrapTableVO listSelfOrder(@RequestParam(required = false, defaultValue = "1") Integer current,
                                                        @RequestParam(required = false, defaultValue = "10") Integer size,
-                                                       String type, String startDate, String endDate, String status, String id,
+                                                       String type, String startDate, String endDate, String status, String id, String payment,
                                                        @AuthenticationPrincipal SysUser sysUser) {
         Integer isDelete = StringUtils.toInteger(type, -1);
         if(isDelete == -1) {
             throw new CustomException(ResponseErrorCodeEnum.PARAMETER_ERROR);
         }
 
-        Integer orderStatus = StringUtils.toInteger(status, -1);
-
         StringBuilder sql = new StringBuilder();
-        if(orderStatus != -1) {
-            sql.append(" AND info.status = ").append(orderStatus);
+
+        OrderStatusEnum orderStatusEnum = OrderStatusEnum.getByStatus(StringUtils.toInteger(status, -1));
+        if(orderStatusEnum != null) {
+            sql.append(" AND info.status = ").append(orderStatusEnum.getStatus());
         }
+
+        PaymentStatusEnum paymentStatusEnum = PaymentStatusEnum.getByStatus(StringUtils.toInteger(payment, -1));
+        if(paymentStatusEnum != null) {
+            sql.append(" AND payment.status = ").append(paymentStatusEnum.getStatus());
+        }
+
         if(StringUtils.isNotBlank(startDate)) {
             sql.append(" AND info.create_date > '").append(startDate).append("'");
         }
+
         if(StringUtils.isNotBlank(endDate)) {
             sql.append(" AND info.create_date < '").append(endDate).append("'");
         }
+
         if(StringUtils.isNotBlank(id)) {
             sql.append(" AND info.id = ").append(id);
         }
@@ -96,8 +104,7 @@ public class OrderApiController extends BaseApiController {
                 sql.append(" AND info.courier_id = '").append(sysUser.getId()).append("'");
                 return orderInfoService.pageCourierOrderVO(page, sql.toString());
             case ADMIN:
-                // TODO
-                return new BootstrapTableVO();
+                return orderInfoService.pageAdminOrderVO(page, sql.toString());
             default:
                 return new BootstrapTableVO();
         }
@@ -143,8 +150,8 @@ public class OrderApiController extends BaseApiController {
      * 订单异常
      */
     @PostMapping("/error")
-    @PreAuthorize("hasRole('ROLE_COURIER') or hasRole('ROLE_ADMIN')")
-    public ResponseResult errorOrder(String id, String remark) {
+    @PreAuthorize("hasRole('ROLE_COURIER')")
+    public ResponseResult errorOrder(String id, String remark, @AuthenticationPrincipal SysUser sysUser) {
         if(StringUtils.isAnyBlank(id, remark)) {
             return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
         }
@@ -152,15 +159,35 @@ public class OrderApiController extends BaseApiController {
             return ResponseResult.failure(ResponseErrorCodeEnum.STR_LENGTH_OVER, new Object[]{"异常信息", CONTENT_MAX_LENGTH});
         }
 
+        if(!orderInfoService.isCourierOrder(id, sysUser.getId())) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.NO_PERMISSION);
+        }
+
         return orderInfoService.handleOrder(id, OrderStatusEnum.ERROR, remark);
+    }
+
+    /**
+     * 管理员批量订单异常
+     */
+    @PostMapping("/batch-error")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseResult batchErrorOrder(String[] ids, String remark) {
+        if(ids.length == 0 || StringUtils.isBlank(remark)) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
+        }
+        if(remark.length() > CONTENT_MAX_LENGTH) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.STR_LENGTH_OVER, new Object[]{"异常信息", CONTENT_MAX_LENGTH});
+        }
+
+        return orderInfoService.batchHandleOrder(ids, OrderStatusEnum.ERROR, remark);
     }
 
     /**
      * 订单完成
      */
     @PostMapping("/complete")
-    @PreAuthorize("hasRole('ROLE_COURIER') or hasRole('ROLE_ADMIN')")
-    public ResponseResult completeOrder(String id, String remark) {
+    @PreAuthorize("hasRole('ROLE_COURIER')")
+    public ResponseResult completeOrder(String id, String remark, @AuthenticationPrincipal SysUser sysUser) {
         if(StringUtils.isAnyBlank(id, remark)) {
             return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
         }
@@ -168,7 +195,27 @@ public class OrderApiController extends BaseApiController {
             return ResponseResult.failure(ResponseErrorCodeEnum.STR_LENGTH_OVER, new Object[]{"成功信息", CONTENT_MAX_LENGTH});
         }
 
+        if(!orderInfoService.isCourierOrder(id, sysUser.getId())) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.NO_PERMISSION);
+        }
+
         return orderInfoService.handleOrder(id, OrderStatusEnum.COMPLETE, remark);
+    }
+
+    /**
+     * 管理员批量订单完成
+     */
+    @PostMapping("/batch-complete")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseResult batchCompleteOrder(String[] ids, String remark) {
+        if(ids.length == 0 || StringUtils.isBlank(remark)) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
+        }
+        if(remark.length() > CONTENT_MAX_LENGTH) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.STR_LENGTH_OVER, new Object[]{"成功信息", CONTENT_MAX_LENGTH});
+        }
+
+        return orderInfoService.batchHandleOrder(ids, OrderStatusEnum.COMPLETE, remark);
     }
 
     /**

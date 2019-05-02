@@ -126,10 +126,12 @@
                     showExport: true,                   //是否显示导出
                     exportDataType: "basic",            //导出的模式是当前页basic、所有数据all、选中数据selected。
                     columns: [{
-                        checkbox: true
-                    }, {
                         field: 'id',
                         title: '用户ID'
+                    }, {
+                        field: 'role',
+                        title: '用户权限',
+                        formatter: roleFormatter
                     }, {
                         field: 'username',
                         title: '用户名'
@@ -187,21 +189,38 @@
         function actionFormatter(value, row, index) {
             let id = "'" + value + "'", result = '';
 
+            // 不允许操作管理员
+            if( row.role === 1) {
+                return result;
+            }
+
             // 启用/禁用
             if(row.hasEnable) {
-                result += '<button class="btn btn-xs btn-danger" onclick="changeStatus(1,'+id+')" title="禁用"><span class="glyphicon glyphicon-ban-circle"></span></button>\n';
+                result += '<button class="btn btn-xs btn-danger" onclick="changeStatus(1,'+id+')" title="禁用">禁用</button>\n';
             } else {
-                result += '<button class="btn btn-xs btn-default" onclick="changeStatus(2,'+id+')" title="启用"><span class="glyphicon glyphicon-ok-circle"></span></button>\n';
+                result += '<button class="btn btn-xs btn-success" onclick="changeStatus(2,'+id+')" title="启用">启用</button>\n';
             }
 
             // 冻结时间
             if(row.lockDate === null || row.lockDate === '') {
-                result += '<button class="btn btn-xs btn-danger" onclick="changeStatus(3,'+id+')" title="冻结"><span class="glyphicon glyphicon-eye-close"></span></button>\n';
+                result += '<button class="btn btn-xs btn-danger" onclick="changeStatus(3,'+id+')" title="冻结">冻结</button>\n';
             } else {
-                result += '<button class="btn btn-xs btn-default" onclick="changeStatus(4,'+id+')" title="解冻"><span class="glyphicon glyphicon-warning-sign"></span></button>\n';
+                result += '<button class="btn btn-xs btn-success" onclick="changeStatus(4,'+id+')" title="解冻">解冻</button>\n';
             }
 
             return result;
+        }
+        function roleFormatter(value, row, index) {
+            switch (value) {
+                case -1:
+                    return '<span style="color:gray">非正式用户</span>';
+                case 1:
+                    return '<span>系统管理员</span>';
+                case 2:
+                    return '<span>配送员</span>';
+                case 3:
+                    return '<span>普通用户</span>';
+            }
         }
         function realFormatter(value, row, index) {
             if(value) {

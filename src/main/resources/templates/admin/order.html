@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>接单大厅 - Express</title>
+    <title>订单管理 - Express</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
 
@@ -13,15 +13,35 @@
 <body>
     <div class="container-fluid">
         <!-- 头部 -->
-        <nav th:replace="/courier/module/nav::html"></nav>
+        <nav th:replace="/admin/module/nav::html"></nav>
         <!-- 主体 -->
         <div class="row">
             <!-- 左侧菜单 -->
-            <div th:replace="/courier/module/sidebar::html"></div>
+            <div th:replace="/admin/module/sidebar::html"></div>
             <div class="col-md-10">
                 <!-- 筛选条件 -->
                 <div class="panel-heading">
                     <form class="form-inline">
+                        <div class="form-group">
+                            <label for="inputOrderStatus">订单状态</label>
+                            <select id="inputOrderStatus" class="form-control">
+                                <option value=-1>所有状态</option>
+                                <option value=1>等待派送</option>
+                                <option value=2>派送中</option>
+                                <option value=3>订单完成</option>
+                                <option value=4>订单异常</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputPaymentStatus">支付状态</label>
+                            <select id="inputPaymentStatus" class="form-control">
+                                <option value=-1>所有状态</option>
+                                <option value=1>等待付款</option>
+                                <option value=2>交易关闭</option>
+                                <option value=3>交易成功</option>
+                                <option value=4>交易结束</option>
+                            </select>
+                        </div>
                         <div class="form-group">
                             <label for="inputStartDate" class="ml10">起</label>
                             <input type="date" id="inputStartDate" class="form-control ml10">
@@ -37,8 +57,11 @@
                 </div>
                 <div class="panel-body">
                     <div id="toolbar" class="btn-group">
-                        <button id="btn_accept" type="button" class="btn btn-success">
-                            <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> 批量接单
+                        <button id="btn_complete" type="button" class="btn btn-success">
+                            <span class="glyphicon glyphicon glyphicon-ok" aria-hidden="true"></span> 订单完成
+                        </button>
+                        <button id="btn_error" type="button" class="btn btn-danger">
+                            <span class="glyphicon glyphicon-alert" aria-hidden="true"></span> 订单异常
                         </button>
                     </div>
                     <table id="tb_order"></table>
@@ -75,7 +98,7 @@
             //初始化Table
             oTableInit.Init = function () {
                 $('#tb_order').bootstrapTable({
-                    url: '/api/v1/order/wait-list',     //请求后台的URL（*）
+                    url: '/api/v1/order/list',          //请求后台的URL（*）
                     method: HTTP.GET,                   //请求方式（*）
                     toolbar: '#toolbar',                //工具按钮组id
                     striped: true,                      //是否显示行间隔色
@@ -88,7 +111,7 @@
                     pageNumber:1,                       //初始化加载第一页，默认第一页
                     pageSize: 10,                       //每页的记录行数（*）
                     pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
-                    search: false,                      //是否显示表格搜索，此搜索是客户端搜索，不会进服务端。后台分页时意义不大
+                    search: false,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端。后台分页时意义不大
                     showColumns: true,                  //是否显示所有的列
                     showRefresh: true,                  //是否显示刷新按钮
                     minimumCountColumns: 2,             //最少允许的列数
@@ -124,6 +147,20 @@
                         field: 'remark',
                         title: '下单备注'
                     }, {
+                        field: 'paymentStatus',
+                        title: '支付状态',
+                        formatter: paymentFormatter
+                    }, {
+                        field: 'orderStatus',
+                        title: '订单状态',
+                        formatter: orderFormatter
+                    }, {
+                        field: 'courier',
+                        title: '配送员'
+                    }, {
+                        field: 'courierRemark',
+                        title: '配送备注'
+                    }, {
                         field: 'createDate',
                         title: '下单时间'
                     }]
@@ -135,8 +172,11 @@
                 return {   //这里的键的名字和后台参数必须一致
                     size: params.limit,                             //页面大小
                     current: (params.offset / params.limit) + 1,   //页码
+                    type: 0,
                     // 筛选参数
                     id: $("#inputId").val(),
+                    status: $("#inputOrderStatus").val(),
+                    payment: $("#inputPaymentStatus").val(),
                     startDate: $("#inputStartDate").val(),
                     endDate:$("#inputEndDate").val(),
                 };
@@ -148,30 +188,72 @@
             var oInit = new Object();
 
             oInit.Init = function () {
-                // 批量接单
-                $("#btn_accept").click(function () {
-                    let row = $('#tb_order').bootstrapTable("getSelections");
+                // 完成订单
+                $("#btn_complete").click(function () {
+                    var row = $('#tb_order').bootstrapTable("getSelections");
                     if(row.length > 0) {
-                        let ids = new Array();
-                        for (let i = 0; i < row.length; i++) {
-                            ids.push(row[i].id);
+                        var ids = new Array();
+                        for(var i=0;i<row.length;i++) {
+                            if(row[i].orderStatus === 2 || row[i].orderStatus === 4) {
+                                ids.push(row[i].id);
+                            }
                         }
-                        if (ids.length === 0) {
-                            layer.msg("您未选中任何订单",{icon:0});
+                        if(ids.length === 0) {
+                            layer.msg("选中的没有可完成的订单",{icon:0});
                             return false;
                         } else {
-                            layer.confirm("选中的订单号为：" + ids + "，是否接单？", {
+                            layer.confirm("即将处理订单：" + ids + "，确认执行？", {
                                 btn: ['确定','取消']
-                            }, function () {
-                                sendArray(HTTP.POST, "/api/v1/order/batch-accept", {"ids": ids}, false, function (res) {
-                                    if (res.code === 0) {
-                                        layer.msg("接单成功，成功" + res.data.success + "个，失败" + res.data.error + "个", {icon: 1});
-                                        flushTable();
-                                    }
-                                }, function () {
-                                    layer.msg("未知错误", {icon: 2});
+                            }, function(){
+                                layer.prompt({title:"成功信息", formType:2},function(val, index) {
+                                    sendArray("post", "/api/v1/order/batch-complete", {"ids": ids, "remark": val}, false, function (res) {
+                                        if(res.code === 0) {
+                                            layer.msg("成功，处理" + res.data.success + "个，失败" + res.data.error + "个",{icon:1});
+                                            layer.close(index);
+                                            flushTable();
+                                        } else {
+                                            layer.msg(res.msg, {icon: 2});
+                                        }
+                                    }, function () {
+                                        layer.msg("未知错误",{icon:2});
+                                    });
                                 });
-                            }, function () {
+                            }, function(){
+                            });
+                        }
+                    }
+                });
+                // 异常订单
+                $("#btn_error").click(function () {
+                    var row = $('#tb_order').bootstrapTable("getSelections");
+                    if(row.length > 0) {
+                        var ids = new Array();
+                        for(var i=0;i<row.length;i++) {
+                            if(row[i].orderStatus === 2 || row[i].orderStatus === 3) {
+                                ids.push(row[i].id);
+                            }
+                        }
+                        if (ids.length === 0) {
+                            layer.msg("选中的没有可异常的订单",{icon:0});
+                            return false;
+                        } else {
+                            layer.confirm("即将异常订单：" + ids + "，确认执行？", {
+                                btn: ['确定','取消']
+                            }, function(){
+                                layer.prompt({title:"异常信息", formType:2},function(val, index) {
+                                    sendArray("post", "/api/v1/order/batch-error", {"ids": ids, "remark":val}, false, function (res) {
+                                        if(res.code === 0) {
+                                            layer.msg("成功，处理" + res.data.success + "个，失败" + res.data.error + "个",{icon:1});
+                                            layer.close(index);
+                                            flushTable();
+                                        } else {
+                                            layer.msg(res.msg, {icon: 2});
+                                        }
+                                    }, function () {
+                                        layer.msg("未知错误",{icon:2});
+                                    });
+                                });
+                            }, function(){
                             });
                         }
                     }
@@ -179,8 +261,32 @@
             };
             return oInit;
         };
+
+        // 订单状态的格式化
+        function orderFormatter(value, row, index) {
+            if(value === 4)
+                return '<span style="color:red">订单异常</span>';
+            else if (value === 3)
+                return '<span style="color:olivedrab">订单完成</span>';
+            else if (value === 2)
+                return '<span style="color:#42afff">派送中</span>';
+            else if (value === 1)
+                return '<span style="color:grey">等待派送</span>';
+        }
+        // 支付状态格式化
+        function paymentFormatter(value, row, index) {
+            if(value === 1)
+                return '<span style="color:#f5a623">等待付款</span>';
+            else if (value === 2)
+                return '<span style="color:red">交易关闭</span>';
+            else if (value === 3)
+                return '<span style="color:green">交易成功</span>';
+            else if (value === 4)
+                return '<span style="color:grey">交易结束</span>';
+        }
+
         function flushTable() {
-            $("#tb_order").bootstrapTable('refresh',{url : '/api/v1/order/wait-list'} );
+            $("#tb_order").bootstrapTable('refresh',{url : '/api/v1/order/list'} );
         }
     </script>
 </body>

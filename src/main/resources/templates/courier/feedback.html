@@ -477,7 +477,7 @@
         }
         function handleFeedback(id) {
             layer.prompt({title:"处理中", formType:2},function(val, index) {
-                sendArray(HTTP.POST, "/api/v1/feedback/deal", {
+                sendJson(HTTP.POST, "/api/v1/feedback/deal", {
                     "id": id,
                     "status": 2,
                     "result": val
@@ -494,7 +494,7 @@
         }
         function closeFeedback(id) {
             layer.prompt({title:"处理完毕", formType:2},function(val, index) {
-                sendArray(HTTP.POST, "/api/v1/feedback/deal", {
+                sendJson(HTTP.POST, "/api/v1/feedback/deal", {
                     "id": id,
                     "status": 3,
                     "result": val

@@ -45,6 +45,9 @@ public enum PaymentStatusEnum implements IEnum<Integer> {
         this.desc = desc;
     }
 
+    public static PaymentStatusEnum getByStatus(Integer status) {
+        return Arrays.stream(values()).filter(e -> e.getStatus() == status).findFirst().orElse(null);
+    }
 
     public static PaymentStatusEnum getByDesc(String desc) {
         return Arrays.stream(values()).filter(e -> e.getDesc().equals(desc)).findFirst().orElse(null);

@@ -27,6 +27,8 @@ public class AdminUserInfoVO implements Serializable {
     private String username;
 
     private String tel;
+
+    private Integer role;
     /**
      * 是否实名认证
      */
@@ -63,6 +65,7 @@ public class AdminUserInfoVO implements Serializable {
                 .id(user.getId())
                 .username(user.getUsername())
                 .tel(user.getTel())
+                .role(user.getRole().getType())
                 .hasReal(!StringUtils.isAnyBlank(user.getRealName(), user.getId()))
                 .hasEnable(user.getHasEnable() == 1)
                 .createDate(user.getCreateDate()).build();
