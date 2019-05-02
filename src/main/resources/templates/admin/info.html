@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>个人中心 - Express</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}" href="../../static/assets/css/bootstrap.min.css"/>
+    <link rel="stylesheet" th:href="@{/assets/css/express.css}" href="../../static/assets/css/express.css"/>
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- 头部 -->
+        <nav th:replace="/admin/module/nav::html"></nav>
+        <!-- 主体 -->
+        <div class="row">
+            <!-- 左侧菜单 -->
+            <div th:replace="/admin/module/sidebar::html"></div>
+            <div class="col-md-10">
+                <div id="baseInfo">
+                    <h4>基础信息</h4>
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label for="role" class="col-md-2 control-label">用户权限</label>
+                            <div class="col-md-10">
+                                <p class="form-control-static col-md-7" id="role" th:text="${info.roleName}"></p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="username" class="col-md-2 control-label">用户名</label>
+                            <div class="col-md-10">
+                                <p class="form-control-static col-md-7" id="username"
+                                   th:style="${info.username == null ? 'color:gray' : ''}"
+                                   th:text="${info.username != null ? info.username : '您未申请用户名，申请后可以使用用户名密码登陆'}"></p>
+                                <button type="button" class="btn btn-default col-md-3" th:if="${info.username != null}" onclick="showModel(1)">修改密码</button>
+                                <button type="button" class="btn btn-danger col-md-3" th:if="${info.username == null}" onclick="showModel(2)">立即申请</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="tel" class="col-md-2 control-label">手机号码</label>
+                            <div class="col-md-10">
+                                <p class="form-control-static col-md-7" id="tel"
+                                   th:style="${info.tel == null ? 'color:gray' : ''}"
+                                   th:text="${info.tel != null ? info.tel : '您未绑定手机号，设置后可以使用手机号登陆，以及使用找回密码功能'}"></p>
+                                <button type="button" class="btn btn-default col-md-3" th:if="${info.tel != null}" onclick="showModel(3)">更改绑定</button>
+                                <button type="button" class="btn btn-danger col-md-3" th:if="${info.tel == null}" onclick="showModel(3)">立即绑定</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="sex" class="col-md-2 control-label">性别</label>
+                            <div class="col-md-10">
+                                <p class="form-control-static col-md-7" id="sex" th:text="${info.sex == 1 ? '男' : '女'}"></p>
+                            </div>
+                        </div>
+                    </form>
+                </div><hr>
+            </div>
+        </div>
+    </div>
+
+    <!-- 修改密码模态框 -->
+    <div class="modal fade" id="restPasswordModel" tabindex="-1" role="dialog" aria-labelledby="restPasswordModelLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="confirmModelLabel">修改密码</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal" id="resetPasswordForm">
+                        <div class="form-group">
+                            <label for="inputOldPassword" class="col-md-2 control-label">原始密码</label>
+                            <div class="col-md-10">
+                                <input type="password" class="form-control" id="inputOldPassword" name="origin">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputNewPassword" class="col-md-2 control-label">新密码</label>
+                            <div class="col-md-10">
+                                <input type="password" class="form-control" id="inputNewPassword" name="target">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputNewPassword1" class="col-md-2 control-label">确认密码</label>
+                            <div class="col-md-10">
+                                <input type="password" class="form-control" id="inputNewPassword1" name="target1">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="submitForm(1)">修改密码</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 申请用户名 -->
+    <div class="modal fade" id="applyUsernameModel" tabindex="-1" role="dialog" aria-labelledby="applyUsernameModelLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="applyUsernameModelLabel">申请用户名</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal" id="applyUsernameForm">
+                        <div class="form-group">
+                            <label for="inputUsername" class="col-md-2 control-label">用户名</label>
+                            <div class="col-md-10">
+                                <input type="password" class="form-control" id="inputUsername" name="username">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputPassword" class="col-md-2 control-label">密码</label>
+                            <div class="col-md-10">
+                                <input type="password" class="form-control" id="inputPassword" name="password">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputPassword1" class="col-md-2 control-label">重复密码</label>
+                            <div class="col-md-10">
+                                <input type="password" class="form-control" id="inputPassword1" name="password1">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="submitForm(2)">立即申请</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 设置手机号 -->
+    <div class="modal fade" id="setTelModel" tabindex="-1" role="dialog" aria-labelledby="setTelModelLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="setTelModelLabel">设置手机号</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal" id="setTelForm">
+                        <div class="form-group">
+                            <label for="inputTel" class="col-md-2 control-label">手机号码</label>
+                            <div class="col-md-10">
+                                <input type="text" class="form-control" id="inputTel" name="tel">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="telCode" class="col-md-2 control-label">验证码</label>
+                            <div class="col-md-10">
+                                <div class="row" >
+                                    <div class="col-md-6 col-sm-12 col-lg-6 col-xs-12 " >
+                                        <input type="text" class="form-control" id="telCode" name="code" placeholder="请输入验证码">
+                                    </div>
+                                    <div class="col-md-6 col-sm-12 col-lg-6 col-xs-12 telCode">
+                                        <button type="button" class="btn btn-info btn-block" id="getTelCode" >获取验证码</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="submitForm(3)">立即设置</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/assets/js/http.js}" src="../../static/assets/js/http.js"></script>
+    <script th:src="@{/assets/js/express.js}" src="../../static/assets/js/express.js"></script>
+    <script th:src="@{/assets/js/jquery.min.js}" src="../../static/assets/js/jquery.min.js"></script>
+    <script th:src="@{/assets/js/jquery.validate.min.js}" src="../../static/assets/js/jquery.validate.min.js"></script>
+    <script th:src="@{/assets/layer/layer.js}" src="../../static/assets/layer/layer.js"></script>
+    <script th:src="@{/assets/js/bootstrap.min.js}" src="../../static/assets/js/bootstrap.min.js"></script>
+    <script>
+        $(function () {
+            $("#info-sidebar").addClass('active');
+
+            // 验证码
+            $("#getTelCode").click(function () {
+                sendCode($("#getTelCode"));
+            });
+            let v = getCookieValue("userInfoCookie");//获取cookie值
+            if (v > 0) {
+                setTime($("#getTelCode"));//开始倒计时
+            }
+        });
+
+        // 发送验证码
+        function sendCode(obj) {
+            let phoneNum = $("#inputTel").val();
+            if (!isPoneAvailable(phoneNum)) {
+                layer.msg("手机号码不合法", {icon: 7});
+                return false;
+            }
+            sendJson(HTTP.GET, '/auth/code/sms?mobile=' + phoneNum, null, false, function (res) {
+                    if (res.code === 0) {
+                        layer.msg("短信发送成功", {icon: 1});
+                        addCookie("userInfoCookie", 60, 60);//添加cookie记录,有效时间60s
+                        setTime(obj);//开始倒计
+                    } else {
+                        layer.msg(res.msg, {icon: 2});
+                    }
+                },
+                function () {
+                    layer.msg("未知错误", {icon: 2});
+                });
+        }
+
+        //开始倒计时
+        function setTime(obj) {
+            let countdown = getCookieValue("userInfoCookie");
+            if (countdown === 0) {
+                obj.removeAttr("disabled");
+                document.getElementById("getTelCode").innerText = '重新获取验证码';
+                return;
+            } else {
+                obj.attr("disabled", true);
+                document.getElementById("getTelCode").innerText = countdown + 's之后重新发送';
+                countdown--;
+                editCookie("userInfoCookie", countdown, countdown + 1);
+            }
+            setTimeout(function () {
+                setTime(obj)
+            }, 1000) //每1000毫秒执行一次
+        }
+
+        function showModel(type) {
+            switch (type) {
+                case 1:
+                    $("#restPasswordModel").modal('show');
+                    return;
+                case 2:
+                    $("#applyUsernameModel").modal('show');
+                    return;
+                case 3:
+                    $("#setTelModel").modal('show');
+                    return;
+            }
+        }
+        function closeModel(type) {
+            switch (type) {
+                case 1:
+                    $("#restPasswordModel").modal('hide');
+                    return;
+                case 2:
+                    $("#applyUsernameModel").modal('hide');
+                    return;
+                case 3:
+                    $("#setTelModel").modal('hide');
+                    return;
+            }
+        }
+        function submitForm(type) {
+            switch (type) {
+                case 1:
+                    $("#resetPasswordForm").submit();
+                    return;
+                case 2:
+                    $("#applyUsernameForm").submit();
+                    return;
+                case 3:
+                    $("#setTelForm").submit();
+                    return;
+                case 4:
+            }
+        }
+
+        $().ready(function() {
+            $("#resetPasswordForm").validate({
+                rules: {
+                    origin: {
+                        required: true
+                    },
+                    target: {
+                        required: true,
+                        equalTo: "#inputNewPassword1"
+                    },
+                    target1: {
+                        required: true,
+                        equalTo: "#inputNewPassword"
+                    }
+                },
+                messages: {
+                    origin: {
+                        required:"原始密码不能为空"
+                    },
+                    target: {
+                        required: "新密码不能为空",
+                        equalTo: "两次密码输入不一致"
+                    },
+                    target1: {
+                        required: "新密码不能为空",
+                        equalTo: "两次密码输入不一致"
+                    }
+                },
+                submitHandler: function (form) {
+                    sendJson(HTTP.POST, "/api/v1/setting/password", $("#resetPasswordForm").serialize() , false, function (res) {
+                        if (res.code === 0) {
+                            layer.msg("密码修改成功，请重新登录", {icon: 1});
+                            setTimeout("new function(){window.location.href='/logout'}","3000");
+                            closeModel(1);
+                        } else {
+                            layer.msg(res.msg, {icon: 2});
+                        }
+                    }, function () {
+                        layer.msg("未知错误", {icon: 2});
+                    });
+                }
+            });
+
+            $("#applyUsernameModel").validate({
+                rules: {
+                    username: {
+                        required: true
+                    },
+                    password: {
+                        required: true,
+                        equalTo: "#inputPassword1"
+                    },
+                    password1: {
+                        required: true,
+                        equalTo: "#inputPassword"
+                    }
+                },
+                messages: {
+                    username: {
+                        required:"原始密码不能为空"
+                    },
+                    password: {
+                        required: "密码不能为空",
+                        equalTo: "两次密码输入不一致"
+                    },
+                    password1: {
+                        required: "密码不能为空",
+                        equalTo: "两次密码输入不一致"
+                    }
+                },
+                submitHandler: function (form) {
+                    sendJson(HTTP.POST, "/api/v1/setting/username", $("#applyUsernameModel").serialize(), false, function (res) {
+                        if (res.code === 0) {
+                            layer.msg("申请成功，支持使用用户名密码方式登录", {icon: 1});
+                            closeModel(2);
+                        } else {
+                            layer.msg(res.msg, {icon: 2});
+                        }
+                    }, function () {
+                        layer.msg("未知错误", {icon: 2});
+                    });
+                }
+            });
+
+            $("#setTelForm").validate({
+                rules: {
+                    tel: {
+                        required: true,
+                        number: true
+                    },
+                    code: {
+                        required: true,
+                        number: true
+                    }
+                },
+                messages: {
+                    tel: {
+                        required: "手机号码不能为空",
+                        number: "非法字符"
+                    },
+                    code: {
+                        required: "验证码不能为空",
+                        number: "非法字符"
+                    }
+                },
+                submitHandler: function (form) {
+                    sendJson(HTTP.POST, "/api/v1/setting/tel", $("#setTelForm").serialize(), false, function (res) {
+                        if (res.code === 0) {
+                            layer.msg("设置成功", {icon: 1});
+                            closeModel(3);
+                        } else {
+                            layer.msg(res.msg, {icon: 2});
+                        }
+                    }, function () {
+                        layer.msg("未知错误", {icon: 2});
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
