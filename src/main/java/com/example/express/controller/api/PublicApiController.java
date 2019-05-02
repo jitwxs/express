@@ -10,19 +10,19 @@ import com.example.express.domain.enums.PaymentStatusEnum;
 import com.example.express.domain.enums.RateLimitEnum;
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
 import com.example.express.domain.vo.DataAreaVO;
+import com.example.express.service.AipService;
 import com.example.express.service.DataAreaService;
 import com.example.express.service.DataCompanyService;
 import com.example.express.service.DataSchoolService;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import java.io.*;
+import java.util.*;
 
 /**
  * API公开信息
@@ -38,6 +38,8 @@ public class PublicApiController {
     private DataSchoolService dataSchoolService;
     @Autowired
     private DataCompanyService dataCompanyService;
+    @Autowired
+    private AipService aipService;
 
     /**
      * 根据父ID查询行政区划
@@ -83,5 +85,21 @@ public class PublicApiController {
         List<DataCompany> list = dataCompanyService.listAllByCache();
 
         return ResponseResult.success(list);
+    }
+
+    /**
+     * 人脸检测
+     */
+    @PostMapping("/face-detect")
+    @RequestRateLimit(limit = RateLimitEnum.RRLimit_2_1)
+    public ResponseResult faceDetect(String data) {
+        String base64Prefix = "data:image/png;base64,";
+        if(StringUtils.isBlank(data)) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
+        }
+        if(data.startsWith(base64Prefix)) {
+            data = data.substring(base64Prefix.length());
+        }
+        return aipService.faceDetectByBase64(data);
     }
 }

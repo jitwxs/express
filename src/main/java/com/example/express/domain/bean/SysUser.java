@@ -27,6 +27,10 @@ public class SysUser implements UserDetails, CredentialsContainer {
 
     private String password;
     /**
+     * 人脸唯一标识
+     */
+    private String faceToken;
+    /**
      * 用户角色
      */
     @TableField("role_id")

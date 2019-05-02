@@ -35,6 +35,12 @@ public enum ResponseErrorCodeEnum {
     PASSWORD_IS_EMPTY(400202, 400, "密码不能为空"),
     PASSWORD_ERROR(400203, 400, "密码输入错误，请检查密码"),
 
+    NOT_MATCH_FACE(400301, 400, "未找到匹配的人脸数据"),
+    NOT_ACCORD_WITH_MIN_REQUIREMENT(400302, 400, "人脸数据不符合匹配要求，请调整周围环境重试"),
+    FACE_ADD_ERROR(400303, 400, "人脸添加失败"),
+    NOT_REAL_FACE(400304, 400, "请使用真实人脸数据录入系统"),
+    NOT_DETECT_FACE(400305, 400, "未检测到人脸数据，请调整周围环境重试"),
+
     ORDER_CREATE_ERROR(400701, 400, "订单创建失败"),
     ORDER_PAYMENT_CREATE_ERROR(400702, 400, "订单支付信息创建失败"),
     ORDER_PAYMENT_SYNC_ERROR(400703, 400, "订单支付状态同步失败"),
