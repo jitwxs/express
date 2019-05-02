@@ -59,9 +59,15 @@ public class AipServiceImpl implements AipService {
         JSONObject faceMap = (JSONObject)faceList.get(0);
 
         // 人脸置信度，0~1
-        Integer faceProbability = (Integer) faceMap.get("face_probability");
-        if(faceProbability != 1) {
-            return ResponseResult.failure(ResponseErrorCodeEnum.NOT_DETECT_FACE);
+        Object faceProbability = faceMap.get("face_probability");
+        if(faceProbability instanceof Integer) {
+            if((Integer)faceProbability < 0.9) {
+                return ResponseResult.failure(ResponseErrorCodeEnum.NOT_DETECT_FACE);
+            }
+        } else if(faceProbability instanceof Double) {
+            if((Double)faceProbability < 0.9) {
+                return ResponseResult.failure(ResponseErrorCodeEnum.NOT_DETECT_FACE);
+            }
         }
 
         // 判断真人、卡通

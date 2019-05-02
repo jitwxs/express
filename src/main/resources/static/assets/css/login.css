@@ -1,10 +1,15 @@
 
 .container{
     width: 100%;
-    height: 100vh;
+    min-height: 100vh;
     background: #2848af url("../img/login_bg.jpg")right top no-repeat;
     background-size: cover;
-    /*font-size: 1rem;*/
+    font-size: 1rem;
+}
+.bg-img{
+    z-index:1;
+    width: 100%;
+    height: auto;
 }
 .left{
     display: flex;
@@ -15,9 +20,9 @@
     margin-top: 100px;
     width: 70%;
     min-height: 400px;
-    background-color: white;
     border-radius: 15px;
     padding: 40px;
+    background-color: white;
 }
 #myTabContent >div{
     padding-top: 30px;
@@ -48,7 +53,6 @@
     margin-top: 60px;
 }
 .checkboxd{
-    /*margin-top: 30px;*/
     height: 30px;
     float: left;
 }
@@ -56,13 +60,15 @@
     width: 100%;
 }
 .capture{
-    width: 480px;
-    height: 400px;
+    width: 100%;
+    height: 70%;
     margin: 0 auto;
 }
 #video{
-    height: 320px;
-    width: 480px;
+    height: 70%;
+    width: 80%;
+
+    margin: 0 auto;
 }
 @media only screen and (max-width: 1600px) and (min-width: 1280px){
     html{
@@ -80,7 +86,15 @@
         line-height: 40px;
     }
 }
-@media only screen and (max-width: 1200px){
+@media only screen and (max-width: 1200px) and (min-width: 1000px){
+    html{
+        font-size: 12px;
+    }
+    .form-group label{
+        line-height: 40px;
+    }
+}
+@media only screen and (max-width: 1000px)and (min-width: 800px){
     html{
         background-color: #2848af;
         font-size: 10px;
@@ -97,9 +111,22 @@
     .main{
         padding: 20px;
     }
-
-    #video{
-        height: 300px;
-        width: 220px;
+}
+@media only screen and (max-width: 800px){
+    html{
+        background-color: #2848af;
+        font-size: 10px;
+    }
+    .form-group label{
+        line-height: 20px;
+    }
+    .container{
+        background-color: #013b7b;
+    }
+    .telCode{
+        margin-top: 5px;
+    }
+    .main{
+        padding: 5px;
     }
 }
