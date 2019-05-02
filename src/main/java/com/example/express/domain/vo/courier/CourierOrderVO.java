@@ -1,4 +1,4 @@
-package com.example.express.domain.vo;
+package com.example.express.domain.vo.courier;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;

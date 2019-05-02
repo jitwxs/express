@@ -4,7 +4,7 @@ import com.example.express.common.constant.SessionKeyConstant;
 import com.example.express.controller.BaseController;
 import com.example.express.domain.bean.OrderInfo;
 import com.example.express.domain.bean.SysUser;
-import com.example.express.domain.vo.UserInfoVO;
+import com.example.express.domain.vo.user.UserInfoVO;
 import com.example.express.service.DataCompanyService;
 import com.example.express.service.SysUserService;
 import org.springframework.beans.factory.annotation.Autowired;

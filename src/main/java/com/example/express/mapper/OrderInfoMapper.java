@@ -4,8 +4,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.express.domain.bean.OrderInfo;
-import com.example.express.domain.vo.CourierOrderVO;
-import com.example.express.domain.vo.UserOrderVO;
+import com.example.express.domain.vo.courier.CourierOrderVO;
+import com.example.express.domain.vo.user.UserOrderVO;
 import org.apache.ibatis.annotations.Param;
 
 public interface OrderInfoMapper extends BaseMapper<OrderInfo> {

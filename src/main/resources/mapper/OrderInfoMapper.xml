@@ -5,7 +5,7 @@
         UPDATE `order_info` set has_delete=#{hasDelete}, delete_type=#{deleteType} WHERE id = #{id}
     </update>
 
-    <select id="pageUserOrderVO" resultType="com.example.express.domain.vo.UserOrderVO">
+    <select id="pageUserOrderVO" resultType="com.example.express.domain.vo.user.UserOrderVO">
         SELECT
             info.id,
             info.odd,
@@ -22,7 +22,7 @@
         WHERE
             info.id = payment.order_id AND info.has_delete = #{has_delete} ${sql}
     </select>
-    <select id="pageCourierOrderVO" resultType="com.example.express.domain.vo.CourierOrderVO">
+    <select id="pageCourierOrderVO" resultType="com.example.express.domain.vo.courier.CourierOrderVO">
         SELECT
             info.id,
             info.odd,

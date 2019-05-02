@@ -11,7 +11,7 @@ import java.util.Arrays;
  */
 @Getter
 public enum ThirdLoginTypeEnum implements IEnum<Integer> {
-    NONE(-1, "未绑定三方登陆"),
+    NONE(0, "未绑定"),
     QQ(1, "QQ登陆");
 
     private int type;
@@ -28,7 +28,7 @@ public enum ThirdLoginTypeEnum implements IEnum<Integer> {
         return this.type;
     }
 
-    public static ThirdLoginTypeEnum getByName(String name) {
-        return Arrays.stream(values()).filter(e -> e.getName().equals(name)).findFirst().orElse(null);
+    public static ThirdLoginTypeEnum getByType(Integer type) {
+        return Arrays.stream(values()).filter(e -> e.getType() == type).findFirst().orElse(null);
     }
 }

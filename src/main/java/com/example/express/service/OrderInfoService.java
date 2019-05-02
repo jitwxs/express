@@ -7,9 +7,9 @@ import com.example.express.domain.bean.OrderInfo;
 import com.example.express.domain.enums.OrderStatusEnum;
 import com.example.express.domain.enums.SysRoleEnum;
 import com.example.express.domain.vo.BootstrapTableVO;
-import com.example.express.domain.vo.CourierOrderVO;
+import com.example.express.domain.vo.courier.CourierOrderVO;
 import com.example.express.domain.vo.OrderDescVO;
-import com.example.express.domain.vo.UserOrderVO;
+import com.example.express.domain.vo.user.UserOrderVO;
 
 public interface OrderInfoService extends IService<OrderInfo> {
     /**

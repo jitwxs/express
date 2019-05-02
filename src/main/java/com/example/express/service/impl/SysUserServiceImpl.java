@@ -1,6 +1,8 @@
 package com.example.express.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.express.common.constant.RedisKeyConstant;
 import com.example.express.common.util.CollectionUtils;
@@ -12,8 +14,9 @@ import com.example.express.domain.bean.SysUser;
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
 import com.example.express.domain.enums.SysRoleEnum;
 import com.example.express.domain.enums.ThirdLoginTypeEnum;
-import com.example.express.domain.vo.UserInfoVO;
-import com.example.express.mapper.DataSchoolMapper;
+import com.example.express.domain.vo.BootstrapTableVO;
+import com.example.express.domain.vo.admin.AdminUserInfoVO;
+import com.example.express.domain.vo.user.UserInfoVO;
 import com.example.express.mapper.SysUserMapper;
 import com.example.express.service.DataSchoolService;
 import com.example.express.service.OrderInfoService;
@@ -23,10 +26,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.security.authentication.AccountExpiredException;
-import org.springframework.security.authentication.CredentialsExpiredException;
-import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.authentication.LockedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
@@ -391,6 +390,16 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
 
         return username;
+    }
+
+    @Override
+    public BootstrapTableVO<AdminUserInfoVO> pageAdminUserInfoVO(Page<SysUser> page, QueryWrapper<SysUser> wrapper) {
+        IPage<SysUser> selectPage = sysUserMapper.selectPage(page, wrapper);
+        BootstrapTableVO<AdminUserInfoVO> vo = new BootstrapTableVO<>();
+        vo.setTotal(selectPage.getTotal());
+        vo.setRows(AdminUserInfoVO.convert(selectPage.getRecords()));
+
+        return vo;
     }
 
     private boolean registryByThirdLogin(String thirdLoginId, ThirdLoginTypeEnum thirdLoginTypeEnum) {
