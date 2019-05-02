@@ -240,17 +240,20 @@
                 isSend = false;
                 context.drawImage(video, 0, 0, 480, 320);
                 let image = canvas.toDataURL('image/png');
-                sendJson(HTTP.POST, '/api/v1/public/face-detect', {'data': image}, false, function (res) {
+                sendJson(HTTP.POST, '/auth/face-login', {'data': image}, false, function (res) {
                         if (res.code === 0) {
-                            layer.msg("人脸检测成功", {icon: 1});
                             timers = null;
                             streams.stop();//结束关闭流
+
+                            layer.msg("登录成功！", {icon: 1});
+                            setTimeout("new function(){window.location.href= '/'}","1000");
                         } else {
                             isSend = true;
-                            layer.msg(res.msg, {icon: 2});
+                            layer.msg(res.msg, {icon: 7});
                         }
                     },
                     function () {
+                        isSend = true;
                         layer.msg("未知错误", {icon: 2});
                     });
             }

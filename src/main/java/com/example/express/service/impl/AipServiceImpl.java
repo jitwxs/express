@@ -59,19 +59,12 @@ public class AipServiceImpl implements AipService {
         JSONObject faceMap = (JSONObject)faceList.get(0);
 
         // 人脸置信度，0~1
-        Object faceProbability = faceMap.get("face_probability");
-        if(faceProbability instanceof Integer) {
-            if((Integer)faceProbability < 0.9) {
-                return ResponseResult.failure(ResponseErrorCodeEnum.NOT_DETECT_FACE);
-            }
-        } else if(faceProbability instanceof Double) {
-            if((Double)faceProbability < 0.9) {
-                return ResponseResult.failure(ResponseErrorCodeEnum.NOT_DETECT_FACE);
-            }
+        if(Double.valueOf(faceMap.get("face_probability").toString()) < 0.9) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.NOT_DETECT_FACE);
         }
 
         // 判断真人、卡通
-        String faceTpe = (String)((JSONObject) faceMap.get("face_type")).get("type");
+        String faceTpe = ((JSONObject) faceMap.get("face_type")).get("type").toString();
         if(!"human".equals(faceTpe)) {
             return ResponseResult.failure(ResponseErrorCodeEnum.NOT_REAL_FACE);
         }
@@ -80,14 +73,16 @@ public class AipServiceImpl implements AipService {
             // 质量限制，参考官方推荐 http://ai.baidu.com/docs#/Face-Java-SDK/ca2bad80
 
             // 人脸旋转
-            JSONObject angel = (JSONObject) faceMap.get("angel");
-            if((Double)angel.get("yaw") > 20 || (Double)angel.get("pitch") > 20 || (Double)angel.get("roll") > 20) {
+            JSONObject angel = (JSONObject) faceMap.get("angle");
+            if(Double.valueOf(angel.get("yaw").toString()) > 20 ||
+                    Double.valueOf(angel.get("pitch").toString()) > 20 ||
+                    Double.valueOf(angel.get("roll").toString()) > 20) {
                 return ResponseResult.failure(ResponseErrorCodeEnum.FACE_ANGEL_BAD);
             }
 
             JSONObject quality = (JSONObject) faceMap.get("quality");
             // 模糊度范围
-            if((Double)quality.get("blur") >= 0.7) {
+            if(Double.valueOf(quality.get("blur").toString()) >= 0.7) {
                 return ResponseResult.failure(ResponseErrorCodeEnum.FACE_BLUR_BAD);
             }
             // 光照范围
@@ -100,19 +95,21 @@ public class AipServiceImpl implements AipService {
             }
             // 遮挡范围
             JSONObject occlusion = (JSONObject) quality.get("occlusion");
-            if((Double)occlusion.get("left_eye") > 0.6 || (Double)occlusion.get("right_eye") > 0.6 ) {
+            if(Double.valueOf(occlusion.get("left_eye").toString()) > 0.6 ||
+                    Double.valueOf(occlusion.get("right_eye").toString()) > 0.6 ) {
                 return ResponseResult.failure(ResponseErrorCodeEnum.FACE_EYE_OCCLUSION_BAD);
             }
-            if((Double)occlusion.get("nose") > 0.7) {
+            if(Double.valueOf(occlusion.get("nose").toString()) > 0.7) {
                 return ResponseResult.failure(ResponseErrorCodeEnum.FACE_NOSE_OCCLUSION_BAD);
             }
-            if((Double)occlusion.get("mouse") > 0.7) {
-                return ResponseResult.failure(ResponseErrorCodeEnum.FACE_MOUSE_OCCLUSION_BAD);
+            if(Double.valueOf(occlusion.get("mouth").toString()) > 0.7) {
+                return ResponseResult.failure(ResponseErrorCodeEnum.FACE_MOUTH_OCCLUSION_BAD);
             }
-            if((Double)occlusion.get("left_cheek") > 0.8 || (Double)occlusion.get("right_cheek") > 0.8 ) {
+            if(Double.valueOf(occlusion.get("left_cheek").toString()) > 0.8 ||
+                    Double.valueOf(occlusion.get("right_cheek").toString()) > 0.8 ) {
                 return ResponseResult.failure(ResponseErrorCodeEnum.FACE_CHEEK_OCCLUSION_BAD);
             }
-            if((Double)occlusion.get("chin") > 0.6) {
+            if(Double.valueOf(occlusion.get("chin_contour").toString()) > 0.6) {
                 return ResponseResult.failure(ResponseErrorCodeEnum.FACE_CHIN_OCCLUSION_BAD);
             }
         }
@@ -200,12 +197,12 @@ public class AipServiceImpl implements AipService {
         JSONObject userMap = (JSONObject)userList.get(0);
 
         // 低于95，不认为是合法用户
-        Double score = (Double) userMap.get("score");
+        Double score = Double.valueOf(userMap.get("score").toString());
         if(score < 95) {
             return ResponseResult.failure(ResponseErrorCodeEnum.NOT_ACCORD_WITH_MIN_REQUIREMENT);
         }
 
-        String userId = (String) userMap.get("user_id");
+        String userId = userMap.get("user_id").toString();
         SysUser sysUser = sysUserService.getById(userId);
         return ResponseResult.success(sysUser);
     }

@@ -208,12 +208,18 @@ public class AuthController {
      */
     @SuppressWarnings("Duplicates")
     @PostMapping("/auth/face-login")
-    public void faceLogin(String data, HttpSession session, HttpServletResponse response) throws IOException {
+    public ResponseResult faceLogin(String data, HttpSession session, HttpServletResponse response) throws IOException {
+        String base64Prefix = "data:image/png;base64,";
+        if(StringUtils.isBlank(data)) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
+        }
+        if(data.startsWith(base64Prefix)) {
+            data = data.substring(base64Prefix.length());
+        }
+
         ResponseResult result = aipService.faceSearchByBase64(data);
         if(result.getCode() != ResponseErrorCodeEnum.SUCCESS.getCode()) {
-            session.setAttribute(SecurityConstant.LAST_EXCEPTION, result);
-            response.sendRedirect(SecurityConstant.UN_AUTHENTICATION_URL);
-            return;
+            return result;
         }
 
         // 人脸登录和三方登录一样，无需鉴权，因此使用三方登录的方式注入框架即可
@@ -222,8 +228,7 @@ public class AuthController {
         Authentication authentication = authenticationManager.authenticate(token);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        // 跳转首页
-        response.sendRedirect(SecurityConstant.LOGIN_SUCCESS_URL);
+        return ResponseResult.success();
     }
 
     /**

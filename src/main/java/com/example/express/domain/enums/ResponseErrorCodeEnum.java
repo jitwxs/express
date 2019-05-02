@@ -48,7 +48,7 @@ public enum ResponseErrorCodeEnum {
     FACE_BLUR_BAD(400403, 400, "人脸数据太模糊，请重试"),
     FACE_EYE_OCCLUSION_BAD(400404, 400, "请不要遮挡眼睛"),
     FACE_NOSE_OCCLUSION_BAD(400405, 400, "请不要遮挡鼻子"),
-    FACE_MOUSE_OCCLUSION_BAD(400406, 400, "请不要遮挡嘴巴"),
+    FACE_MOUTH_OCCLUSION_BAD(400406, 400, "请不要遮挡嘴巴"),
     FACE_CHEEK_OCCLUSION_BAD(400407, 400, "请不要遮挡脸颊"),
     FACE_CHIN_OCCLUSION_BAD(400408, 400, "请不要遮挡下巴"),
     FACE_ANGEL_BAD(400409, 400, "请摆正人脸，不要歪斜"),

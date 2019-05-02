@@ -1,11 +1,9 @@
 package com.example.express.controller.api;
 
-import com.example.express.aop.RequestRateLimit;
 import com.example.express.common.util.StringUtils;
 import com.example.express.domain.ResponseResult;
 import com.example.express.domain.bean.DataCompany;
 import com.example.express.domain.bean.DataSchool;
-import com.example.express.domain.enums.RateLimitEnum;
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
 import com.example.express.domain.vo.DataAreaVO;
 import com.example.express.service.AipService;
@@ -13,7 +11,10 @@ import com.example.express.service.DataAreaService;
 import com.example.express.service.DataCompanyService;
 import com.example.express.service.DataSchoolService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -78,21 +79,5 @@ public class PublicApiController {
         List<DataCompany> list = dataCompanyService.listAllByCache();
 
         return ResponseResult.success(list);
-    }
-
-    /**
-     * 人脸检测
-     */
-    @PostMapping("/face-detect")
-    @RequestRateLimit(limit = RateLimitEnum.RRLimit_2_1)
-    public ResponseResult faceDetect(String data) {
-        String base64Prefix = "data:image/png;base64,";
-        if(StringUtils.isBlank(data)) {
-            return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
-        }
-        if(data.startsWith(base64Prefix)) {
-            data = data.substring(base64Prefix.length());
-        }
-        return aipService.faceDetectByBase64(data, false);
     }
 }

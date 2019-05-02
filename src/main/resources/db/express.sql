@@ -1,9 +1,9 @@
 /*
  Navicat Premium Data Transfer
 
- Source Server         : 127.0.0.1
+ Source Server         : local
  Source Server Type    : MySQL
- Source Server Version : 50725
+ Source Server Version : 50719
  Source Host           : localhost:3306
  Source Schema         : express
 
@@ -11,7 +11,7 @@
  Target Server Version : 50799
  File Encoding         : 65001
 
- Date: 02/05/2019 23:41:11
+ Date: 03/05/2019 02:21:29
 */
 
 SET NAMES utf8;
@@ -201,7 +201,7 @@ CREATE TABLE `persistent_logins`  (
   `username` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `series` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `token` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  `last_used` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0),
+  `last_used` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0),
   PRIMARY KEY (`series`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '登录持久化表';
 
@@ -222,7 +222,7 @@ CREATE TABLE `sys_user`  (
   `tel` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '手机号',
   `star` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '0' COMMENT '评级',
   `school_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '所属学校',
-  `third_login_type` int(11) NULL DEFAULT -1 COMMENT '三方登陆类型（-1：未绑定三方登陆）',
+  `third_login_type` int(11) NULL DEFAULT -1 COMMENT '三方登陆类型（0：未绑定三方登陆）',
   `third_login_id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '三方登陆ID',
   `has_enable` int(1) NULL DEFAULT 1 COMMENT '是否启用（0：禁用；1：启用）',
   `lock_date` datetime(0) NULL DEFAULT NULL COMMENT '解冻时间',
@@ -237,7 +237,7 @@ CREATE TABLE `sys_user`  (
 -- Records of sys_user
 -- ----------------------------
 BEGIN;
-INSERT INTO `sys_user` VALUES ('1', 'test', '$2a$10$lqib8LGGEziYYaJMmnQ4XubOugCjECjtLHb4yJLgZ.0wDwSjh09Yi', 3, NULL, 0, '1', '1', '123', '17623014429', '0', '2032', -1, NULL, 1, NULL, '2019-04-17 23:10:21', '2019-04-22 22:09:02'), ('6150146f23bfa506b300f4f2c635dcba', NULL, NULL, 3, NULL, NULL, NULL, NULL, NULL, '17326074239', '0', NULL, 1, '830B7B4639CFB1B4FD0018CC810B8EF6', 1, '2020-05-02 11:07:31', '2019-04-20 15:31:50', NULL), ('77d014e9455b27c0696eb9f969f87912', 'test2', '$2a$10$lqib8LGGEziYYaJMmnQ4XubOugCjECjtLHb4yJLgZ.0wDwSjh09Yi', 3, NULL, 1, NULL, NULL, '2222', NULL, '0', '1382', -1, NULL, 1, NULL, NULL, '2019-05-02 14:58:51'), ('92602c3ce0b33707d84d1165ac698db2', NULL, NULL, -1, NULL, NULL, NULL, NULL, NULL, NULL, '0', NULL, -1, NULL, 1, NULL, '2019-04-22 01:48:01', NULL), ('f10960e7392847a2c691ad066e2a87c4', 'test1', '$2a$10$lqib8LGGEziYYaJMmnQ4XubOugCjECjtLHb4yJLgZ.0wDwSjh09Yi', 2, NULL, 1, 'zhangsan', '12345', '11', NULL, '0', '0', -1, NULL, 1, NULL, '2019-04-22 01:10:24', '2019-05-01 19:55:59');
+INSERT INTO `sys_user` VALUES ('1', 'test', '$2a$10$lqib8LGGEziYYaJMmnQ4XubOugCjECjtLHb4yJLgZ.0wDwSjh09Yi', 3, NULL, 0, '1', '1', '123', '17623014429', '0', '2032', 0, NULL, 1, NULL, '2019-04-17 23:10:21', '2019-04-22 22:09:02'), ('4139cb9237a7852e694f3569b9030b2c', NULL, NULL, 3, '6d36216085cf155ef21538ed22d431e6', 1, NULL, NULL, '11', NULL, '0', '1636', 0, NULL, 1, NULL, '2019-05-03 02:03:48', '2019-05-03 02:15:55'), ('6150146f23bfa506b300f4f2c635dcba', NULL, NULL, 3, NULL, NULL, NULL, NULL, NULL, '17326074239', '0', NULL, 1, '830B7B4639CFB1B4FD0018CC810B8EF6', 1, '2020-05-02 11:07:31', '2019-04-20 15:31:50', NULL), ('77d014e9455b27c0696eb9f969f87912', 'test2', '$2a$10$lqib8LGGEziYYaJMmnQ4XubOugCjECjtLHb4yJLgZ.0wDwSjh09Yi', 3, NULL, 1, NULL, NULL, '2222', NULL, '0', '1382', 0, NULL, 1, NULL, NULL, '2019-05-02 14:58:51'), ('92602c3ce0b33707d84d1165ac698db2', NULL, NULL, -1, NULL, NULL, NULL, NULL, NULL, NULL, '0', NULL, 0, NULL, 1, NULL, '2019-04-22 01:48:01', NULL), ('f10960e7392847a2c691ad066e2a87c4', 'test1', '$2a$10$lqib8LGGEziYYaJMmnQ4XubOugCjECjtLHb4yJLgZ.0wDwSjh09Yi', 2, NULL, 1, 'zhangsan', '12345', '11', NULL, '0', '0', 0, NULL, 1, NULL, '2019-04-22 01:10:24', '2019-05-01 19:55:59');
 COMMIT;
 
 -- ----------------------------
