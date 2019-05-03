@@ -1,6 +1,7 @@
 package com.example.express.controller;
 
 import com.example.express.aop.RequestRateLimit;
+import com.example.express.common.constant.RedisKeyConstant;
 import com.example.express.common.constant.SecurityConstant;
 import com.example.express.common.constant.SessionKeyConstant;
 import com.example.express.common.util.*;
@@ -12,6 +13,7 @@ import com.example.express.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,7 +25,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
 import java.util.Map;
 
 @Slf4j
@@ -39,6 +40,9 @@ public class AuthController {
     private SysUserService sysUserService;
     @Autowired
     private DataSchoolService dataSchoolService;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
     @Autowired
     private AuthenticationManager authenticationManager;
 
@@ -208,7 +212,7 @@ public class AuthController {
      */
     @SuppressWarnings("Duplicates")
     @PostMapping("/auth/face-login")
-    public ResponseResult faceLogin(String data, HttpSession session, HttpServletResponse response) throws IOException {
+    public ResponseResult faceLogin(String data) {
         String base64Prefix = "data:image/png;base64,";
         if(StringUtils.isBlank(data)) {
             return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
@@ -232,12 +236,15 @@ public class AuthController {
     }
 
     /**
-     * 人脸注册前校验
+     * 人脸校验
+     * 未登录：存session
+     * 已登录：存redis
      * @author jitwxs
      * @date 2019/5/3 0:23
      */
+    @SuppressWarnings("unchecked")
     @PostMapping("/auth/face-check")
-    public ResponseResult faceCheck(HttpSession session, String data) {
+    public ResponseResult faceCheck(HttpSession session, String data, @AuthenticationPrincipal SysUser sysUser) {
         String base64Prefix = "data:image/png;base64,";
         if(StringUtils.isBlank(data)) {
             return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
@@ -250,8 +257,21 @@ public class AuthController {
             return result;
         }
 
-        // 暂存face_token
-        session.setAttribute(SessionKeyConstant.REGISTER_FACE_TOKEN, result.getData());
+        if (sysUser == null) {
+            // 暂存face_token于session，用于人脸注册
+            session.setAttribute(SessionKeyConstant.REGISTER_FACE_TOKEN, result.getData());
+        } else {
+            try {
+                // 暂存face_token于redis，用于人脸绑定和人脸更新
+                Map<String, String> resultData = (Map<String, String>) result.getData();
+                String faceToken = resultData.get("face_token");
+
+                redisTemplate.opsForHash().put(RedisKeyConstant.LAST_FACE_TOKEN, sysUser.getId(), faceToken);
+            } catch (Exception e) {
+                return ResponseResult.failure(ResponseErrorCodeEnum.REDIS_ERROR);
+            }
+        }
+
         return ResponseResult.success();
     }
 

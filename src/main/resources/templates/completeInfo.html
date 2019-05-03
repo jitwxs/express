@@ -220,7 +220,7 @@
                 sendJson(HTTP.POST, "/auth/complete-info", $("#userCompleteInfoForm").serialize() , false, function (res) {
                     if (res.code === 0) {
                         layer.msg("申请普通用户成功，即将重新登陆", {icon: 1});
-                        setTimeout("new function(){window.location.href='/logout'}","3000");
+                        setTimeout("new function(){window.location.href='/logout'}","1000");
                     } else {
                         layer.msg(res.msg, {icon: 2});
                     }
@@ -267,7 +267,7 @@
                 sendJson(HTTP.POST, "/auth/complete-info", $("#courierCompleteInfoForm").serialize() , false, function (res) {
                     if (res.code === 0) {
                         layer.msg("申请配送员成功，即将重新登陆！", {icon: 1});
-                        setTimeout("new function(){window.location.href='/logout'}","3000");
+                        setTimeout("new function(){window.location.href='/logout'}","1000");
                     } else {
                         layer.msg(res.msg, {icon: 2});
                     }

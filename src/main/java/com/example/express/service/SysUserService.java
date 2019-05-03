@@ -38,6 +38,10 @@ public interface SysUserService extends IService<SysUser> {
      */
     boolean checkExistByTel(String mobile);
     /**
+     * 根据身份证号判断用户是否存在
+     */
+    boolean checkExistByIdCard(String idCard);
+    /**
      * 是否实名认证
      */
     boolean checkApplyRealName(SysUser user);
@@ -107,4 +111,8 @@ public interface SysUserService extends IService<SysUser> {
      * 获取 AdminUserInfoVO 列表
      */
     BootstrapTableVO<AdminUserInfoVO> pageAdminUserInfoVO(Page<SysUser> sysUserPage, QueryWrapper<SysUser> wrapper);
+    /**
+     * 绑定或更新人脸数据
+     */
+    ResponseResult bindOrUpdateFace(String faceToken, String userId);
 }

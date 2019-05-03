@@ -54,6 +54,16 @@
                                 <p class="form-control-static col-md-7" id="sex" th:text="${info.sex == 1 ? '男' : '女'}"></p>
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label for="faceLogin" class="col-md-2 control-label">人脸登录</label>
+                            <div class="col-md-10">
+                                <p class="form-control-static col-md-7" id="faceLogin"
+                                   th:style="${info.canFace == '0' ? 'color:gray' : ''}"
+                                   th:text="${info.canFace == '1' ? '已绑定人脸' : '您未绑定人脸，绑定后可以使用人脸登录'}"></p>
+                                <button type="button" class="btn btn-default col-md-3" th:if="${info.canFace == '1'}" onclick="showModel(4)">更换人脸</button>
+                                <button type="button" class="btn btn-danger col-md-3" th:if="${info.canFace == '0'}" onclick="showModel(4)">绑定人脸</button>
+                            </div>
+                        </div>
                     </form>
                 </div><hr>
                 <div id="schoolInfo">
@@ -65,8 +75,8 @@
                                 <p class="form-control-static col-md-7" id="school"
                                    th:style="${info.school == null ? 'color:gray' : ''}"
                                    th:text="${info.school != null ? info.school : '未设置'}"></p>
-                                <button type="button" class="btn btn-default col-md-3" th:if="${info.school != null}" onclick="showModel(4)">更改绑定</button>
-                                <button type="button" class="btn btn-danger col-md-3" th:if="${info.school == null}" onclick="showModel(4)">立即绑定</button>
+                                <button type="button" class="btn btn-default col-md-3" th:if="${info.school != null}" onclick="showModel(5)">更改绑定</button>
+                                <button type="button" class="btn btn-danger col-md-3" th:if="${info.school == null}" onclick="showModel(5)">立即绑定</button>
                             </div>
                         </div>
                         <div class="form-group">
@@ -218,6 +228,23 @@
             </div>
         </div>
     </div>
+    <!-- 设置人脸 -->
+    <div class="modal fade" id="setFaceModel" tabindex="-1" role="dialog" aria-labelledby="setFaceModelModelLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="setFaceModelModelLabel">设置人脸登录</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="capture">
+                        <video id="video" autoplay style="width: 98%;margin: 0 auto;"></video>
+                        <canvas id="canvas" width="480" height="320" style="display: none;"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- 设置学校信息 -->
     <div class="modal fade" id="setSchoolModel" tabindex="-1" role="dialog" aria-labelledby="setSchoolModelLabel">
         <div class="modal-dialog" role="document">
@@ -250,7 +277,7 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" onclick="submitForm(4)">提交设置</button>
+                    <button type="button" class="btn btn-primary" onclick="submitForm(5)">提交设置</button>
                 </div>
             </div>
         </div>
@@ -360,6 +387,10 @@
                 $("#setTelModel").modal('show');
                 return;
             case 4:
+                startCamera();
+                $("#setFaceModel").modal('show');
+                return;
+            case 5:
                 $("#setSchoolModel").modal('show');
                 return;
         }
@@ -376,6 +407,9 @@
                 $("#setTelModel").modal('hide');
                 return;
             case 4:
+                closeFaceCheck();
+                return;
+            case 5:
                 $("#setSchoolModel").modal('hide');
                 return;
         }
@@ -391,10 +425,109 @@
             case 3:
                 $("#setTelForm").submit();
                 return;
-            case 4:
+            case 5:
                 $("#setSchoolForm").submit();
                 return;
         }
+    }
+
+    function closeFaceCheck(){
+        if(streams) {
+            streams.stop();
+            videoTimer = null;
+        }
+        clearInterval(timers);
+        timers = null;
+        isSend = true;
+        $("#setFaceModel").modal('hide');
+        location.reload();
+    }
+    // 获取摄像头使用权限
+    let file ,streams;
+    var timers = null;
+    //访问用户媒体设备的兼容方法
+    function getUserMedia(constraints, success, error) {
+        if (navigator.mediaDevices.getUserMedia) {
+            //最新的标准API
+            navigator.mediaDevices.getUserMedia(constraints).then(success).catch(error);
+        } else if (navigator.webkitGetUserMedia) {
+            //webkit核心浏览器
+            navigator.webkitGetUserMedia(constraints,success, error)
+        } else if (navigator.mozGetUserMedia) {
+            //firfox浏览器
+            navigator.mozGetUserMedia(constraints, success, error);
+        } else if (navigator.getUserMedia) {
+            //旧版API
+            navigator.getUserMedia(constraints, success, error);
+        }
+    }
+    let video = document.getElementById('video');
+    let canvas = document.getElementById('canvas');
+    let context = canvas.getContext('2d');
+
+    function success(stream) {
+        //兼容webkit核心浏览器
+        let CompatibleURL = window.URL || window.webkitURL;
+        //将视频流设置为video元素的源
+        streams = stream.getTracks()[0];
+        //video.src = CompatibleURL.createObjectURL(stream);
+        video.srcObject = stream;
+        video.play();
+        sendImg();
+    }
+
+    function error(error) {
+        console.log(`访问用户媒体设备失败${error.name}, ${error.message}`);
+    }
+
+    function startCamera(){
+        if (navigator.mediaDevices.getUserMedia || navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia) {
+            //调用用户媒体设备, 访问摄像头
+            getUserMedia({video : {width: 480, height: 320}}, success, error);
+        } else {
+            alert('不支持访问用户媒体');
+        }
+    }
+    let isSend = true;
+    function sendImg(){
+        timers = setInterval(function () {
+            if(isSend) {
+                isSend = false;
+                context.drawImage(video, 0, 0, 480, 320);
+                let image = canvas.toDataURL('image/png');
+                sendJson(HTTP.POST, '/auth/face-check', {'data': image}, false, function (res) {
+                        if (res.code === 0) {
+                            layer.confirm("识别成功，是否将将其作为人脸数据", {
+                                btn: ['确定','取消']
+                            }, function() {
+                                clearInterval(timers);
+                                streams.stop();//结束关闭流
+                                sendJson(HTTP.POST, "/api/v1/setting/face", null, false, function (res) {
+                                    if(res.code === 0) {
+                                        layer.msg("人脸数据已保存", {icon: 1});
+                                        closeFaceCheck();
+                                    } else {
+                                        layer.msg(res.msg, {icon:2});
+                                    }
+                                }, function () {
+                                    layer.msg("未知错误",{icon:2});
+                                });
+                            }, function(){
+                                isSend = true;
+                            });
+                        } else {
+                            isSend = true;
+                            layer.msg(res.msg, {icon: 7});
+                        }
+
+                    },
+                    function () {
+                        isSend = true;
+                        layer.msg("未知错误", {icon: 2});
+                    });
+            }
+
+        },2000);
     }
 
     function changeRole() {
@@ -415,7 +548,7 @@
                         sendJson(HTTP.POST, "/api/v1/setting/apply-role", {"password": val}, false, function (res) {
                             if (res.code === 0) {
                                 layer.msg("切换成功，即将重新登录！", {icon: 1});
-                                setTimeout("new function(){window.location.href='/logout'}","3000");
+                                setTimeout("new function(){window.location.href='/logout'}","1000");
                             } else {
                                 layer.msg(res.msg, {icon: 2});
                             }
@@ -483,7 +616,7 @@
                 sendJson(HTTP.POST, "/api/v1/setting/password", $("#resetPasswordForm").serialize() , false, function (res) {
                     if (res.code === 0) {
                         layer.msg("密码修改成功，请重新登录", {icon: 1});
-                        setTimeout("new function(){window.location.href='/logout'}","3000");
+                        setTimeout("new function(){window.location.href='/logout'}","1000");
                         closeModel(1);
                     } else {
                         layer.msg(res.msg, {icon: 2});

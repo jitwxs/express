@@ -23,6 +23,7 @@ public enum ResponseErrorCodeEnum {
     REGISTRY_ERROR(400009, 400, "注册失败"),
     UPLOAD_FILE_NOT_EXIST(400010, 400, "上传文件不存在"),
     MUST_NUMBER(400011, 400, "必须为数字"),
+    REDIS_ERROR(400012,  400, "程序环境Redis出现故障，请提交反馈"),
 
     TEL_INVALID(400101, 400, "手机号码不合法"),
     SMS_SEND_INTERVAL_TOO_SHORT(400102, 400, "短信发送间隔不足%s分钟"),
@@ -36,12 +37,14 @@ public enum ResponseErrorCodeEnum {
     PASSWORD_ERROR(400203, 400, "密码输入错误，请检查密码"),
 
     NOT_MATCH_FACE(400301, 400, "未找到匹配的人脸数据"),
-    NOT_ACCORD_WITH_MIN_REQUIREMENT(400302, 400, "人脸数据不符合匹配要求，请调整周围环境重试"),
+    NOT_ACCORD_WITH_MIN_REQUIREMENT(400302, 400, "人脸数据不符合匹配要求，请调整环境重试"),
     FACE_ADD_ERROR(400303, 400, "人脸添加失败"),
     FACE_UPDATE_ERROR(400304, 400, "人脸更新失败"),
     NOT_REAL_FACE(400305, 400, "请使用真实人脸数据录入系统"),
     NOT_DETECT_FACE(400306, 400, "未检测到人脸数据，请调整周围环境重试"),
     NOT_FACE_TO_REGISTRY(400307, 400, "未检测到用来注册的人脸数据，请重试"),
+    NOT_FACE_TO_UPDATE(400308, 400, "未检测到用来更新的人脸数据，请重试"),
+    NOT_FACE_TO_BIND(400309, 400, "未检测到用来绑定的人脸数据，请重试"),
 
     FACE_ILLUMINATION_BAD(400401, 400, "光照太差，请调整光源后重试"),
     FACE_COMPLETENESS_BAD(400402, 400, "请将整个脸置于摄像框内"),
@@ -66,8 +69,8 @@ public enum ResponseErrorCodeEnum {
     THIRD_LOGIN_ERROR(401002, 401, "三方登陆失败"),
     SESSION_EXPIRE(401003, 401, "Session已过期，请重新登录"),
     ACCOUNT_LOCKED(401004, 401, "账户已冻结，解冻时间为%s"),
-    ACCOUNT_DISABLE(401005, 401, "账户失效，如有疑问，请联系管理员"),
-    ACCOUNT_EXPIRE(401006, 401, "账户过期，如有疑问，请联系管理员"),
+    ACCOUNT_DISABLE(401005, 401, "账户失效，如有疑问，请提交反馈"),
+    ACCOUNT_EXPIRE(401006, 401, "账户过期，如有疑问，请提交反馈"),
     PASSWORD_EXPIRE(401007, 401, "密码已过期"),
 
     /* Forbidden */
@@ -80,8 +83,9 @@ public enum ResponseErrorCodeEnum {
 
     /* Conflict */
     USER_NOT_EXIST(409001, 409, "用户不存在"),
-    USERNAME_EXIST(409002, 409,"用户名已被注册，请更换用户名"),
+    USERNAME_EXIST(409002, 409,"用户名已被注册，请更换其他用户名"),
     USERNAME_DISABLE_MODIFY(409003, 409, "用户名不支持修改"),
+    IDCARD_EXIST(409004, 409,"该身份证已被注册，如有疑问请提交反馈"),
 
     IDCARD_OR_REALNAME_EXIST(409101, 409, "您已绑定实名信息"),
     TEL_EXIST(409102, 409, "该手机号已被注册，请更换其他手机号"),

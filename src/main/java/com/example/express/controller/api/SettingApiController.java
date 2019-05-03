@@ -1,11 +1,13 @@
 package com.example.express.controller.api;
 
+import com.example.express.common.constant.RedisKeyConstant;
 import com.example.express.common.util.StringUtils;
 import com.example.express.domain.ResponseResult;
 import com.example.express.domain.bean.SysUser;
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
 import com.example.express.service.SysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,6 +25,8 @@ import javax.servlet.http.HttpSession;
 public class SettingApiController {
     @Autowired
     private SysUserService sysUserService;
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     /**
      * 校验密码
@@ -96,6 +100,22 @@ public class SettingApiController {
 
         return sysUserService.setSchoolInfo(sysUser, school, studentIdCard);
     }
+
+    /**
+     * 设置或更新人脸数据
+     */
+    @SuppressWarnings("unchecked")
+    @PostMapping("/face")
+    public ResponseResult setOrUpdateFace(@AuthenticationPrincipal SysUser sysUser) {
+        try {
+            String faceToken = (String)redisTemplate.opsForHash().get(RedisKeyConstant.LAST_FACE_TOKEN, sysUser.getId());
+            System.out.println(faceToken);
+            return sysUserService.bindOrUpdateFace(faceToken, sysUser.getId());
+        } catch (Exception e) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.REDIS_ERROR);
+        }
+    }
+
 
     /**
      * 申请角色

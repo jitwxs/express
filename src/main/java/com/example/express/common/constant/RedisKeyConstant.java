@@ -21,4 +21,8 @@ public class RedisKeyConstant {
      * 高校信息
      */
     public static String DATA_SCHOOL = "DATA_SCHOOL";
+    /**
+     * 最后设置的人脸数据face_token
+     */
+    public static String LAST_FACE_TOKEN = "LAST_FACE_TOKEN";
 }

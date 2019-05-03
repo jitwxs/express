@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -26,6 +27,9 @@ public class AipServiceImpl implements AipService {
     private AipFace client;
     @Autowired
     private SysUserService sysUserService;
+
+    @Value("${project.baidu.aip.accept-score}")
+    private Integer faceAcceptScore;
 
     private static String GROUP_ID = "1";
 
@@ -196,14 +200,19 @@ public class AipServiceImpl implements AipService {
         }
         JSONObject userMap = (JSONObject)userList.get(0);
 
-        // 低于95，不认为是合法用户
+        // 人脸置信度校验
         Double score = Double.valueOf(userMap.get("score").toString());
-        if(score < 95) {
+        if(score < faceAcceptScore) {
             return ResponseResult.failure(ResponseErrorCodeEnum.NOT_ACCORD_WITH_MIN_REQUIREMENT);
         }
 
         String userId = userMap.get("user_id").toString();
         SysUser sysUser = sysUserService.getById(userId);
+        // 用户存在于AIP，但是不存在于本地数据
+        if(sysUser == null) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.USER_NOT_EXIST);
+        }
+
         return ResponseResult.success(sysUser);
     }
 

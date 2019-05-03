@@ -24,7 +24,7 @@ public class BaseController {
             case COURIER:
                 return "courier/dashboard";
             default:
-                return "user/dashboard";
+                return "index";
         }
     }
 

@@ -127,6 +127,13 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         if(school != null) {
             vo.setSchool(school.getName());
         }
+
+        if(StringUtils.isNotBlank(user.getFaceToken())) {
+            vo.setCanFace("1");
+        } else {
+            vo.setCanFace("0");
+        }
+
         vo.setCanChangeRole(canChangeRole(user) ? "1" : "0");
 
         return vo;
@@ -135,6 +142,13 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Override
     public boolean checkExistByTel(String mobile) {
         return getByTel(mobile) != null;
+    }
+
+    @Override
+    public boolean checkExistByIdCard(String idCard) {
+        SysUser user = sysUserMapper.selectByIdCard(idCard);
+
+        return user != null;
     }
 
     @Override
@@ -321,9 +335,14 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             return ResponseResult.failure(ResponseErrorCodeEnum.IDCARD_OR_REALNAME_EXIST);
         }
 
+        idCard = idCard.trim();
         if(!IDValidateUtils.check(idCard)) {
             return ResponseResult.failure(ResponseErrorCodeEnum.ID_CARD_INVALID);
         }
+        if(checkExistByIdCard(idCard)) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.IDCARD_EXIST);
+        }
+
         if(StringUtils.containsSpecial(realName)) {
             return ResponseResult.failure(ResponseErrorCodeEnum.REAL_NAME_INVALID);
         }
@@ -425,6 +444,57 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         vo.setRows(AdminUserInfoVO.convert(selectPage.getRecords()));
 
         return vo;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    @Override
+    public ResponseResult bindOrUpdateFace(String faceToken, String userId) {
+        // 先写数据库，保证事务执行
+        DefaultTransactionDefinition definition = new DefaultTransactionDefinition();
+        TransactionStatus status = transactionManager.getTransaction(definition);
+
+        SysUser sysUser = getById(userId);
+        if(sysUser == null) {
+            transactionManager.rollback(status);
+            return ResponseResult.failure(ResponseErrorCodeEnum.USER_NOT_EXIST);
+        }
+
+        // faceToken校验
+        boolean isExistFace = StringUtils.isNotBlank(sysUser.getFaceToken());
+        if(StringUtils.isBlank(faceToken)) {
+            transactionManager.rollback(status);
+            return isExistFace ?
+                    ResponseResult.failure(ResponseErrorCodeEnum.NOT_FACE_TO_UPDATE) :
+                    ResponseResult.failure(ResponseErrorCodeEnum.NOT_FACE_TO_BIND);
+        }
+
+        // 更新数据库
+        sysUser.setFaceToken(faceToken);
+        if(!updateById(sysUser)) {
+            transactionManager.rollback(status);
+            return ResponseResult.failure(ResponseErrorCodeEnum.OPERATION_ERROR);
+        }
+
+        // 更新AIP数据
+        if(isExistFace) {
+            // 人脸更新
+            ResponseResult result = aipService.faceUpdateByFaceToken(faceToken, userId);
+            if(result.getCode() != ResponseErrorCodeEnum.SUCCESS.getCode()) {
+                transactionManager.rollback(status);
+                return result;
+            }
+
+        } else {
+            // 绑定人脸
+            ResponseResult result = aipService.faceRegistryByFaceToken(faceToken, userId);
+            if(result.getCode() != ResponseErrorCodeEnum.SUCCESS.getCode()) {
+                transactionManager.rollback(status);
+                return result;
+            }
+        }
+
+        transactionManager.commit(status);
+        return ResponseResult.success();
     }
 
     private boolean registryByThirdLogin(String thirdLoginId, ThirdLoginTypeEnum thirdLoginTypeEnum) {

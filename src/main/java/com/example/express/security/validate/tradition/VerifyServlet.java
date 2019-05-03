@@ -142,9 +142,7 @@ public class VerifyServlet extends HttpServlet {
         }
         // 将四位数字的验证码保存到Session中。
         HttpSession session = request.getSession();
-        // TODO 开启随机验证码
-//        session.setAttribute("validateCode", randomCode.toString());
-        session.setAttribute("validateCode", "1");
+        session.setAttribute("validateCode", randomCode.toString());
         // 禁止图像缓存。
         response.setHeader("Pragma", "no-cache");
         response.setHeader("Cache-Control", "no-cache");

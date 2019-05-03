@@ -39,4 +39,9 @@ public class UserInfoVO implements Serializable {
      * 1：可以；0：不可以
      */
     private String canChangeRole;
+    /**
+     * 能否人脸登录
+     * 1：可以；0：不可以
+     */
+    private String canFace;
 }
