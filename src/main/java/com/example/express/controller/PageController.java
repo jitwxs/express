@@ -23,8 +23,23 @@ public class PageController extends BaseController {
      */
     @RequestMapping(SecurityConstant.LOGIN_SUCCESS_URL)
     public void showSuccessPage(@AuthenticationPrincipal SysUser sysUser, HttpServletResponse response) throws IOException {
-        String homePage = getHomePage(sysUser.getRole());
-        response.sendRedirect("/" + homePage);
+        switch (sysUser.getRole()) {
+            case DIS_FORMAL:
+                response.sendRedirect("/completeInfo");
+                return;
+            case USER:
+                response.sendRedirect("/user/dashboard");
+                return;
+            case ADMIN:
+                response.sendRedirect("/admin/dashboard");
+                return;
+            case COURIER:
+                response.sendRedirect("/courier/dashboard");
+                return;
+            default:
+                response.sendRedirect("/index");
+                return;
+        }
     }
 
     /**

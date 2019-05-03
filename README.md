@@ -31,6 +31,10 @@
 
 2. 创建数据库名为 `express`，数据库编码采用 `utf8mb4`，排序规则为 `utf8mb4_general_ci`
 
+    ```
+    CREATE DATABASE IF NOT EXISTS express default charset utf8mb4 COLLATE utf8mb4_general_ci;
+    ```
+
 3. 导入项目中 `/src/main/resources/db/express.sql` 到 `express`库
 
 4. 编辑项目中 `application.yml` 文件，修改数据库连接信息
@@ -58,17 +62,6 @@
      ...
    ```
 
-#### 启动端口【可选】
-
-修改 `application.yml`文件，编辑 `server` 节点：
-
-```yaml
-server:
-  ip: 127.0.0.1 # 启动IP，无需修改
-  port: 8080 # 修改启动端口，默认为8080
-  addr: http://${server.ip}:${server.port} # 无需修改
-```
-
 #### 支付宝支付【必选】
 
 支付宝支付为快递下单的支付方式，因此必须配置，这里采用支付宝的沙箱模式，配置完毕后，修改 `application.yml`文件：
@@ -86,6 +79,17 @@ alipay:
 ```
 
 > 详细流程请参考文章：[Java Web中接入支付宝支付](<https://blog.csdn.net/yuanlaijike/article/details/80575513>)
+
+#### 启动端口【可选】
+
+修改 `application.yml`文件，编辑 `server` 节点：
+
+```yaml
+server:
+  ip: 127.0.0.1 # 启动IP，无需修改
+  port: 8080 # 修改启动端口，默认为8080
+  addr: http://${server.ip}:${server.port} # 无需修改
+```
 
 #### QQ 登录【可选】
 
