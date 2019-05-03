@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration  scan="true" scanPeriod="60 seconds" debug="false">
+    <contextName>logback</contextName>
+    <property name="info-log.path" value="/home/logs/express-info.log" />
+    <property name="error-log.path" value="/home/logs/express-error.log" />
+
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %contextName [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <appender name="infoFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${info-log.path}</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>express-info.%d{yyyy-MM-dd}.log</fileNamePattern>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %contextName [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+    <appender name="errorFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${error-log.path}</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>express-error.%d{yyyy-MM-dd}.log</fileNamePattern>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %contextName [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <root level="info">
+        <appender-ref ref="console" />
+        <appender-ref ref="infoFile" />
+        <appender-ref ref="errorFile" />
+    </root>
+
+    <logger name="com.example.express" level="INFO" additivity="true">
+        <appender-ref ref="infoFile"/>
+        <appender-ref ref="console" />
+    </logger>
+    <logger name="com.example.express" level="ERROR" additivity="false">
+        <appender-ref ref="errorFile"/>
+    </logger>
+</configuration>

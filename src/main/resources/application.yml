@@ -1,0 +1,76 @@
+spring:
+  # MySQL 配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver # MySQL驱动，无需修改
+    # 数据库连接URL，以下为连接本地的express库的url
+    url: jdbc:mysql://localhost:3306/express?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=GMT%2B8
+    username: # 数据库连接名
+    password: # 数据库连接密码
+  # Redis 配置
+  redis:
+    host: 127.0.0.1 # Redis地址，本地为127.0.0.1
+    port: 6379 # Redis端口号，默认为6379
+    password: # Redis密码，没有请保持为空
+    timeout: 60000
+    lettuce:
+      pool:
+        max-active: 10 # 最大连接数
+        max-idle: 5 # 最大空闲连接 默认8
+        min-idle: 2 # 最小空闲连接
+        max-wait: -1 # 最大连接阻塞等待时间 默认-1
+  thymeleaf:
+    cache: true
+# MyBatis-Plus配置
+mybatis-plus:
+  mapper-locations: classpath*:mapper/*.xml
+  type-aliases-package: com.example.express.domain.bean
+  global-config:
+    db-config:
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+    banner: false
+  type-enums-package: com.example.express.domain.enums
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+# 项目配置
+project:
+  # 腾讯云短信验证码配置
+  sms:
+    app-id: # 应用 SDK AppID
+    app-key: # 应用 App Key
+    template-id: # 短信正文ID
+    sign: # 短信签名
+    # 短信发送分钟间隔
+    interval-min: 1
+    # 短信有效分钟
+    valid-min: 5
+  # 支付宝支付
+  alipay:
+    uid: # 商户UID
+    app-id: # APPID
+    sign-type: RSA2
+    gateway-url: https://openapi.alipaydev.com/gateway.do # 支付宝网关
+    merchant-private-key: # 商户私钥，使用密钥生成工具得到
+    alipay-public-key: # 支付宝公钥
+    notify-url: # 支付异步通知URL，需公网能够访问
+    return-url: # 同步通知URL，无需公网访问
+  # 百度人脸识别
+  baidu:
+    aip:
+      app-id: # 应用 APPID
+      app-key: # 应用API KEY
+      secret-key: # 应用 Secret Key
+      conn-timeout: 2000 # 连接超时ms，默认 2000
+      socket-timeout: 60000 # socket超时ms，默认60000
+      # 最低被接受的人脸置信分数[1,100]，分数越高，要求越严格，也越准确。
+      accept-score: 90
+  # 三方登陆配置
+  third-login:
+    qq:
+      app-id: # APP_ID
+      app-key: # APP_KEY
+# 服务启动IP
+server:
+  ip: 127.0.0.1
+  port: 8080
+  addr: http://${server.ip}:${server.port}
