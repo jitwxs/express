@@ -52,12 +52,12 @@ public interface OrderInfoService extends IService<OrderInfo> {
      * 适用：普通用户端
      * @param isDelete 0：未删除；1：已删除
      */
-    BootstrapTableVO<UserOrderVO> pageUserOrderVO(Page<UserOrderVO> page, String sql, int isDelete);
+    BootstrapTableVO<UserOrderVO> pageUserOrderVO(String userId, Page<UserOrderVO> page, String sql, int isDelete);
     /**
      * 分页查询订单
      * 适用：配送员端
      */
-    BootstrapTableVO<CourierOrderVO> pageCourierOrderVO(Page<CourierOrderVO> page, String sql);
+    BootstrapTableVO<CourierOrderVO> pageCourierOrderVO(String userId, Page<CourierOrderVO> page, String sql);
     /**
      * 分页查询订单
      * 适用：管理员端
@@ -83,10 +83,6 @@ public interface OrderInfoService extends IService<OrderInfo> {
      * 异常/完成
      */
     ResponseResult handleOrder(String orderId, OrderStatusEnum targetStatus, String remark);
-    /**
-     * 批量异常/完成
-     */
-    ResponseResult batchHandleOrder(String[] ids, OrderStatusEnum targetStatus, String remark);
     /**
      * 批量分配订单
      */

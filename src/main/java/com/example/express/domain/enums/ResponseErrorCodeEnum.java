@@ -23,7 +23,8 @@ public enum ResponseErrorCodeEnum {
     REGISTRY_ERROR(400009, 400, "注册失败"),
     UPLOAD_FILE_NOT_EXIST(400010, 400, "上传文件不存在"),
     MUST_NUMBER(400011, 400, "必须为数字"),
-    REDIS_ERROR(400012,  400, "程序环境Redis出现故障，请提交反馈"),
+    MUST_POSITIVE_INTEGER(400012, 400, "必须为正整数"),
+    REDIS_ERROR(400013,  400, "程序环境Redis出现故障，请提交反馈"),
 
     TEL_INVALID(400101, 400, "手机号码不合法"),
     SMS_SEND_INTERVAL_TOO_SHORT(400102, 400, "短信发送间隔不足%s分钟"),
@@ -55,6 +56,14 @@ public enum ResponseErrorCodeEnum {
     FACE_CHEEK_OCCLUSION_BAD(400407, 400, "请不要遮挡脸颊"),
     FACE_CHIN_OCCLUSION_BAD(400408, 400, "请不要遮挡下巴"),
     FACE_ANGEL_BAD(400409, 400, "请摆正人脸，不要歪斜"),
+
+    ORDER_NOT_OPEN_EVALUATE(400601, 400, "订单未开启评价"),
+    ORDER_EVALUATE_ERROR(400602, 400, "订单评价失败"),
+    OPEN_EVALUATE_ERROR(400603, 400, "开启订单评价失败"),
+    CLOSE_EVALUATE_ERROR(400604, 400, "关闭开启评价失败"),
+    ORDER_ALREADY_EVALUATE(400605, 400, "您已评价过该订单，请不要重复评价"),
+    EVALUATE_SCORE_ERROR(400606, 400, "评分错误，评分为0~10分"),
+    SCORE_UPDATE_ERROR(400607, 400, "个人评分更新失败"),
 
     ORDER_CREATE_ERROR(400701, 400, "订单创建失败"),
     ORDER_PAYMENT_CREATE_ERROR(400702, 400, "订单支付信息创建失败"),

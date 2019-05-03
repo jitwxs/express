@@ -8,13 +8,13 @@
  Source Schema         : express
 
  Target Server Type    : MySQL
- Target Server Version : 50799
+ Target Server Version : 50719
  File Encoding         : 65001
 
- Date: 03/05/2019 15:24:46
+ Date: 04/05/2019 02:27:51
 */
 
-SET NAMES utf8;
+SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- ----------------------------
@@ -139,6 +139,32 @@ INSERT INTO `data_school` VALUES (3555, '成都职业技术学院', 510000, '专
 COMMIT;
 
 -- ----------------------------
+-- Table structure for order_evaluate
+-- ----------------------------
+DROP TABLE IF EXISTS `order_evaluate`;
+CREATE TABLE `order_evaluate`  (
+  `id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '订单ID',
+  `has_open` tinyint(1) NULL DEFAULT 0 COMMENT '评论是否开启（1：开启；0：关闭）',
+  `user_id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '用户ID',
+  `user_score` decimal(6, 3) NULL DEFAULT NULL COMMENT '用户评分',
+  `user_evaluate` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '用户评价',
+  `user_date` datetime(0) NULL DEFAULT NULL COMMENT '用户评价时间',
+  `courier_id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '配送员ID',
+  `courier_score` decimal(6, 3) NULL DEFAULT NULL COMMENT '配送员评分',
+  `courier_evaluate` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '配送员评价',
+  `courier_date` datetime(0) NULL DEFAULT NULL COMMENT '配送员评价时间',
+  `update_date` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '订单评价表';
+
+-- ----------------------------
+-- Records of order_evaluate
+-- ----------------------------
+BEGIN;
+INSERT INTO `order_evaluate` VALUES ('1120376407025811458', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2019-05-04 02:10:33'), ('1120377206619549698', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2019-05-04 02:10:33'), ('1120377582852812802', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2019-05-04 02:10:33'), ('1120378178322362370', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2019-05-04 02:10:33'), ('1120378688504975362', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2019-05-04 02:10:33'), ('1120379705921404930', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2019-05-04 02:10:33'), ('1121054404204625921', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2019-05-04 02:10:33');
+COMMIT;
+
+-- ----------------------------
 -- Table structure for order_info
 -- ----------------------------
 DROP TABLE IF EXISTS `order_info`;
@@ -165,7 +191,7 @@ CREATE TABLE `order_info`  (
 -- Records of order_info
 -- ----------------------------
 BEGIN;
-INSERT INTO `order_info` VALUES ('1120375221937831938', '1', '111', 166, 'zhangsan', '1234567890', 'Beijing TianAnMen', '', NULL, 1, NULL, 1, 1, '2019-04-23 01:14:03', NULL), ('1120376407025811458', '1', '111', 172, 'zhangsan', '1234567890', 'Beijing TianAnMen', NULL, 'f10960e7392847a2c691ad066e2a87c4', 4, 'q', 0, NULL, '2019-04-23 01:18:46', '2019-05-01 19:04:03'), ('1120377206619549698', '1', '222', 222, 'zhangsan', '1234567890', 'Beijing TianAnMen', '', NULL, 3, NULL, 0, NULL, '2019-04-23 01:21:56', NULL), ('1120377582852812802', '1', '333', 101, 'zhangsan', '1234567890', 'Beijing TianAnMen', '', 'f10960e7392847a2c691ad066e2a87c4', 3, 'success', 0, NULL, '2019-04-23 01:23:26', '2019-05-01 19:11:04'), ('1120378178322362370', '1', '555', 104, 'zhangsan', '1234567890', 'Beijing TianAnMen', '', NULL, 1, NULL, 0, NULL, '2019-04-23 01:25:48', NULL), ('1120378688504975362', '1', '666', 107, 'zhangsan', '1234567890', 'Beijing TianAnMen', '', NULL, 1, NULL, 0, NULL, '2019-04-23 01:27:50', NULL), ('1120379705921404930', '1', '777', 122, 'zhangsan', '1234567890', 'Beijing TianAnMen', '', NULL, 4, NULL, 0, 1, '2019-04-23 01:31:52', NULL), ('1121054404204625921', '1', '123456', 119, 'zhangsan', '1234567890', 'Beijing TianAnMen', 'xxxxxxxxx', 'f10960e7392847a2c691ad066e2a87c4', 4, 'error', 0, NULL, '2019-04-24 22:12:53', '2019-05-01 19:11:44');
+INSERT INTO `order_info` VALUES ('1120375221937831938', '1', '111', 166, 'zhangsan', '1234567890', 'Beijing TianAnMen', '', NULL, 1, NULL, 1, 1, '2019-04-23 01:14:03', NULL), ('1120376407025811458', '1', '111', 172, 'zhangsan', '1234567890', 'Beijing TianAnMen', NULL, 'f10960e7392847a2c691ad066e2a87c4', 4, 'q', 0, NULL, '2019-04-23 01:18:46', '2019-05-01 19:04:03'), ('1120377206619549698', '1', '222', 222, 'zhangsan', '1234567890', 'Beijing TianAnMen', '', NULL, 3, NULL, 0, NULL, '2019-04-23 01:21:56', NULL), ('1120377582852812802', '1', '333', 101, 'zhangsan', '1234567890', 'Beijing TianAnMen', '', 'f10960e7392847a2c691ad066e2a87c4', 3, 'success', 0, NULL, '2019-04-23 01:23:26', '2019-05-01 19:11:04'), ('1120378178322362370', '1', '555', 104, 'zhangsan', '1234567890', 'Beijing TianAnMen', '', 'f10960e7392847a2c691ad066e2a87c4', 1, NULL, 0, NULL, '2019-04-23 01:25:48', '2019-05-03 22:58:06'), ('1120378688504975362', '1', '666', 107, 'zhangsan', '1234567890', 'Beijing TianAnMen', '', 'f10960e7392847a2c691ad066e2a87c4', 1, NULL, 0, NULL, '2019-04-23 01:27:50', '2019-05-03 22:58:07'), ('1120379705921404930', '1', '777', 122, 'zhangsan', '1234567890', 'Beijing TianAnMen', '', NULL, 4, NULL, 0, 1, '2019-04-23 01:31:52', NULL), ('1121054404204625921', '1', '123456', 119, 'zhangsan', '1234567890', 'Beijing TianAnMen', 'xxxxxxxxx', 'f10960e7392847a2c691ad066e2a87c4', 4, 'error', 0, NULL, '2019-04-24 22:12:53', '2019-05-01 19:11:44');
 COMMIT;
 
 -- ----------------------------
@@ -220,9 +246,8 @@ CREATE TABLE `sys_user`  (
   `id_card` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '身份证号',
   `student_id_card` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '学生证号',
   `tel` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '手机号',
-  `star` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '0' COMMENT '评级',
   `school_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '所属学校',
-  `third_login_type` int(11) NULL DEFAULT -1 COMMENT '三方登陆类型（0：未绑定三方登陆）',
+  `third_login_type` int(11) NULL DEFAULT 0 COMMENT '三方登陆类型（0：未绑定三方登陆）',
   `third_login_id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '三方登陆ID',
   `has_enable` int(1) NULL DEFAULT 1 COMMENT '是否启用（0：禁用；1：启用）',
   `lock_date` datetime(0) NULL DEFAULT NULL COMMENT '解冻时间',
@@ -238,8 +263,20 @@ CREATE TABLE `sys_user`  (
 -- Records of sys_user
 -- ----------------------------
 BEGIN;
-INSERT INTO `sys_user` VALUES ('1', 'user1', '$2a$10$lqib8LGGEziYYaJMmnQ4XubOugCjECjtLHb4yJLgZ.0wDwSjh09Yi', 3, NULL, 0, '1', '1', '123', '17623014429', '0', '2032', 0, NULL, 1, NULL, '2019-04-17 23:10:21', '2019-04-22 22:09:02'), ('4139cb9237a7852e694f3569b9030b2c', 'admin1', '$2a$10$lqib8LGGEziYYaJMmnQ4XubOugCjECjtLHb4yJLgZ.0wDwSjh09Yi', 1, NULL, 1, '拉布拉多', '440102198001021230', '777777777', NULL, '0', '1367', 0, NULL, 1, NULL, '2019-05-03 02:03:48', '2019-05-03 15:17:02'), ('6150146f23bfa506b300f4f2c635dcba', NULL, NULL, 3, NULL, NULL, NULL, NULL, NULL, '17326074239', '0', NULL, 1, '830B7B4639CFB1B4FD0018CC810B8EF6', 1, '2020-05-02 11:07:31', '2019-04-20 15:31:50', NULL), ('77d014e9455b27c0696eb9f969f87912', 'user2', '$2a$10$lqib8LGGEziYYaJMmnQ4XubOugCjECjtLHb4yJLgZ.0wDwSjh09Yi', 3, NULL, 1, NULL, NULL, '2222', NULL, '0', '1382', 0, NULL, 1, NULL, NULL, '2019-05-03 14:49:25'), ('92602c3ce0b33707d84d1165ac698db2', NULL, NULL, -1, NULL, NULL, NULL, NULL, NULL, NULL, '0', NULL, 0, NULL, 1, NULL, '2019-04-22 01:48:01', NULL), ('f10960e7392847a2c691ad066e2a87c4', 'courier1', '$2a$10$lqib8LGGEziYYaJMmnQ4XubOugCjECjtLHb4yJLgZ.0wDwSjh09Yi', 2, NULL, 1, 'zhangsan', '12345', '11', NULL, '0', '0', 0, NULL, 1, NULL, '2019-04-22 01:10:24', '2019-05-03 15:12:26');
+INSERT INTO `sys_user` VALUES ('1', 'user1', '$2a$10$lqib8LGGEziYYaJMmnQ4XubOugCjECjtLHb4yJLgZ.0wDwSjh09Yi', 3, NULL, 0, '1', '1', '123', '17623014429', '2032', 0, NULL, 1, NULL, '2019-04-17 23:10:21', '2019-05-03 21:39:41'), ('4139cb9237a7852e694f3569b9030b2c', 'admin1', '$2a$10$lqib8LGGEziYYaJMmnQ4XubOugCjECjtLHb4yJLgZ.0wDwSjh09Yi', 1, NULL, 1, '拉布拉多', '440102198001021230', '777777777', NULL, '1367', 0, NULL, 1, NULL, '2019-05-03 02:03:48', '2019-05-03 15:17:02'), ('6150146f23bfa506b300f4f2c635dcba', NULL, NULL, 3, NULL, NULL, NULL, NULL, NULL, '17326074239', NULL, 1, '830B7B4639CFB1B4FD0018CC810B8EF6', 1, '2019-05-03 23:18:53', '2019-04-20 15:31:50', '2019-05-03 23:18:53'), ('77d014e9455b27c0696eb9f969f87912', 'user2', '$2a$10$lqib8LGGEziYYaJMmnQ4XubOugCjECjtLHb4yJLgZ.0wDwSjh09Yi', 3, NULL, 1, NULL, NULL, '2222', NULL, '1382', 0, NULL, 1, NULL, NULL, '2019-05-03 14:49:25'), ('92602c3ce0b33707d84d1165ac698db2', NULL, NULL, -1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 1, NULL, '2019-04-22 01:48:01', NULL), ('f10960e7392847a2c691ad066e2a87c4', 'courier1', '$2a$10$lqib8LGGEziYYaJMmnQ4XubOugCjECjtLHb4yJLgZ.0wDwSjh09Yi', 2, NULL, 1, 'zhangsan', '12345', '11', NULL, '0', 0, NULL, 1, NULL, '2019-04-22 01:10:24', '2019-05-03 15:12:26');
 COMMIT;
+
+-- ----------------------------
+-- Table structure for user_evaluate
+-- ----------------------------
+DROP TABLE IF EXISTS `user_evaluate`;
+CREATE TABLE `user_evaluate`  (
+  `user_id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '用户ID',
+  `score` decimal(6, 3) NULL DEFAULT NULL COMMENT '用户评分',
+  `count` int(11) NULL DEFAULT NULL COMMENT '评分基数',
+  `update_date` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`user_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '用户评分表';
 
 -- ----------------------------
 -- Table structure for user_feedback

@@ -56,10 +56,6 @@ public class SysUser implements UserDetails, CredentialsContainer {
 
     private String tel;
     /**
-     * 星级
-     */
-    private String star;
-    /**
      * 学校
      */
     private Integer schoolId;

@@ -30,3 +30,6 @@ HELP.md
 
 ### Mac OS ###
 **/.DS_Store
+
+### LOG ###
+*.log

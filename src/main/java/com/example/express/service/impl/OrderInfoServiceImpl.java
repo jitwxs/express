@@ -16,10 +16,7 @@ import com.example.express.domain.vo.courier.CourierOrderVO;
 import com.example.express.domain.vo.OrderDescVO;
 import com.example.express.domain.vo.user.UserOrderVO;
 import com.example.express.mapper.OrderInfoMapper;
-import com.example.express.service.DataCompanyService;
-import com.example.express.service.OrderInfoService;
-import com.example.express.service.OrderPaymentService;
-import com.example.express.service.SysUserService;
+import com.example.express.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Service;
@@ -40,11 +37,13 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     private OrderInfoMapper orderInfoMapper;
 
     @Autowired
-    private OrderPaymentService orderPaymentService;
+    private SysUserService sysUserService;
     @Autowired
     private DataCompanyService dataCompanyService;
     @Autowired
-    private SysUserService sysUserService;
+    private OrderPaymentService orderPaymentService;
+    @Autowired
+    private OrderEvaluateService orderEvaluateService;
 
     @Autowired
     private AliPayConfig aliPayConfig;
@@ -132,15 +131,23 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     }
 
     @Override
-    public BootstrapTableVO<UserOrderVO> pageUserOrderVO(Page<UserOrderVO> page, String sql, int isDelete) {
+    public BootstrapTableVO<UserOrderVO> pageUserOrderVO(String userId, Page<UserOrderVO> page, String sql, int isDelete) {
         BootstrapTableVO<UserOrderVO> vo = new BootstrapTableVO<>();
 
         IPage<UserOrderVO> selectPage = orderInfoMapper.pageUserOrderVO(page, sql, isDelete);
 
-        // 设置快递公司
+
         for(UserOrderVO orderVO : selectPage.getRecords()) {
+            // 设置快递公司
             if(StringUtils.isNotBlank(orderVO.getCompany())) {
                 orderVO.setCompany(dataCompanyService.getByCache(StringUtils.toInteger(orderVO.getCompany())).getName());
+            }
+            // 设置是否可以评分
+            boolean canEvaluate = orderEvaluateService.canEvaluate(orderVO.getId(), userId, SysRoleEnum.USER);
+            if(canEvaluate) {
+                orderVO.setCanScore("1");
+            } else {
+                orderVO.setCanScore("0");
             }
         }
 
@@ -151,15 +158,24 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     }
 
     @Override
-    public BootstrapTableVO<CourierOrderVO> pageCourierOrderVO(Page<CourierOrderVO> page, String sql) {
+    public BootstrapTableVO<CourierOrderVO> pageCourierOrderVO(String userId, Page<CourierOrderVO> page, String sql) {
         BootstrapTableVO<CourierOrderVO> vo = new BootstrapTableVO<>();
 
         IPage<CourierOrderVO> selectPage = orderInfoMapper.pageCourierOrderVO(page, sql);
 
-        // 设置快递公司
+
         for(CourierOrderVO orderVO : selectPage.getRecords()) {
+            // 设置快递公司
             if(StringUtils.isNotBlank(orderVO.getCompany())) {
                 orderVO.setCompany(dataCompanyService.getByCache(StringUtils.toInteger(orderVO.getCompany())).getName());
+            }
+
+            // 设置是否可以评分
+            boolean canEvaluate = orderEvaluateService.canEvaluate(orderVO.getId(), userId, SysRoleEnum.COURIER);
+            if(canEvaluate) {
+                orderVO.setCanScore("1");
+            } else {
+                orderVO.setCanScore("0");
             }
         }
 
@@ -287,63 +303,46 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         return ResponseResult.success(count);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public ResponseResult handleOrder(String orderId, OrderStatusEnum targetStatus, String remark) {
+        DefaultTransactionDefinition definition = new DefaultTransactionDefinition();
+        TransactionStatus status = transactionManager.getTransaction(definition);
+
         OrderInfo orderInfo = getById(orderId);
         if(orderInfo == null) {
             return ResponseResult.failure(ResponseErrorCodeEnum.ORDER_NOT_EXIST);
         }
 
+        OrderStatusEnum originStatus = orderInfo.getOrderStatus();
         // 限定订单状态，非未接单
-        if(orderInfo.getOrderStatus() == OrderStatusEnum.WAIT_DIST) {
+        if(originStatus == OrderStatusEnum.WAIT_DIST) {
             return ResponseResult.failure(ResponseErrorCodeEnum.OPERATION_ERROR);
         }
-        if(orderInfo.getOrderStatus() == targetStatus) {
+        if(originStatus == targetStatus) {
             return ResponseResult.success();
         }
 
+        // 如果原始订单状态为配送中，开启订单评价
+        if(originStatus == OrderStatusEnum.TRANSPORT) {
+            if(!orderEvaluateService.changEvaluateStatus(orderId, true)) {
+                transactionManager.rollback(status);
+                return ResponseResult.failure(ResponseErrorCodeEnum.OPEN_EVALUATE_ERROR);
+            }
+        }
+
+        // 更新订单状态
         orderInfo.setOrderStatus(targetStatus);
         if(StringUtils.isNotBlank(remark)) {
             orderInfo.setCourierRemark(remark);
         }
         if(this.retBool(orderInfoMapper.updateById(orderInfo))) {
+            transactionManager.commit(status);
             return ResponseResult.success();
         } else {
+            transactionManager.rollback(status);
             return ResponseResult.failure(ResponseErrorCodeEnum.OPERATION_ERROR);
         }
-    }
-
-    @Override
-    public ResponseResult batchHandleOrder(String[] ids, OrderStatusEnum targetStatus, String remark) {
-        int success = 0;
-        for(String orderId : ids) {
-           OrderInfo orderInfo = orderInfoMapper.selectById(orderId);
-
-           // 限定订单状态，非未接单
-           if(orderInfo.getOrderStatus() == OrderStatusEnum.WAIT_DIST) {
-               continue;
-           }
-           if(orderInfo.getOrderStatus() == targetStatus) {
-               continue;
-           }
-
-           orderInfo.setOrderStatus(targetStatus);
-           if(StringUtils.isNotBlank(remark)) {
-               orderInfo.setCourierRemark(remark);
-           }
-
-           if(this.retBool(orderInfoMapper.updateById(orderInfo))) {
-               success++;
-           }
-       }
-
-        int finalSuccess = success;
-        Map<String, Integer> count = new HashMap<String, Integer>(16) {{
-            put("success", finalSuccess);
-            put("error", ids.length - finalSuccess);
-        }};
-
-        return ResponseResult.success(count);
     }
 
     @Override

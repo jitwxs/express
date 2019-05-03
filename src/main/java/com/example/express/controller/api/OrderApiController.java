@@ -7,10 +7,9 @@ import com.example.express.domain.bean.SysUser;
 import com.example.express.domain.enums.OrderStatusEnum;
 import com.example.express.domain.enums.PaymentStatusEnum;
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
-import com.example.express.domain.enums.SysRoleEnum;
 import com.example.express.domain.vo.BootstrapTableVO;
-import com.example.express.domain.vo.courier.CourierOrderVO;
 import com.example.express.domain.vo.OrderDescVO;
+import com.example.express.domain.vo.courier.CourierOrderVO;
 import com.example.express.exception.CustomException;
 import com.example.express.service.OrderInfoService;
 import com.example.express.service.SysUserService;
@@ -19,6 +18,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * API订单接口
  * @author jitwxs
@@ -26,7 +28,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/api/v1/order")
-public class OrderApiController extends BaseApiController {
+public class OrderApiController {
     @Autowired
     private SysUserService sysUserService;
     @Autowired
@@ -34,6 +36,9 @@ public class OrderApiController extends BaseApiController {
 
     /**
      * 获取订单信息
+     * - 管理员：任何订单
+     * - 派送员：已接的单
+     * - 用户：个人订单
      * @author jitwxs
      * @date 2019/4/25 23:36
      */
@@ -41,9 +46,20 @@ public class OrderApiController extends BaseApiController {
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_COURIER') or hasRole('ROLE_ADMIN')")
     public ResponseResult getOrderDesc(@PathVariable String id,
                                        @AuthenticationPrincipal SysUser sysUser) {
-        //  普通用户仅允许访问自己订单
-        if(sysUser.getRole() == SysRoleEnum.USER && !orderInfoService.isUserOrder(id, sysUser.getId())) {
-            return ResponseResult.failure(ResponseErrorCodeEnum.NO_PERMISSION);
+        // 权限校验
+        switch (sysUser.getRole()) {
+            case USER:
+                if(!orderInfoService.isUserOrder(id, sysUser.getId())) {
+                    return ResponseResult.failure(ResponseErrorCodeEnum.NO_PERMISSION);
+                }
+                break;
+            case COURIER:
+                if(!orderInfoService.isCourierOrder(id, sysUser.getId())) {
+                    return ResponseResult.failure(ResponseErrorCodeEnum.NO_PERMISSION);
+                }
+                break;
+            default:
+                break;
         }
 
         OrderDescVO descVO = orderInfoService.getDescVO(id);
@@ -74,6 +90,7 @@ public class OrderApiController extends BaseApiController {
             throw new CustomException(ResponseErrorCodeEnum.PARAMETER_ERROR);
         }
 
+        String userId = sysUser.getId();
         StringBuilder sql = new StringBuilder();
 
         OrderStatusEnum orderStatusEnum = OrderStatusEnum.getByStatus(StringUtils.toInteger(status, -1));
@@ -101,11 +118,11 @@ public class OrderApiController extends BaseApiController {
         Page page = new Page<>(current, size);
         switch (sysUser.getRole()) {
             case USER:
-                sql.append(" AND info.user_id = '").append(sysUser.getId()).append("'");
-                return orderInfoService.pageUserOrderVO(page, sql.toString(), isDelete);
+                sql.append(" AND info.user_id = '").append(userId).append("'");
+                return orderInfoService.pageUserOrderVO(userId, page, sql.toString(), isDelete);
             case COURIER:
-                sql.append(" AND info.courier_id = '").append(sysUser.getId()).append("'");
-                return orderInfoService.pageCourierOrderVO(page, sql.toString());
+                sql.append(" AND info.courier_id = '").append(userId).append("'");
+                return orderInfoService.pageCourierOrderVO(userId, page, sql.toString());
             case ADMIN:
                 return orderInfoService.pageAdminOrderVO(page, sql.toString());
             default:
@@ -120,7 +137,7 @@ public class OrderApiController extends BaseApiController {
     @PreAuthorize("hasRole('ROLE_COURIER')")
     public BootstrapTableVO<CourierOrderVO> listWaitDistOrder(@RequestParam(required = false, defaultValue = "1") Integer current,
                                                               @RequestParam(required = false, defaultValue = "10") Integer size,
-                                                              String startDate, String endDate, String id) {
+                                                              String startDate, String endDate, String id, @AuthenticationPrincipal SysUser sysUser) {
         Page<CourierOrderVO> page = new Page<>(current, size);
 
         StringBuilder sql = new StringBuilder();
@@ -137,7 +154,7 @@ public class OrderApiController extends BaseApiController {
             sql.append(" AND info.id = ").append(id);
         }
 
-        return orderInfoService.pageCourierOrderVO(page, sql.toString());
+        return orderInfoService.pageCourierOrderVO(sysUser.getId(), page, sql.toString());
     }
 
     /**
@@ -150,7 +167,7 @@ public class OrderApiController extends BaseApiController {
     }
 
     /**
-     * 订单异常
+     * 配送员异常订单
      */
     @PostMapping("/error")
     @PreAuthorize("hasRole('ROLE_COURIER')")
@@ -158,8 +175,8 @@ public class OrderApiController extends BaseApiController {
         if(StringUtils.isAnyBlank(id, remark)) {
             return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
         }
-        if(remark.length() > CONTENT_MAX_LENGTH) {
-            return ResponseResult.failure(ResponseErrorCodeEnum.STR_LENGTH_OVER, new Object[]{"异常信息", CONTENT_MAX_LENGTH});
+        if(remark.length() > 255) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.STR_LENGTH_OVER, new Object[]{"异常信息", 255});
         }
 
         if(!orderInfoService.isCourierOrder(id, sysUser.getId())) {
@@ -167,6 +184,26 @@ public class OrderApiController extends BaseApiController {
         }
 
         return orderInfoService.handleOrder(id, OrderStatusEnum.ERROR, remark);
+    }
+
+    /**
+     * 配送员完成订单
+     */
+    @PostMapping("/complete")
+    @PreAuthorize("hasRole('ROLE_COURIER')")
+    public ResponseResult completeOrder(String id, String remark, @AuthenticationPrincipal SysUser sysUser) {
+        if(StringUtils.isAnyBlank(id, remark)) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
+        }
+        if(remark.length() > 255) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.STR_LENGTH_OVER, new Object[]{"成功信息", 255});
+        }
+
+        if(!orderInfoService.isCourierOrder(id, sysUser.getId())) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.NO_PERMISSION);
+        }
+
+        return orderInfoService.handleOrder(id, OrderStatusEnum.COMPLETE, remark);
     }
 
     /**
@@ -178,11 +215,24 @@ public class OrderApiController extends BaseApiController {
         if(ids.length == 0 || StringUtils.isBlank(remark)) {
             return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
         }
-        if(remark.length() > CONTENT_MAX_LENGTH) {
-            return ResponseResult.failure(ResponseErrorCodeEnum.STR_LENGTH_OVER, new Object[]{"异常信息", CONTENT_MAX_LENGTH});
+        if(remark.length() > 255) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.STR_LENGTH_OVER, new Object[]{"异常信息", 255});
         }
 
-        return orderInfoService.batchHandleOrder(ids, OrderStatusEnum.ERROR, remark);
+        int success = 0;
+        // 循环异常订单，内部事务
+        for(String orderId : ids) {
+            ResponseResult result = orderInfoService.handleOrder(orderId, OrderStatusEnum.ERROR, remark);
+            if(result.getCode() == ResponseErrorCodeEnum.SUCCESS.getCode()) {
+                success++;
+            }
+        }
+
+        // 返回
+        Map<String, Integer> count = new HashMap<>(16);
+        count.put("success", success);
+        count.put("error", ids.length - success);
+        return ResponseResult.success(count);
     }
 
     /**
@@ -202,26 +252,6 @@ public class OrderApiController extends BaseApiController {
     }
 
     /**
-     * 订单完成
-     */
-    @PostMapping("/complete")
-    @PreAuthorize("hasRole('ROLE_COURIER')")
-    public ResponseResult completeOrder(String id, String remark, @AuthenticationPrincipal SysUser sysUser) {
-        if(StringUtils.isAnyBlank(id, remark)) {
-            return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
-        }
-        if(remark.length() > CONTENT_MAX_LENGTH) {
-            return ResponseResult.failure(ResponseErrorCodeEnum.STR_LENGTH_OVER, new Object[]{"成功信息", CONTENT_MAX_LENGTH});
-        }
-
-        if(!orderInfoService.isCourierOrder(id, sysUser.getId())) {
-            return ResponseResult.failure(ResponseErrorCodeEnum.NO_PERMISSION);
-        }
-
-        return orderInfoService.handleOrder(id, OrderStatusEnum.COMPLETE, remark);
-    }
-
-    /**
      * 管理员批量订单完成
      */
     @PostMapping("/batch-complete")
@@ -230,11 +260,24 @@ public class OrderApiController extends BaseApiController {
         if(ids.length == 0 || StringUtils.isBlank(remark)) {
             return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
         }
-        if(remark.length() > CONTENT_MAX_LENGTH) {
-            return ResponseResult.failure(ResponseErrorCodeEnum.STR_LENGTH_OVER, new Object[]{"成功信息", CONTENT_MAX_LENGTH});
+        if(remark.length() > 255) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.STR_LENGTH_OVER, new Object[]{"成功信息", 255});
         }
 
-        return orderInfoService.batchHandleOrder(ids, OrderStatusEnum.COMPLETE, remark);
+        int success = 0;
+        // 循环完成订单，内部事务
+        for(String orderId : ids) {
+            ResponseResult result = orderInfoService.handleOrder(orderId, OrderStatusEnum.COMPLETE, remark);
+            if(result.getCode() == ResponseErrorCodeEnum.SUCCESS.getCode()) {
+                success++;
+            }
+        }
+
+        // 返回
+        Map<String, Integer> count = new HashMap<>(16);
+        count.put("success", success);
+        count.put("error", ids.length - success);
+        return ResponseResult.success(count);
     }
 
     /**

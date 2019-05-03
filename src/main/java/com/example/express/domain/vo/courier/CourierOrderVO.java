@@ -48,6 +48,10 @@ public class CourierOrderVO implements Serializable {
      */
     private Integer orderStatus;
     /**
+     * 能否评分，1可以，0可以
+     */
+    private String canScore;
+    /**
      * 下单时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")

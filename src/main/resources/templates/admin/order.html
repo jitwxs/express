@@ -106,6 +106,111 @@
             </div>
         </div>
     </div>
+    <!-- 订单详情模态框 -->
+    <div class="modal fade" id="infoModel" tabindex="-1" role="dialog" aria-labelledby="infoModelLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="infoModelLabel">订单详情</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label for="inputInfoId" class="col-sm-2 control-label">订单号</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static" id="inputInfoId"></p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputInfoName" class="col-sm-2 control-label">收件姓名</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static" id="inputInfoName"></p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputInfoTel" class="col-sm-2 control-label">收件短信</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static" id="inputInfoTel"></p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputInfoAddress" class="col-sm-2 control-label">收件地址</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static" id="inputInfoAddress"></p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputInfoOdd" class="col-sm-2 control-label">快递单号</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static" id="inputInfoOdd"></p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputInfoCompany" class="col-sm-2 control-label">快递公司</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static" id="inputInfoCompany"></p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputInfoRemark" class="col-sm-2 control-label">备注</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static" id="inputInfoRemark"></p>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="form-group">
+                            <label for="inputInfoPaymentType" class="col-sm-2 control-label">支付方式</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static" id="inputInfoPaymentType"></p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputInfoPaymentId" class="col-sm-2 control-label">流水号</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static" id="inputInfoPaymentId"></p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputInfoMoney" class="col-sm-2 control-label">支付金额</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static" id="inputInfoMoney"></p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputInfoPaymentStatus" class="col-sm-2 control-label">支付状态</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static" id="inputInfoPaymentStatus"></p>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="form-group">
+                            <label for="inputInfoOrderStatus" class="col-sm-2 control-label">订单状态</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static" id="inputInfoOrderStatus"></p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputInfoCourierName" class="col-sm-2 control-label">配送员</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static" id="inputInfoCourierName"></p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputInfoCourierRemark" class="col-sm-2 control-label">配送备注</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static" id="inputInfoCourierRemark"></p>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script th:src="@{/assets/js/http.js}" src="../../static/assets/js/http.js"></script>
     <script th:src="@{/assets/js/express.js}" src="../../static/assets/js/express.js"></script>
@@ -214,6 +319,12 @@
                     }, {
                         field: 'createDate',
                         title: '下单时间'
+                    }, {
+                        field: 'id',
+                        title: '操作',
+                        align: 'center',
+                        valign: 'middle',
+                        formatter: actionFormatter
                     }]
                 });
             };
@@ -361,6 +472,11 @@
             return oInit;
         };
 
+        //操作栏的格式化
+        function actionFormatter(value, row, index) {
+            let id = "'" + value + "'";
+            return '<button class="btn btn-xs btn-info" onclick="showDetail('+id+')" title="查看"><span class="glyphicon glyphicon-search"></span></button>\n';
+        }
         // 订单状态的格式化
         function orderFormatter(value, row, index) {
             if(value === 4)
@@ -387,6 +503,38 @@
         function flushTable() {
             $("#tb_order").bootstrapTable('refresh',{url : '/api/v1/order/list'} );
         }
+
+        function showDetail(id) {
+            sendJson(HTTP.GET, "/api/v1/order/" + id, null, false, function (res) {
+                if (res.code !== 0) {
+                    layer.msg(res.msg, {icon: 2});
+                } else {
+                    // 初始化模态框信息
+                    let data = res.data;
+                    $("#inputInfoId").text(data.orderId);
+                    $("#inputInfoName").text(data.recName);
+                    $("#inputInfoTel").text(data.recTel);
+                    $("#inputInfoAddress").text(data.recAddress);
+                    $("#inputInfoOdd").text(data.odd);
+                    $("#inputInfoCompany").text(data.companyName);
+                    $("#inputInfoRemark").text(data.remark);
+
+                    $("#inputInfoPaymentType").text(data.paymentType);
+                    $("#inputInfoPaymentId").text(data.paymentId);
+                    $("#inputInfoMoney").text(data.payment);
+                    $("#inputInfoPaymentStatus").text(data.paymentStatus);
+
+                    $("#inputInfoOrderStatus").text(data.orderStatus);
+                    $("#inputInfoCourierName").text(data.courierFrontName);
+                    $("#inputInfoCourierRemark").text(data.courierRemark);
+
+                    $("#infoModel").modal("show");
+                }
+            }, function () {
+                layer.msg("未知错误", {icon: 2});
+            });
+        }
+
     </script>
 </body>
 </html>

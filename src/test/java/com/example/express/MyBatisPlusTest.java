@@ -1,7 +1,6 @@
 package com.example.express;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.example.express.common.util.StringUtils;
 import com.example.express.domain.bean.OrderInfo;
 import com.example.express.domain.bean.SysUser;
 import com.example.express.service.SysUserService;
@@ -25,7 +24,6 @@ public class MyBatisPlusTest extends BaseTests {
         new Thread(() -> {
             try {
                 SysUser sysUser = sysUserService.getById("1");
-                sysUser.setStar("2");
                 TimeUnit.SECONDS.sleep(5);
                 boolean b = sysUserService.updateById(sysUser);
                 Assert.assertEquals(false, b);
@@ -36,7 +34,6 @@ public class MyBatisPlusTest extends BaseTests {
         new Thread(() -> {
             try {
                 SysUser sysUser = sysUserService.getById("1");
-                sysUser.setStar("3");
                 boolean b = sysUserService.updateById(sysUser);
                 Assert.assertEquals(true, b);
             } catch (Exception ignored) {

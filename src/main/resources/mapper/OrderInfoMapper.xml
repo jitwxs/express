@@ -14,7 +14,8 @@
             payment.payment AS payment,
             payment.status AS payment_status,
             info.delete_type AS delete_type,
-            info.create_date
+            info.create_date,
+            "1" AS can_score
         FROM
             order_payment as payment, order_info as info
         WHERE
@@ -30,7 +31,8 @@
             info.rec_address AS rec_address,
             info.remark AS remark,
             info.status AS order_status,
-            info.create_date
+            info.create_date,
+            "1" AS can_score
         FROM
             order_payment as payment, order_info as info
         WHERE

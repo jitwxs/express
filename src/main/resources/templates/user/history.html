@@ -9,6 +9,7 @@
     <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}" href="../../static/assets/css/bootstrap.min.css"/>
     <link rel="stylesheet" th:href="@{/assets/css/bootstrap-table.css}" href="../../static/assets/css/bootstrap-table.css"/>
     <link rel="stylesheet" th:href="@{/assets/css/express.css}" href="../../static/assets/css/express.css"/>
+    <link rel="stylesheet" th:href="@{/assets/css/star-rating.min.css}" href="../../static/assets/css/star-rating.min.css"/>
 </head>
 <body>
     <div class="container-fluid">
@@ -173,6 +174,38 @@
             </div>
         </div>
     </div>
+    <!-- 评价模态框 -->
+    <div class="modal fade" id="evaluateModel" tabindex="-1" role="dialog" aria-labelledby="evaluateModelLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="evaluateModelLabel">订单评价</h4>
+                </div>
+                <div class="modal-body">
+                    <strong style="text-align: center">当前订单已处理完毕，如无误请对配送员进行评价。</strong>
+                    <form class="form-horizontal">
+                        <input type="hidden" id="inputOrderEvaluate">
+                        <div class="form-group">
+                            <label for="inputScore" class="col-md-2 control-label">评分</label>
+                            <div class="col-md-10">
+                                <input id="inputScore" value="5" type="text" data-min=0 data-max=10 data-step=0.5 data-size="md">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputEvaluate" class="col-sm-2 control-label">评价留言</label>
+                            <div class="col-sm-10">
+                            <textarea class="form-control dis_change_textarea" id="inputEvaluate" rows="5" placeholder="给配送员一个中肯的评价"></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="commitEvaluate()">评价</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script th:src="@{/assets/js/http.js}" src="../../static/assets/js/http.js"></script>
     <script th:src="@{/assets/js/express.js}" src="../../static/assets/js/express.js"></script>
@@ -184,6 +217,7 @@
     <script th:src="@{/assets/js/bootstrap-table-export.min.js}" src="../../static/assets/js/bootstrap-table-export.min.js"></script>
     <script th:src="@{/assets/js/bootstrap-table-zh-CN.min.js}" src="../../static/assets/js/bootstrap-table-zh-CN.min.js"></script>
     <script th:src="@{/assets/js/tableExport.min.js}" src="../../static/assets/js/tableExport.min.js"></script>
+    <script th:src="@{/assets/js/star-rating.min.js}" src="../../static/assets/js/star-rating.min.js"></script>
     <script>
         $(function () {
             $("#history-sidebar").addClass('active');
@@ -195,6 +229,25 @@
             //2、初始化Button的点击事件
             var oButtonInit = new ButtonInit();
             oButtonInit.Init();
+        });
+
+        $().ready(function() {
+            $("#inputScore").rating({
+                showClear: false,
+                starCaptions: function (val) {
+                    return val;
+                },
+                starCaptionClasses: function (val) {
+                    if (val < 3) {
+                        return 'label label-danger';
+                    } else if(val < 7) {
+                        return 'label label-warning';
+                    } else {
+                        return 'label label-success';
+                    }
+                },
+                hoverOnClear: false
+            });
         });
 
         var TableInit = function () {
@@ -256,8 +309,6 @@
                         field: 'id',
                         title: '操作',
                         width: 120,
-                        align: 'center',
-                        valign: 'middle',
                         formatter: actionFormatter
                     }]
                 });
@@ -350,7 +401,13 @@
         function actionFormatter(value, row, index) {
             let id = "'" + value + "'";
             let result = '<button class="btn btn-xs btn-info" onclick="showDetail('+id+')" title="查看"><span class="glyphicon glyphicon-search"></span></button>\n' +
-                '         <button class="btn btn-xs btn-danger" onclick="refreshStatus('+id+')" title="刷新"><span class="glyphicon glyphicon-refresh"></span></button>';
+                '         <button class="btn btn-xs btn-danger" onclick="refreshStatus('+id+')" title="刷新"><span class="glyphicon glyphicon-refresh"></span></button>\n';
+
+            // 订单评价
+            if(row.canScore === "1") {
+                result += '<button class="btn btn-xs btn-success" onclick="showEvaluate('+id+')" title="评价"><span class="glyphicon glyphicon-edit"></span></button>\n';
+            }
+
             return result;
         }
         // 订单状态的格式化
@@ -397,6 +454,7 @@
             }, function(){
             });
         }
+
         function showDetail(id) {
             sendJson(HTTP.GET, "/api/v1/order/" + id, null, false, function (res) {
                 if (res.code !== 0) {
@@ -426,6 +484,15 @@
             }, function () {
                 layer.msg("未知错误",{icon:2});
             });
+        }
+
+        function showEvaluate(id) {
+            $("#inputOrderEvaluate").val(id);
+            $("#evaluateModel").modal('show');
+        }
+        
+        function commitEvaluate() {
+            alert($("#inputScore").val())
         }
     </script>
 </body>

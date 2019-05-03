@@ -48,7 +48,7 @@ public class UserApiController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public BootstrapTableVO<AdminUserInfoVO> listUser(@RequestParam(required = false, defaultValue = "1") Integer current,
                                                       @RequestParam(required = false, defaultValue = "10") Integer size,
-                                                      String isReal, String isEnable, String isLock, String isThird,
+                                                      String isReal, String isEnable, String isLock, String role,
                                                       String id,  String username, String tel, @AuthenticationPrincipal SysUser sysUser) {
         QueryWrapper<SysUser> wrapper = new QueryWrapper<>();
         Integer enable = StringUtils.toInteger(isEnable, -1);
@@ -70,9 +70,10 @@ public class UserApiController {
             wrapper.isNull("real_name").or().isNull("id_card");
         }
 
-        Integer third = StringUtils.toInteger(isThird, -1);
-        if (third != -1) {
-            wrapper.eq("third_login_type", third);
+        Integer roleType = StringUtils.toInteger(role, -2);
+        SysRoleEnum roleEnum = SysRoleEnum.getByType(roleType);
+        if (roleEnum != null) {
+            wrapper.eq("role_id", roleType);
         }
 
         if (StringUtils.isNotBlank(id)) {
@@ -141,9 +142,10 @@ public class UserApiController {
                 user.setHasEnable(1);
                 break;
             case 3:
+                // 必须为正整数
                 Integer lockHour = StringUtils.toInteger(hour, -1);
-                if(lockHour == -1) {
-                    return ResponseResult.failure(ResponseErrorCodeEnum.MUST_NUMBER);
+                if(lockHour == -1 || lockHour < 0) {
+                    return ResponseResult.failure(ResponseErrorCodeEnum.MUST_POSITIVE_INTEGER);
                 }
                 user.setLockDate(LocalDateTime.now().plusHours(lockHour));
                 break;

@@ -47,11 +47,13 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="inputThird">三方登录</label>
-                            <select id="inputThird" class="form-control">
-                                <option value="-1">不筛选</option>
-                                <option value="0">未绑定</option>
-                                <option value="1">QQ登陆</option>
+                            <label for="inputRole">用户权限</label>
+                            <select id="inputRole" class="form-control">
+                                <option value="-2">不筛选</option>
+                                <option value="-1">非正式用户</option>
+                                <option value="1">系统管理员</option>
+                                <option value="2">配送员</option>
+                                <option value="3">普通用户</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -139,9 +141,6 @@
                         field: 'tel',
                         title: '手机号码'
                     }, {
-                        field: 'thirdLogin',
-                        title: '三方登录'
-                    }, {
                         field: 'hasReal',
                         title: '实名状态',
                         formatter: realFormatter
@@ -179,7 +178,7 @@
                     isEnable: $("#inputEnableStatus").val(),
                     isLock: $("#inputLock").val(),
                     isReal: $("#inputRel").val(),
-                    isThird: $("#inputThird").val()
+                    role: $("#inputRole").val()
                 };
             };
             return oTableInit;

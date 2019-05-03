@@ -1,3 +1,4 @@
+// 是否合法手机号
 function isPoneAvailable(tel) {
     var myreg=/^[1][3,4,5,7,8][0-9]{9}$/;
     if (!myreg.test(tel)) {
@@ -5,6 +6,12 @@ function isPoneAvailable(tel) {
     } else {
         return true;
     }
+}
+
+// 是否正整数
+function isPositiveInteger(s){//是否为正整数
+    let re = /^[0-9]+$/;
+    return re.test(s)
 }
 
 //添加cookie

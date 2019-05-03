@@ -28,7 +28,7 @@ import java.util.Date;
  */
 @RestController
 @RequestMapping("/api/v1/feedback")
-public class FeedbackApiController extends BaseApiController {
+public class FeedbackApiController {
     @Autowired
     private UserFeedbackService userFeedbackService;
     @Autowired
@@ -137,8 +137,8 @@ public class FeedbackApiController extends BaseApiController {
         if(StringUtils.isBlank(content)) {
             return ResponseResult.failure(ResponseErrorCodeEnum.FEEDBACK_NOT_EMPTY);
         }
-        if(content.length() > CONTENT_MAX_LENGTH) {
-            return ResponseResult.failure(ResponseErrorCodeEnum.STR_LENGTH_OVER, new Object[]{"反馈结果", CONTENT_MAX_LENGTH});
+        if(content.length() > 255) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.STR_LENGTH_OVER, new Object[]{"反馈结果", 255});
         }
         if(StringUtils.isNotBlank(orderId)) {
             if(!orderInfoService.isExist(orderId)) {
@@ -175,8 +175,8 @@ public class FeedbackApiController extends BaseApiController {
         if(feedback == null || statusEnum == null || StringUtils.isBlank(result)) {
             return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
         }
-        if(result.length() > CONTENT_MAX_LENGTH) {
-            return ResponseResult.failure(ResponseErrorCodeEnum.STR_LENGTH_OVER, new Object[]{"反馈结果", CONTENT_MAX_LENGTH});
+        if(result.length() > 255) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.STR_LENGTH_OVER, new Object[]{"反馈结果", 255});
         }
 
         feedback.setHandler(sysUser.getId());

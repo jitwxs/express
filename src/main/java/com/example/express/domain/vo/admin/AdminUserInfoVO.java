@@ -36,10 +36,6 @@ public class AdminUserInfoVO implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime lockDate;
     /**
-     * 三方登录类型
-     */
-    private String thirdLogin;
-    /**
      * 注册时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")

@@ -122,7 +122,6 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 .studentIdCard(user.getStudentIdCard())
                 .role(String.valueOf(userRole.getType()))
                 .roleName(userRole.getCnName())
-                .star(user.getStar())
                 .idCard(user.getIdCard())
                 .realName(user.getRealName()).build();
 
@@ -564,10 +563,6 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 .hasReal(!StringUtils.isAnyBlank(user.getRealName(), user.getIdCard()))
                 .hasEnable(user.getHasEnable() == 1)
                 .createDate(user.getCreateDate()).build();
-
-        if(user.getThirdLogin() != ThirdLoginTypeEnum.NONE) {
-            vo.setThirdLogin(user.getThirdLogin().getName());
-        }
 
         LocalDateTime lockDate = user.getLockDate();
         if(lockDate != null && LocalDateTime.now().isBefore(lockDate)) {
