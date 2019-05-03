@@ -83,9 +83,10 @@ public enum ResponseErrorCodeEnum {
 
     /* Conflict */
     USER_NOT_EXIST(409001, 409, "用户不存在"),
-    USERNAME_EXIST(409002, 409,"用户名已被注册，请更换其他用户名"),
-    USERNAME_DISABLE_MODIFY(409003, 409, "用户名不支持修改"),
-    IDCARD_EXIST(409004, 409,"该身份证已被注册，如有疑问请提交反馈"),
+    COURIER_NOT_EXIST(409002, 409, "配送员不存在"),
+    USERNAME_EXIST(409003, 409,"用户名已被注册，请更换其他用户名"),
+    USERNAME_DISABLE_MODIFY(409004, 409, "用户名不支持修改"),
+    IDCARD_EXIST(409005, 409,"该身份证已被注册，如有疑问请提交反馈"),
 
     IDCARD_OR_REALNAME_EXIST(409101, 409, "您已绑定实名信息"),
     TEL_EXIST(409102, 409, "该手机号已被注册，请更换其他手机号"),

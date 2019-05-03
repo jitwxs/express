@@ -1,6 +1,5 @@
 package com.example.express.controller.courier;
 
-import com.example.express.controller.BaseController;
 import com.example.express.domain.bean.SysUser;
 import com.example.express.domain.vo.user.UserInfoVO;
 import com.example.express.service.SysUserService;
@@ -19,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/courier")
 @PreAuthorize("hasRole('ROLE_COURIER')")
-public class CourierPageController extends BaseController {
+public class CourierPageController {
     @Autowired
     private SysUserService sysUserService;
 
@@ -28,7 +27,7 @@ public class CourierPageController extends BaseController {
      */
     @RequestMapping("/dashboard")
     public String showDashboardPage(@AuthenticationPrincipal SysUser sysUser, ModelMap map) {
-        initModelMap(map, sysUser);
+        map.put("frontName", sysUserService.getFrontName(sysUser));
         return "courier/dashboard";
     }
     /**
@@ -36,7 +35,7 @@ public class CourierPageController extends BaseController {
      */
     @RequestMapping("/order")
     public String showOrderPage(@AuthenticationPrincipal SysUser sysUser, ModelMap map) {
-        initModelMap(map, sysUser);
+        map.put("frontName", sysUserService.getFrontName(sysUser));
         return "courier/order";
     }
 
@@ -45,7 +44,7 @@ public class CourierPageController extends BaseController {
      */
     @RequestMapping("/history")
     public String showHistory(@AuthenticationPrincipal SysUser sysUser, ModelMap map) {
-        initModelMap(map, sysUser);
+        map.put("frontName", sysUserService.getFrontName(sysUser));
         return "courier/history";
     }
 
@@ -54,7 +53,7 @@ public class CourierPageController extends BaseController {
      */
     @RequestMapping("/info")
     public String showInfoPage(@AuthenticationPrincipal SysUser sysUser,ModelMap map) {
-        initModelMap(map, sysUser);
+        map.put("frontName", sysUserService.getFrontName(sysUser));
         UserInfoVO userInfo = sysUserService.getUserInfo(sysUser.getId());
         map.put("info", userInfo);
         return "courier/info";
@@ -65,7 +64,7 @@ public class CourierPageController extends BaseController {
      */
     @RequestMapping("/log")
     public String showLogPage(@AuthenticationPrincipal SysUser sysUser,ModelMap map) {
-        initModelMap(map, sysUser);
+        map.put("frontName", sysUserService.getFrontName(sysUser));
         return "courier/log";
     }
 
@@ -74,7 +73,7 @@ public class CourierPageController extends BaseController {
      */
     @RequestMapping("/feedback")
     public String showFeedbackPage(@AuthenticationPrincipal SysUser sysUser,ModelMap map) {
-        initModelMap(map, sysUser);
+        map.put("frontName", sysUserService.getFrontName(sysUser));
         return "courier/feedback";
     }
 }

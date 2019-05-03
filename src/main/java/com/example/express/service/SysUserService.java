@@ -108,6 +108,10 @@ public interface SysUserService extends IService<SysUser> {
      */
     String getFrontName(String userId);
     /**
+     * 获取 frontName
+     */
+    String getFrontName(SysUser user);
+    /**
      * 获取 AdminUserInfoVO 列表
      */
     BootstrapTableVO<AdminUserInfoVO> pageAdminUserInfoVO(Page<SysUser> sysUserPage, QueryWrapper<SysUser> wrapper);

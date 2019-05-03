@@ -1,6 +1,5 @@
 package com.example.express.controller.admin;
 
-import com.example.express.controller.BaseController;
 import com.example.express.domain.bean.SysUser;
 import com.example.express.domain.vo.user.UserInfoVO;
 import com.example.express.service.SysUserService;
@@ -19,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/admin")
 @PreAuthorize("hasRole('ROLE_ADMIN')")
-public class AdminPageController extends BaseController {
+public class AdminPageController {
     @Autowired
     private SysUserService sysUserService;
 
@@ -28,7 +27,7 @@ public class AdminPageController extends BaseController {
      */
     @RequestMapping("/dashboard")
     public String showDashboardPage(@AuthenticationPrincipal SysUser sysUser, ModelMap map) {
-        initModelMap(map, sysUser);
+        map.put("frontName", sysUserService.getFrontName(sysUser));
         return "admin/dashboard";
     }
 
@@ -37,7 +36,7 @@ public class AdminPageController extends BaseController {
      */
     @RequestMapping("/order")
     public String showOrderPage(@AuthenticationPrincipal SysUser sysUser, ModelMap map) {
-        initModelMap(map, sysUser);
+        map.put("frontName", sysUserService.getFrontName(sysUser));
         return "admin/order";
     }
 
@@ -46,7 +45,7 @@ public class AdminPageController extends BaseController {
      */
     @RequestMapping("/feedback")
     public String showFeedbackPage(@AuthenticationPrincipal SysUser sysUser,ModelMap map) {
-        initModelMap(map, sysUser);
+        map.put("frontName", sysUserService.getFrontName(sysUser));
         return "admin/feedback";
     }
 
@@ -55,7 +54,7 @@ public class AdminPageController extends BaseController {
      */
     @RequestMapping("/user")
     public String showUser(@AuthenticationPrincipal SysUser sysUser, ModelMap map) {
-        initModelMap(map, sysUser);
+        map.put("frontName", sysUserService.getFrontName(sysUser));
         return "admin/user";
     }
 
@@ -64,7 +63,7 @@ public class AdminPageController extends BaseController {
      */
     @RequestMapping("/profit")
     public String showProfit(@AuthenticationPrincipal SysUser sysUser, ModelMap map) {
-        initModelMap(map, sysUser);
+        map.put("frontName", sysUserService.getFrontName(sysUser));
         return "admin/profit";
     }
 
@@ -73,7 +72,7 @@ public class AdminPageController extends BaseController {
      */
     @RequestMapping("/info")
     public String showInfoPage(@AuthenticationPrincipal SysUser sysUser,ModelMap map) {
-        initModelMap(map, sysUser);
+        map.put("frontName", sysUserService.getFrontName(sysUser));
         UserInfoVO userInfo = sysUserService.getUserInfo(sysUser.getId());
         map.put("info", userInfo);
         return "admin/info";
@@ -84,7 +83,7 @@ public class AdminPageController extends BaseController {
      */
     @RequestMapping("/log")
     public String showLogPage(@AuthenticationPrincipal SysUser sysUser,ModelMap map) {
-        initModelMap(map, sysUser);
+        map.put("frontName", sysUserService.getFrontName(sysUser));
         return "admin/log";
     }
 }

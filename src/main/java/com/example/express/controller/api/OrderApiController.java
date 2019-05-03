@@ -13,6 +13,7 @@ import com.example.express.domain.vo.courier.CourierOrderVO;
 import com.example.express.domain.vo.OrderDescVO;
 import com.example.express.exception.CustomException;
 import com.example.express.service.OrderInfoService;
+import com.example.express.service.SysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,6 +27,8 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/order")
 public class OrderApiController extends BaseApiController {
+    @Autowired
+    private SysUserService sysUserService;
     @Autowired
     private OrderInfoService orderInfoService;
 
@@ -180,6 +183,22 @@ public class OrderApiController extends BaseApiController {
         }
 
         return orderInfoService.batchHandleOrder(ids, OrderStatusEnum.ERROR, remark);
+    }
+
+    /**
+     * 管理员批量分配
+     */
+    @PostMapping("/batch-allot")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseResult batchAllotOrder(String[] ids, String courier) {
+        if(ids.length == 0 || StringUtils.isBlank(courier)) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
+        }
+        if(sysUserService.getById(courier) == null) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.COURIER_NOT_EXIST);
+        }
+
+        return orderInfoService.batchAllotOrder(ids, courier);
     }
 
     /**

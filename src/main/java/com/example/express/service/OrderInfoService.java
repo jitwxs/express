@@ -87,4 +87,8 @@ public interface OrderInfoService extends IService<OrderInfo> {
      * 批量异常/完成
      */
     ResponseResult batchHandleOrder(String[] ids, OrderStatusEnum targetStatus, String remark);
+    /**
+     * 批量分配订单
+     */
+    ResponseResult batchAllotOrder(String[] ids, String courierId);
 }

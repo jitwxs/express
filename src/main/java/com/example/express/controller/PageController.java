@@ -17,7 +17,7 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 @Controller
-public class PageController extends BaseController {
+public class PageController {
     /**
      * 登陆成功页
      */

@@ -33,8 +33,11 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import javax.servlet.http.HttpSession;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -422,15 +425,27 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Override
     public String getFrontName(String userId) {
-        SysUser sysUser = getById(userId);
-        // 获取显示用户名
+        return getFrontName(getById(userId));
+    }
+
+    @Override
+    public String getFrontName(SysUser sysUser) {
+        /*
+         * 获取显示用户名
+         * 1. username字段
+         * 2. tel字段
+         * 3. 是否三方？三方登录用户
+         * 4. 人脸登录用户
+         */
         String username;
         if(StringUtils.isNotBlank(sysUser.getUsername())) {
             username = sysUser.getUsername();
         } else if(StringUtils.isNotBlank(sysUser.getTel())) {
             username = sysUser.getTel();
-        } else {
+        } else if(sysUser.getThirdLogin() != ThirdLoginTypeEnum.NONE ){
             username = sysUser.getThirdLogin().getName() + "用户";
+        } else {
+            username = "人脸登录用户";
         }
 
         return username;
@@ -441,7 +456,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         IPage<SysUser> selectPage = sysUserMapper.selectPage(page, wrapper);
         BootstrapTableVO<AdminUserInfoVO> vo = new BootstrapTableVO<>();
         vo.setTotal(selectPage.getTotal());
-        vo.setRows(AdminUserInfoVO.convert(selectPage.getRecords()));
+        vo.setRows(convert(selectPage.getRecords()));
 
         return vo;
     }
@@ -530,5 +545,35 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
 
         return ResponseResult.success();
+    }
+
+    private List<AdminUserInfoVO> convert(List<SysUser> users) {
+        if(CollectionUtils.isListEmpty(users)) {
+            return Collections.emptyList();
+        }
+
+        return users.stream().map(this::convert).collect(Collectors.toList());
+    }
+
+    private AdminUserInfoVO convert(SysUser user) {
+        AdminUserInfoVO vo = AdminUserInfoVO.builder()
+                .id(user.getId())
+                .username(getFrontName(user))
+                .tel(user.getTel())
+                .role(user.getRole().getType())
+                .hasReal(!StringUtils.isAnyBlank(user.getRealName(), user.getIdCard()))
+                .hasEnable(user.getHasEnable() == 1)
+                .createDate(user.getCreateDate()).build();
+
+        if(user.getThirdLogin() != ThirdLoginTypeEnum.NONE) {
+            vo.setThirdLogin(user.getThirdLogin().getName());
+        }
+
+        LocalDateTime lockDate = user.getLockDate();
+        if(lockDate != null && LocalDateTime.now().isBefore(lockDate)) {
+            vo.setLockDate(lockDate);
+        }
+
+        return vo;
     }
 }

@@ -1,7 +1,6 @@
 package com.example.express.controller.user;
 
 import com.example.express.common.constant.SessionKeyConstant;
-import com.example.express.controller.BaseController;
 import com.example.express.domain.bean.OrderInfo;
 import com.example.express.domain.bean.SysUser;
 import com.example.express.domain.vo.user.UserInfoVO;
@@ -23,7 +22,7 @@ import javax.servlet.http.HttpSession;
 @Controller
 @RequestMapping("/user")
 @PreAuthorize("hasRole('ROLE_USER')")
-public class UserPageController extends BaseController {
+public class UserPageController {
     @Autowired
     private SysUserService sysUserService;
     @Autowired
@@ -34,7 +33,7 @@ public class UserPageController extends BaseController {
      */
     @RequestMapping("/dashboard")
     public String showDashboardPage(@AuthenticationPrincipal SysUser sysUser, ModelMap map) {
-        initModelMap(map, sysUser);
+        map.put("frontName", sysUserService.getFrontName(sysUser));
         return "user/dashboard";
     }
     /**
@@ -42,7 +41,7 @@ public class UserPageController extends BaseController {
      */
     @RequestMapping("/order")
     public String showOrderPage(@AuthenticationPrincipal SysUser sysUser, ModelMap map) {
-        initModelMap(map, sysUser);
+        map.put("frontName", sysUserService.getFrontName(sysUser));
         return "user/order";
     }
 
@@ -53,7 +52,7 @@ public class UserPageController extends BaseController {
      */
     @RequestMapping("/order/place")
     public String placeOrder(OrderInfo orderInfo, ModelMap map, HttpSession session, @AuthenticationPrincipal SysUser sysUser) {
-        initModelMap(map, sysUser);
+        map.put("frontName", sysUserService.getFrontName(sysUser));
         map.put("order", orderInfo);
         map.put("company", dataCompanyService.getByCache(orderInfo.getCompany()).getName());
         session.setAttribute(SessionKeyConstant.SESSION_LATEST_EXPRESS, orderInfo);
@@ -65,7 +64,7 @@ public class UserPageController extends BaseController {
      */
     @RequestMapping("/history")
     public String showHistory(@AuthenticationPrincipal SysUser sysUser, ModelMap map) {
-        initModelMap(map, sysUser);
+        map.put("frontName", sysUserService.getFrontName(sysUser));
         return "user/history";
     }
 
@@ -74,7 +73,7 @@ public class UserPageController extends BaseController {
      */
     @RequestMapping("/info")
     public String showInfoPage(@AuthenticationPrincipal SysUser sysUser,ModelMap map) {
-        initModelMap(map, sysUser);
+        map.put("frontName", sysUserService.getFrontName(sysUser));
         UserInfoVO userInfo = sysUserService.getUserInfo(sysUser.getId());
         map.put("info", userInfo);
         return "user/info";
@@ -85,7 +84,7 @@ public class UserPageController extends BaseController {
      */
     @RequestMapping("/recycle")
     public String showRecyclePage(@AuthenticationPrincipal SysUser sysUser,ModelMap map) {
-        initModelMap(map, sysUser);
+        map.put("frontName", sysUserService.getFrontName(sysUser));
         return "user/recycle";
     }
 
@@ -94,7 +93,7 @@ public class UserPageController extends BaseController {
      */
     @RequestMapping("/log")
     public String showLogPage(@AuthenticationPrincipal SysUser sysUser,ModelMap map) {
-        initModelMap(map, sysUser);
+        map.put("frontName", sysUserService.getFrontName(sysUser));
         return "user/log";
     }
 
@@ -103,7 +102,7 @@ public class UserPageController extends BaseController {
      */
     @RequestMapping("/feedback")
     public String showFeedbackPage(@AuthenticationPrincipal SysUser sysUser,ModelMap map) {
-        initModelMap(map, sysUser);
+        map.put("frontName", sysUserService.getFrontName(sysUser));
         return "user/feedback";
     }
 
@@ -112,7 +111,7 @@ public class UserPageController extends BaseController {
      */
     @RequestMapping("/address")
     public String showAddressPage(@AuthenticationPrincipal SysUser sysUser,ModelMap map) {
-        initModelMap(map, sysUser);
+        map.put("frontName", sysUserService.getFrontName(sysUser));
         return "user/address";
     }
 }

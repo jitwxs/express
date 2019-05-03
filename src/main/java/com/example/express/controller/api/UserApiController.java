@@ -16,6 +16,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 用户信息 API Controller
@@ -86,6 +90,30 @@ public class UserApiController {
         }
 
         return sysUserService.pageAdminUserInfoVO(new Page<>(current, size), wrapper);
+    }
+
+    /**
+     * 获取配送员列表
+     * @author jitwxs
+     * @date 2019/5/3 21:58
+     */
+    @GetMapping("/courier-list")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseResult listCourier() {
+        List<SysUser> users = sysUserService.list(new QueryWrapper<SysUser>().eq("role_id", SysRoleEnum.COURIER.getType()));
+        if(users.size() == 0) {
+            return ResponseResult.success();
+        }
+
+        List<Map> result = new ArrayList<>();
+        for(SysUser user : users) {
+            Map<String ,String> map = new HashMap<>();
+            map.put("id", user.getId());
+            map.put("name", sysUserService.getFrontName(user));
+            result.add(map);
+        }
+
+        return ResponseResult.success(result);
     }
 
     /**

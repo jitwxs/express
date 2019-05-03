@@ -6,7 +6,6 @@ import com.alipay.api.response.AlipayTradePagePayResponse;
 import com.example.express.common.constant.SessionKeyConstant;
 import com.example.express.common.util.JsonUtils;
 import com.example.express.config.AliPayConfig;
-import com.example.express.controller.BaseController;
 import com.example.express.domain.ResponseResult;
 import com.example.express.domain.bean.OrderInfo;
 import com.example.express.domain.bean.SysUser;
@@ -15,6 +14,7 @@ import com.example.express.domain.enums.ResponseErrorCodeEnum;
 import com.example.express.exception.CustomException;
 import com.example.express.service.OrderInfoService;
 import com.example.express.service.OrderPaymentService;
+import com.example.express.service.SysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -40,11 +40,13 @@ import java.util.Map;
 @Controller
 @RequestMapping("/order")
 @PreAuthorize("hasRole('ROLE_USER')")
-public class OrderController extends BaseController {
+public class OrderController {
     @Autowired
     private AliPayConfig aliPayConfig;
     @Autowired
     private AlipayClient alipayClient;
+    @Autowired
+    private SysUserService sysUserService;
     @Autowired
     private OrderInfoService orderInfoService;
     @Autowired
@@ -145,7 +147,7 @@ public class OrderController extends BaseController {
             e.printStackTrace();
         }
 
-        initModelMap(map, sysUser);
+        map.put("frontName", sysUserService.getFrontName(sysUser));
         return "user/paymentResult";
     }
 

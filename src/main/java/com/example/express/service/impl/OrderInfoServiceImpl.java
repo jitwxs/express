@@ -9,10 +9,7 @@ import com.example.express.config.AliPayConfig;
 import com.example.express.domain.ResponseResult;
 import com.example.express.domain.bean.OrderInfo;
 import com.example.express.domain.bean.OrderPayment;
-import com.example.express.domain.enums.OrderDeleteEnum;
-import com.example.express.domain.enums.OrderStatusEnum;
-import com.example.express.domain.enums.ResponseErrorCodeEnum;
-import com.example.express.domain.enums.SysRoleEnum;
+import com.example.express.domain.enums.*;
 import com.example.express.domain.vo.BootstrapTableVO;
 import com.example.express.domain.vo.admin.AdminOrderVO;
 import com.example.express.domain.vo.courier.CourierOrderVO;
@@ -339,6 +336,37 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
                success++;
            }
        }
+
+        int finalSuccess = success;
+        Map<String, Integer> count = new HashMap<String, Integer>(16) {{
+            put("success", finalSuccess);
+            put("error", ids.length - finalSuccess);
+        }};
+
+        return ResponseResult.success(count);
+    }
+
+    @Override
+    public ResponseResult batchAllotOrder(String[] ids, String courierId) {
+        int success = 0;
+        for(String orderId : ids) {
+            OrderInfo orderInfo = orderInfoMapper.selectById(orderId);
+
+            // 限定订单状态，未接单
+            if(orderInfo.getOrderStatus() != OrderStatusEnum.WAIT_DIST) {
+                continue;
+            }
+           // 订单状态为交易成功、交易结束
+            OrderPayment payment = orderPaymentService.getById(orderId);
+            if(payment.getPaymentStatus() != PaymentStatusEnum.TRADE_SUCCESS && payment.getPaymentStatus() != PaymentStatusEnum.TRADE_FINISHED) {
+                continue;
+            }
+
+            orderInfo.setCourierId(courierId);
+            if(this.retBool(orderInfoMapper.updateById(orderInfo))) {
+                success++;
+            }
+        }
 
         int finalSuccess = success;
         Map<String, Integer> count = new HashMap<String, Integer>(16) {{
