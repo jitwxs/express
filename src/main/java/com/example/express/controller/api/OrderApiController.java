@@ -140,6 +140,7 @@ public class OrderApiController {
                                                               @RequestParam(required = false, defaultValue = "10") Integer size,
                                                               String startDate, String endDate, String id, @AuthenticationPrincipal SysUser sysUser) {
         Page<CourierOrderVO> page = new Page<>(current, size);
+        page.setDesc("create_date");
 
         StringBuilder sql = new StringBuilder();
         sql.append(" AND info.status = ").append(OrderStatusEnum.WAIT_DIST.getStatus());

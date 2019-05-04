@@ -49,6 +49,9 @@ public class OrderEvaluateServiceImpl extends ServiceImpl<OrderEvaluateMapper, O
     @Override
     public boolean initOrderEvaluate(String orderId) {
         OrderInfo orderInfo = orderInfoService.getById(orderId);
+        if(orderInfo == null) {
+            return false;
+        }
 
         OrderEvaluate evaluate = new OrderEvaluate();
         evaluate.setId(orderId);
