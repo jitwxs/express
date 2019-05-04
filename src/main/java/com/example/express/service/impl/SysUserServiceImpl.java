@@ -11,6 +11,7 @@ import com.example.express.common.util.StringUtils;
 import com.example.express.domain.ResponseResult;
 import com.example.express.domain.bean.DataSchool;
 import com.example.express.domain.bean.SysUser;
+import com.example.express.domain.bean.UserEvaluate;
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
 import com.example.express.domain.enums.SexEnum;
 import com.example.express.domain.enums.SysRoleEnum;
@@ -53,6 +54,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     private OrderInfoService orderInfoService;
     @Autowired
     private DataSchoolService dataSchoolService;
+    @Autowired
+    private UserEvaluateService userEvaluateService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -453,11 +456,12 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Override
     public BootstrapTableVO<AdminUserInfoVO> pageAdminUserInfoVO(Page<SysUser> page, QueryWrapper<SysUser> wrapper) {
         IPage<SysUser> selectPage = sysUserMapper.selectPage(page, wrapper);
-        BootstrapTableVO<AdminUserInfoVO> vo = new BootstrapTableVO<>();
-        vo.setTotal(selectPage.getTotal());
-        vo.setRows(convert(selectPage.getRecords()));
+        BootstrapTableVO<AdminUserInfoVO> result = new BootstrapTableVO<>();
 
-        return vo;
+        result.setTotal(selectPage.getTotal());
+        result.setRows(convert(selectPage.getRecords()));
+
+        return result;
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -567,6 +571,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         LocalDateTime lockDate = user.getLockDate();
         if(lockDate != null && LocalDateTime.now().isBefore(lockDate)) {
             vo.setLockDate(lockDate);
+        }
+
+        UserEvaluate userEvaluate = userEvaluateService.getById(user.getId());
+        if(userEvaluate != null && userEvaluate.getCount() > 0) {
+            vo.setScore(userEvaluate.getScore().toPlainString());
         }
 
         return vo;

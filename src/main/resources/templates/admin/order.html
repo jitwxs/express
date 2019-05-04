@@ -69,9 +69,9 @@
                     </div>
                     <div class="alert alert-info alert-dismissible fade in" role="alert">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
-                        <strong>订单分配：</strong> 订单状态需为 “等待派送”，支付状态需为 “交易成功” 或 “交易结束”<br>
-                        <strong>订单完成：</strong> 订单状态需为 “派送中” 或 “订单异常”<br>
-                        <strong>订单异常：</strong> 订单状态需为 “派送中” 或 “订单完成”
+                        <strong>订单分配：</strong> 订单状态需为 【等待派送】，支付状态需为 【交易成功】 或 【交易结束】
+                        <strong>完成订单：</strong> 订单状态需为 【派送中】 或 【订单异常】
+                        <strong>异常订单：</strong> 订单状态需为 【派送中】
                     </div>
                     <table id="tb_order"></table>
                 </div>
@@ -434,7 +434,7 @@
                     if (row.length > 0) {
                         let ids = new Array();
                         for (let i = 0; i < row.length; i++) {
-                            if (row[i].orderStatus === 2 || row[i].orderStatus === 3) {
+                            if (row[i].orderStatus === 2) {
                                 ids.push(row[i].id);
                             }
                         }

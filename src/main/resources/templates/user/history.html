@@ -57,11 +57,12 @@
                     </div>
                     <div class="alert alert-danger alert-dismissible fade in" role="alert">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
-                        <strong>重要！</strong> 由于来自支付宝的限制，您支付后订单可能仍处于 “等待付款” 状态，请务必手动点击订单后的同步按钮。【注：仅有支付成功的订单才会被安排配送】
+                        <strong>重要！</strong> 由于支付宝沙箱环境的不稳定，您支付后订单可能仍处于 【等待付款】 状态，请务必手动点击订单后的同步按钮。【注：仅有支付成功的订单才会被安排配送】
                     </div>
                     <div class="alert alert-warning alert-dismissible fade in" role="alert">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
-                        <strong>提示！</strong> 撤销订单仅能撤 “等待派送” 状态订单，删除订单仅能移除 “订单完成” 和 “订单异常” 状态订单
+                        <strong>撤销订单：</strong> 订单状态需为 【等待派送】
+                        <strong>删除订单：</strong> 订单状态需为 【订单完成】 或 【订单异常】
                     </div>
                     <table id="tb_history"></table>
                 </div>
@@ -183,7 +184,7 @@
                     <h4 class="modal-title" id="evaluateModelLabel">订单评价</h4>
                 </div>
                 <div class="modal-body">
-                    <strong style="text-align: center">当前订单已处理完毕，如无误请对配送员进行评价。</strong>
+                    <h4 style="text-align: center">当前订单已处理完毕，如无误请对配送员进行评价。</h4>
                     <form class="form-horizontal">
                         <input type="hidden" id="inputOrderEvaluate">
                         <div class="form-group">
@@ -229,9 +230,7 @@
             //2、初始化Button的点击事件
             var oButtonInit = new ButtonInit();
             oButtonInit.Init();
-        });
 
-        $().ready(function() {
             $("#inputScore").rating({
                 showClear: false,
                 starCaptions: function (val) {
@@ -405,7 +404,7 @@
 
             // 订单评价
             if(row.canScore === "1") {
-                result += '<button class="btn btn-xs btn-success" onclick="showEvaluate('+id+')" title="评价"><span class="glyphicon glyphicon-edit"></span></button>\n';
+                result += '<button class="btn btn-xs btn-default" onclick="showEvaluate('+id+')" title="评价"><span class="glyphicon glyphicon-edit"></span></button>\n';
             }
 
             return result;
@@ -490,9 +489,27 @@
             $("#inputOrderEvaluate").val(id);
             $("#evaluateModel").modal('show');
         }
-        
+
         function commitEvaluate() {
-            alert($("#inputScore").val())
+            let orderId = $("#inputOrderEvaluate").val();
+            if (orderId == null || orderId === '') {
+                layer.msg("评分异常，请重试", {icon: 7});
+                $("#evaluateModel").modal('hide');
+                return;
+            }
+
+            let score = $("#inputScore").val(), evaluate = $("#inputEvaluate").val();
+            sendJson(HTTP.POST, "/api/v1/evaluate/order/" + orderId, {"score": score, "evaluate": evaluate}, false, function (res) {
+                if (res.code === 0) {
+                    layer.msg("评价完毕！", {icon: 1});
+                    $("#evaluateModel").modal('hide');
+                    flushTable();
+                } else {
+                    layer.msg(res.msg, {icon: 2});
+                }
+            }, function () {
+                layer.msg("未知错误", {icon: 2});
+            });
         }
     </script>
 </body>

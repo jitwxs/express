@@ -3,9 +3,11 @@ package com.example.express.common.cache;
 import com.example.express.domain.bean.DataArea;
 import com.example.express.domain.bean.DataCompany;
 import com.example.express.domain.bean.DataSchool;
+import com.example.express.domain.bean.UserEvaluate;
 import com.example.express.service.DataAreaService;
 import com.example.express.service.DataCompanyService;
 import com.example.express.service.DataSchoolService;
+import com.example.express.service.UserEvaluateService;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -26,6 +28,8 @@ public class CommonDataCache {
     private DataSchoolService dataSchoolService;
     @Autowired
     private DataCompanyService dataCompanyService;
+    @Autowired
+    private UserEvaluateService userEvaluateService;
 
     /**
      * 行政区域数据缓存
@@ -42,6 +46,11 @@ public class CommonDataCache {
      * key: schoolId
      */
     public static LoadingCache<Integer, DataCompany> dataCompanyCache;
+    /**
+     * 用户评分Score
+     * key: 用户ID
+     */
+    public static LoadingCache<String, String> userScoreCache;
 
     @PostConstruct
     private void init() {
@@ -57,7 +66,7 @@ public class CommonDataCache {
 
         dataSchoolCache = CacheBuilder.newBuilder()
                 .maximumSize(35)
-                .expireAfterWrite(5, TimeUnit.MINUTES)
+                .expireAfterWrite(1, TimeUnit.SECONDS)
                 .build(new CacheLoader<Integer, List<DataSchool>>() {
                     @Override
                     public List<DataSchool> load(Integer provinceId) throws Exception {
@@ -67,11 +76,22 @@ public class CommonDataCache {
 
         dataCompanyCache = CacheBuilder.newBuilder()
                 .maximumSize(35)
-                .expireAfterWrite(10, TimeUnit.MINUTES)
+                .expireAfterWrite(1, TimeUnit.SECONDS)
                 .build(new CacheLoader<Integer, DataCompany>() {
                     @Override
                     public DataCompany load(Integer id) throws Exception {
                         return dataCompanyService.getById(id);
+                    }
+                });
+
+        userScoreCache = CacheBuilder.newBuilder()
+                .maximumSize(35)
+                .expireAfterWrite(1, TimeUnit.SECONDS)
+                .build(new CacheLoader<String, String>() {
+                    @Override
+                    public String load(String id) throws Exception {
+                        UserEvaluate evaluate = userEvaluateService.getById(id);
+                        return evaluate.getScore().toPlainString();
                     }
                 });
     }

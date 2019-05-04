@@ -9,6 +9,7 @@
     <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}" href="../../static/assets/css/bootstrap.min.css"/>
     <link rel="stylesheet" th:href="@{/assets/css/bootstrap-table.css}" href="../../static/assets/css/bootstrap-table.css"/>
     <link rel="stylesheet" th:href="@{/assets/css/express.css}" href="../../static/assets/css/express.css"/>
+    <link rel="stylesheet" th:href="@{/assets/css/star-rating.min.css}" href="../../static/assets/css/star-rating.min.css"/>
 </head>
 <body>
     <div class="container-fluid">
@@ -46,6 +47,12 @@
                     </form>
                 </div>
                 <div class="panel-body">
+                    <div class="alert alert-info alert-dismissible fade in" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+                        <strong>完成订单：</strong> 订单状态需为 【派送中】 或 【订单异常】
+                        <strong>异常订单：</strong> 订单状态需为 【派送中】
+                        <strong>订单评价：</strong> 订单状态需为 【订单完成】 或 【订单异常】
+                    </div>
                     <table id="tb_history"></table>
                 </div>
             </div>
@@ -157,6 +164,38 @@
             </div>
         </div>
     </div>
+    <!-- 评价模态框 -->
+    <div class="modal fade" id="evaluateModel" tabindex="-1" role="dialog" aria-labelledby="evaluateModelLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="evaluateModelLabel">订单评价</h4>
+                </div>
+                <div class="modal-body">
+                    <h4 style="text-align: center">当前订单已处理完毕，如无误请对用户进行评价。</h4>
+                    <form class="form-horizontal">
+                        <input type="hidden" id="inputOrderEvaluate">
+                        <div class="form-group">
+                            <label for="inputScore" class="col-md-2 control-label">评分</label>
+                            <div class="col-md-10">
+                                <input id="inputScore" value="5" type="text" data-min=0 data-max=10 data-step=0.5 data-size="md">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputEvaluate" class="col-sm-2 control-label">评价留言</label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control dis_change_textarea" id="inputEvaluate" rows="5" placeholder="给用户一个中肯的评价"></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="commitEvaluate()">评价</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script th:src="@{/assets/js/http.js}" src="../../static/assets/js/http.js"></script>
     <script th:src="@{/assets/js/express.js}" src="../../static/assets/js/express.js"></script>
@@ -168,6 +207,7 @@
     <script th:src="@{/assets/js/bootstrap-table-export.min.js}" src="../../static/assets/js/bootstrap-table-export.min.js"></script>
     <script th:src="@{/assets/js/bootstrap-table-zh-CN.min.js}" src="../../static/assets/js/bootstrap-table-zh-CN.min.js"></script>
     <script th:src="@{/assets/js/tableExport.min.js}" src="../../static/assets/js/tableExport.min.js"></script>
+    <script th:src="@{/assets/js/star-rating.min.js}" src="../../static/assets/js/star-rating.min.js"></script>
     <script>
         $(function () {
             $("#history-sidebar").addClass('active');
@@ -175,6 +215,23 @@
             //1、初始化Table
             var oTable = new TableInit();
             oTable.Init();
+
+            $("#inputScore").rating({
+                showClear: false,
+                starCaptions: function (val) {
+                    return val;
+                },
+                starCaptionClasses: function (val) {
+                    if (val < 3) {
+                        return 'label label-danger';
+                    } else if(val < 7) {
+                        return 'label label-warning';
+                    } else {
+                        return 'label label-success';
+                    }
+                },
+                hoverOnClear: false
+            });
         });
 
         var TableInit = function () {
@@ -241,8 +298,6 @@
                         field: 'id',
                         title: '操作',
                         width: 120,
-                        align: 'center',
-                        valign: 'middle',
                         formatter: actionFormatter
                     }]
                 });
@@ -268,9 +323,22 @@
         function actionFormatter(value, row, index) {
             let id = "'" + value + "'";
             let result = '<button class="btn btn-xs btn-info" onclick="showDetail('+id+')" title="查看"><span class="glyphicon glyphicon-search"></span></button>\n';
+
+            // 等待派送
             if(row.orderStatus === 2) {
                 result += '<button class="btn btn-xs btn-success" onclick="completeOrder('+id+')" title="完成"><span class="glyphicon glyphicon-ok-circle"></span></button>\n' +
-                '         <button class="btn btn-xs btn-danger" onclick="errorComplete('+id+')" title="异常"><span class="glyphicon glyphicon-remove-circle"></span></button>';
+                    '         <button class="btn btn-xs btn-danger" onclick="errorComplete('+id+')" title="异常"><span class="glyphicon glyphicon-remove-circle"></span></button>\n';
+            }
+            // 订单完成
+            if(row.orderStatus === 3 && row.canScore === "1") {
+                result += '<button class="btn btn-xs btn-default" onclick="showEvaluate('+id+')" title="评价"><span class="glyphicon glyphicon-edit"></span></button>\n';
+            }
+            // 订单异常
+            if(row.orderStatus === 4) {
+                result += '<button class="btn btn-xs btn-success" onclick="completeOrder('+id+')" title="完成"><span class="glyphicon glyphicon-ok-circle"></span></button>\n';
+                if(row.canScore === "1") {
+                    result += '<button class="btn btn-xs btn-default" onclick="showEvaluate('+id+')" title="评价"><span class="glyphicon glyphicon-edit"></span></button>\n';
+                }
             }
             return result;
         }
@@ -356,6 +424,33 @@
                 }, function () {
                     layer.msg("未知错误", {icon: 2});
                 });
+            });
+        }
+
+        function showEvaluate(id) {
+            $("#inputOrderEvaluate").val(id);
+            $("#evaluateModel").modal('show');
+        }
+
+        function commitEvaluate() {
+            let orderId = $("#inputOrderEvaluate").val();
+            if (orderId == null || orderId === '') {
+                layer.msg("评分异常，请重试", {icon: 7});
+                $("#evaluateModel").modal('hide');
+                return;
+            }
+
+            let score = $("#inputScore").val(), evaluate = $("#inputEvaluate").val();
+            sendJson(HTTP.POST, "/api/v1/evaluate/order/" + orderId, {"score": score, "evaluate": evaluate}, false, function (res) {
+                if (res.code === 0) {
+                    layer.msg("评价完毕！", {icon: 1});
+                    $("#evaluateModel").modal('hide');
+                    flushTable();
+                } else {
+                    layer.msg(res.msg, {icon: 2});
+                }
+            }, function () {
+                layer.msg("未知错误", {icon: 2});
             });
         }
     </script>

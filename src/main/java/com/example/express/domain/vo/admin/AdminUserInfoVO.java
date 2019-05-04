@@ -31,6 +31,10 @@ public class AdminUserInfoVO implements Serializable {
      */
     private Boolean hasEnable;
     /**
+     * 用户评分
+     */
+    private String score;
+    /**
      * 账户解冻时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")

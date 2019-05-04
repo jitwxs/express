@@ -2,9 +2,15 @@ package com.example.express.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.express.domain.bean.UserEvaluate;
+import com.example.express.domain.enums.SysRoleEnum;
 
 public interface UserEvaluateService extends IService<UserEvaluate> {
-    boolean initUserEvaluate(String userId);
+    String getScoreFromCache(String userId);
 
-    boolean updateUserEvaluate(String userId, double score);
+    boolean initUserEvaluate(String userId);
+    /**
+     * 更新评分
+     * @param roleEnum 用户或派送员
+     */
+    boolean updateEvaluate(String orderId, double score, SysRoleEnum roleEnum);
 }

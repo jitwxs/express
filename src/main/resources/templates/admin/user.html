@@ -140,7 +140,11 @@
                     }, {
                         field: 'tel',
                         title: '手机号码'
-                    }, {
+                    },{
+                        field: 'score',
+                        title: '评分',
+                        formatter: scoreFormatter
+                    },  {
                         field: 'hasReal',
                         title: '实名状态',
                         formatter: realFormatter
@@ -240,6 +244,17 @@
                 return '<span style="color:gray">未冻结</span>';
             } else {
                 return '<span style="color:red">'+value+'</span>';
+            }
+        }
+        function scoreFormatter(value, row, index) {
+            if(value != null) {
+                if(value < 3) {
+                    return '<span style="color:red">'+value+'</span>';
+                } else if(value < 7) {
+                    return '<span style="color:orange">'+value+'</span>';
+                } else {
+                    return '<span style="color:green">'+value+'</span>';
+                }
             }
         }
 

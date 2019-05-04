@@ -6,6 +6,7 @@ import com.example.express.domain.bean.SysUser;
 import com.example.express.domain.vo.user.UserInfoVO;
 import com.example.express.service.DataCompanyService;
 import com.example.express.service.SysUserService;
+import com.example.express.service.UserEvaluateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,6 +26,8 @@ import javax.servlet.http.HttpSession;
 public class UserPageController {
     @Autowired
     private SysUserService sysUserService;
+    @Autowired
+    private UserEvaluateService userEvaluateService;
     @Autowired
     private DataCompanyService dataCompanyService;
 
@@ -66,6 +69,16 @@ public class UserPageController {
     public String showHistory(@AuthenticationPrincipal SysUser sysUser, ModelMap map) {
         map.put("frontName", sysUserService.getFrontName(sysUser));
         return "user/history";
+    }
+
+    /**
+     * 评价中心页面
+     */
+    @RequestMapping("/evaluate")
+    public String showEvaluate(@AuthenticationPrincipal SysUser sysUser,ModelMap map) {
+        map.put("frontName", sysUserService.getFrontName(sysUser));
+        map.put("score", userEvaluateService.getScoreFromCache(sysUser.getId()));
+        return "user/evaluate";
     }
 
     /**

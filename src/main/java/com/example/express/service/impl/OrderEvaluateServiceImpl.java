@@ -100,6 +100,11 @@ public class OrderEvaluateServiceImpl extends ServiceImpl<OrderEvaluateMapper, O
         DefaultTransactionDefinition definition = new DefaultTransactionDefinition();
         TransactionStatus status = transactionManager.getTransaction(definition);
 
+        // 校验评分
+        if(!isLegalScore(score)) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.EVALUATE_SCORE_ERROR);
+        }
+
         OrderEvaluate evaluate = super.getById(orderId);
 
         // 未开启评分
@@ -121,13 +126,20 @@ public class OrderEvaluateServiceImpl extends ServiceImpl<OrderEvaluateMapper, O
         }
 
         /* 订单评分 */
+        evaluate.setUserId(userId);
         evaluate.setUserScore(new BigDecimal(score));
         evaluate.setUserEvaluate(text);
         evaluate.setUserDate(LocalDateTime.now());
 
-        // 判断对手是否评分，如果评分过，关闭评分
+        // 判断对方是否评分，如果评分过，关闭评分
         if(evaluate.getCourierScore() != null) {
             evaluate.setHasOpen(false);
+        }
+
+        // 设置对方的ID
+        if(StringUtils.isBlank(evaluate.getCourierId())) {
+            OrderInfo orderInfo = orderInfoService.getById(orderId);
+            evaluate.setCourierId(orderInfo.getCourierId());
         }
 
         if(!this.retBool(orderEvaluateMapper.updateById(evaluate))) {
@@ -135,8 +147,8 @@ public class OrderEvaluateServiceImpl extends ServiceImpl<OrderEvaluateMapper, O
             return ResponseResult.failure(ResponseErrorCodeEnum.ORDER_EVALUATE_ERROR);
         }
 
-        /* 更新个人评分 */
-        if(!userEvaluateService.updateUserEvaluate(userId, score)) {
+        /* 更新配送员评分 */
+        if(!userEvaluateService.updateEvaluate(orderId, score, SysRoleEnum.COURIER)) {
             transactionManager.rollback(status);
             return ResponseResult.failure(ResponseErrorCodeEnum.SCORE_UPDATE_ERROR);
         }
@@ -151,6 +163,11 @@ public class OrderEvaluateServiceImpl extends ServiceImpl<OrderEvaluateMapper, O
         DefaultTransactionDefinition definition = new DefaultTransactionDefinition();
         TransactionStatus status = transactionManager.getTransaction(definition);
 
+        // 校验评分
+        if(!isLegalScore(score)) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.EVALUATE_SCORE_ERROR);
+        }
+
         OrderEvaluate evaluate = super.getById(orderId);
 
         // 未开启评分
@@ -158,11 +175,11 @@ public class OrderEvaluateServiceImpl extends ServiceImpl<OrderEvaluateMapper, O
             return ResponseResult.failure(ResponseErrorCodeEnum.ORDER_NOT_OPEN_EVALUATE);
         }
         // 是否有权限
-        if(!orderInfoService.isUserOrder(orderId, courierId)) {
+        if(!orderInfoService.isCourierOrder(orderId, courierId)) {
             return ResponseResult.failure(ResponseErrorCodeEnum.NO_PERMISSION);
         }
         // 已评分
-        if(evaluate.getUserScore() != null) {
+        if(evaluate.getCourierScore() != null) {
             return ResponseResult.failure(ResponseErrorCodeEnum.ORDER_ALREADY_EVALUATE);
         }
 
@@ -172,13 +189,20 @@ public class OrderEvaluateServiceImpl extends ServiceImpl<OrderEvaluateMapper, O
         }
 
         /* 订单评分 */
+        evaluate.setCourierId(courierId);
         evaluate.setCourierScore(new BigDecimal(score));
         evaluate.setCourierEvaluate(text);
         evaluate.setCourierDate(LocalDateTime.now());
 
-        // 判断对手是否评分，如果评分过，关闭评分
+        // 判断对方是否评分，如果评分过，关闭评分
         if(evaluate.getUserScore() != null) {
             evaluate.setHasOpen(false);
+        }
+
+        // 设置对方的ID
+        if(StringUtils.isBlank(evaluate.getUserId())) {
+            OrderInfo orderInfo = orderInfoService.getById(orderId);
+            evaluate.setUserId(orderInfo.getUserId());
         }
 
         if(!this.retBool(orderEvaluateMapper.updateById(evaluate))) {
@@ -186,13 +210,17 @@ public class OrderEvaluateServiceImpl extends ServiceImpl<OrderEvaluateMapper, O
             return ResponseResult.failure(ResponseErrorCodeEnum.ORDER_EVALUATE_ERROR);
         }
 
-        /* 更新个人评分 */
-        if(!userEvaluateService.updateUserEvaluate(courierId, score)) {
+        /* 更新普通用户的评分 */
+        if(!userEvaluateService.updateEvaluate(orderId, score, SysRoleEnum.USER)) {
             transactionManager.rollback(status);
             return ResponseResult.failure(ResponseErrorCodeEnum.SCORE_UPDATE_ERROR);
         }
 
         transactionManager.commit(status);
         return ResponseResult.success();
+    }
+
+    private boolean isLegalScore(double score) {
+        return score >= 0 && score <= 10;
     }
 }

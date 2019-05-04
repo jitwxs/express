@@ -92,6 +92,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .permitAll().and()
                 .logout()
                     .logoutUrl(SecurityConstant.LOGOUT_URL)
+                    .logoutSuccessUrl(SecurityConstant.UN_AUTHENTICATION_URL)
                     .deleteCookies("JSESSIONID").and()
                 .rememberMe()
                     .tokenRepository(persistentTokenRepository())
