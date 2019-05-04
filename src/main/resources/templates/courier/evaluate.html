@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>评价中心 - Express</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}" href="../../static/assets/css/bootstrap.min.css"/>
+    <link rel="stylesheet" th:href="@{/assets/css/express.css}" href="../../static/assets/css/express.css"/>
+    <link rel="stylesheet" th:href="@{/assets/css/star-rating.min.css}" href="../../static/assets/css/star-rating.min.css"/>
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- 头部 -->
+        <nav th:replace="courier/module/nav::html"></nav>
+        <!-- 主体 -->
+        <div class="row">
+            <!-- 左侧菜单 -->
+            <div th:replace="courier/module/sidebar::html"></div>
+            <div class="col-md-10">
+                <div>
+                    <input type="text" id="userStar" th:value="${score}" data-min=0 data-max=10 data-step=0.5 data-size="lg" data-stars=10 disabled>
+                </div>
+                <div style="margin-top: 25px;">
+                    <ul class="list-group" id="evaluateList">
+                        <li class="list-group-item list-group-item-info">
+                            <span class="badge">14</span>
+                            来自订单<span style="color: aquamarine">xxx</span>
+                            的评价：<span>bbbb</span>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <nav aria-label="evaluatePage"style="margin-top: 15px;">
+                        <ul class="pager">
+                            <li id="preBtn" class="previous"><a href="javascript:;" onclick="prePage()"><span aria-hidden="true">&larr;</span> Older</a></li>
+                            <li id="nextBtn" class="next"><a href="javascript:;" onclick="nextPage()">Newer <span aria-hidden="true">&rarr;</span></a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/assets/js/http.js}" src="../../static/assets/js/http.js"></script>
+    <script th:src="@{/assets/js/express.js}" src="../../static/assets/js/express.js"></script>
+    <script th:src="@{/assets/js/jquery.min.js}" src="../../static/assets/js/jquery.min.js"></script>
+    <script th:src="@{/assets/js/jquery.validate.min.js}" src="../../static/assets/js/jquery.validate.min.js"></script>
+    <script th:src="@{/assets/layer/layer.js}" src="../../static/assets/layer/layer.js"></script>
+    <script th:src="@{/assets/js/bootstrap.min.js}" src="../../static/assets/js/bootstrap.min.js"></script>
+    <script th:src="@{/assets/js/star-rating.min.js}" src="../../static/assets/js/star-rating.min.js"></script>
+    <script>
+        var current = 1, page;
+        $(function () {
+            $("#evaluate-sidebar").addClass('active');
+
+            $("#userStar").rating({
+                showClear: false,
+                hoverOnClear: false
+            });
+
+            loadData();
+        });
+
+        function loadData() {
+            // 加载评价数据
+            sendJson(HTTP.GET, "/api/v1/evaluate/list", {"current": current}, false, function (res) {
+                if(res.code === 0) {
+                    let html = '';
+                    let data = res.data.record;
+                    for(let i = 0; i<data.length; i++) {
+                        html += '<ul class="list-group" id="evaluateList">\n' +
+                            '                        <li class="list-group-item list-group-item-info">\n' +
+                            '                            <span class="badge">'+data[i].score+'</span> \n' +
+                            '                            来自订单<span style="color: #ff8559">'+data[i].orderId+'</span>\n' +
+                            '                            的评价：<span>'+data[i].evaluate+'</span>\n' +
+                            '                        </li>\n' +
+                            '                    </ul>';
+                    }
+                    $("#evaluateList").html(html);
+
+                    current = res.data.current;
+                    page = res.data.page;
+
+                    if(current <= 1) {
+                        $('#preBtn').addClass('disabled');
+                        current = 1;
+                    }
+                    if(current >= page) {
+                        $('#nextBtn').addClass('disabled');
+                        current = page;
+                    }
+                } else {
+                    layer.msg(res.msg, {icon:2});
+                }
+            }, function () {
+                layer.msg("未知错误",{icon:2});
+            });
+        }
+
+        function prePage() {
+            if(current <= 1) {
+                $('#preBtn').addClass('disabled');
+                return false;
+            } else {
+                $('#nextBtn').removeClass("disabled");
+            }
+            current = current - 1;
+            loadData();
+        }
+        
+        function nextPage() {
+            if(current >= page) {
+                $('#nextBtn').addClass('disabled');
+                return false;
+            } else {
+                $('#preBtn').removeClass("disabled");
+            }
+            current = current + 1;
+            loadData();
+        }
+    </script>
+</body>
+</html>

@@ -2,10 +2,11 @@
 <html lang="zh-cn" xmlns:th="http://www.thymeleaf.org">
     <div class="col-md-2"  th:fragment="html">
         <ul class="nav nav-pills nav-stacked" id="nav">
-            <li id="dashboard-sidebar"><a href="/courier/dashboard">仪表盘<i class="glyphicon glyphicon-dashboard pull-right"></i></a></li>
+            <li id="dashboard-sidebar" class="disabled"><a href="#">仪表盘<i class="glyphicon glyphicon-dashboard pull-right"></i></a></li>
             <li id="order-sidebar"><a href="/courier/order">接单大厅<i class="glyphicon glyphicon-cloud-download pull-right"></i></a></li>
             <li id="history-sidebar"><a href="/courier/history">我的订单<i class="glyphicon glyphicon-list-alt pull-right"></i></a></li>
             <li id="feedback-sidebar"><a href="/courier/feedback">反馈建议<i class="glyphicon glyphicon-comment pull-right"></i></a></li>
+            <li id="evaluate-sidebar"><a href="/courier/evaluate">评价中心<i class="glyphicon glyphicon-edit pull-right"></i></a></li>
             <li id="info-sidebar"><a href="/courier/info">个人中心<i class="glyphicon glyphicon-cog pull-right"></i></a></li>
             <li id="log-sidebar" class="disabled"><a href="#">操作日志<i class="glyphicon glyphicon-list-alt pull-right"></i></a></li>
             <li><a href="/logout">退出登录<i class="glyphicon glyphicon-log-out pull-right"></i></a></li>

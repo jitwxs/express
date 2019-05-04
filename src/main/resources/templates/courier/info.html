@@ -442,6 +442,16 @@
         $("#setFaceModel").modal('hide');
         location.reload();
     }
+    $("#setFaceModel").on("hide.bs.modal",function(){
+        if(streams) {
+            streams.stop();
+            videoTimer = null;
+        }
+        clearInterval(timers);
+        timers = null;
+        isSend = true;
+        location.reload();
+    });
     // 获取摄像头使用权限
     let file ,streams;
     var timers = null;

@@ -26,7 +26,7 @@
                             <label for="inputOrderStatus">订单状态</label>
                             <select id="inputOrderStatus" class="form-control">
                                 <option value=-1>所有状态</option>
-                                <option value=1>等待派送</option>
+                                <option value=1>等待接单</option>
                                 <option value=2>派送中</option>
                                 <option value=3>订单完成</option>
                                 <option value=4>订单异常</option>
@@ -69,7 +69,7 @@
                     </div>
                     <div class="alert alert-info alert-dismissible fade in" role="alert">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
-                        <strong>订单分配：</strong> 订单状态需为 【等待派送】，支付状态需为 【交易成功】 或 【交易结束】
+                        <strong>订单分配：</strong> 订单状态需为 【等待接单】，支付状态需为 【交易成功】 或 【交易结束】
                         <strong>完成订单：</strong> 订单状态需为 【派送中】 或 【订单异常】
                         <strong>异常订单：</strong> 订单状态需为 【派送中】
                     </div>
@@ -486,7 +486,7 @@
             else if (value === 2)
                 return '<span style="color:#42afff">派送中</span>';
             else if (value === 1)
-                return '<span style="color:grey">等待派送</span>';
+                return '<span style="color:grey">等待接单</span>';
         }
         // 支付状态格式化
         function paymentFormatter(value, row, index) {

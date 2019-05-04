@@ -12,9 +12,9 @@ import java.util.Arrays;
 @Getter
 public enum  OrderStatusEnum  implements IEnum<Integer> {
     /**
-     * 等待派送
+     * 等待接单
      */
-    WAIT_DIST("等待派送", 1),
+    WAIT_DIST("等待接单", 1),
 
     /**
      * 派送中

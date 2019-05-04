@@ -8,31 +8,15 @@ import com.example.express.domain.vo.DataAreaVO;
 import com.example.express.mapper.DataAreaMapper;
 import com.example.express.service.DataAreaService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.event.ApplicationPreparedEvent;
-import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 @Service
-public class DataAreaServiceImpl extends ServiceImpl<DataAreaMapper, DataArea> implements DataAreaService, ApplicationListener<ApplicationPreparedEvent> {
+public class DataAreaServiceImpl extends ServiceImpl<DataAreaMapper, DataArea> implements DataAreaService {
     @Autowired
     private DataAreaMapper dataAreaMapper;
 
-    /**
-     * 加载线程池
-     */
-    private ScheduledThreadPoolExecutor executor;
-
-    @Override
-    public void onApplicationEvent(ApplicationPreparedEvent applicationPreparedEvent) {
-//        this.executor = new ScheduledThreadPoolExecutor(1,
-//                new ThreadFactoryBuilder().setNameFormat("data-area-config").build());
-//        this.executor.scheduleWithFixedDelay(() -> {
-//
-//        }, 0, 600, TimeUnit.SECONDS);
-    }
 
     @Override
     public List<DataArea> listByParentId(Integer parentId) {

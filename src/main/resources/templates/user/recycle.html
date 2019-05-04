@@ -26,7 +26,7 @@
                             <label for="inputStatus">订单状态</label>
                             <select id="inputStatus" class="form-control">
                                 <option value=-1>所有状态</option>
-                                <option value=1>等待派送</option>
+                                <option value=1>等待接单</option>
                                 <option value=2>派送中</option>
                                 <option value=3>订单完成</option>
                                 <option value=4>订单异常</option>
@@ -203,7 +203,7 @@
             else if (value === 2)
                 return '<span style="color:#42afff">派送中</span>';
             else if (value === 1)
-                return '<span style="color:grey">等待派送</span>';
+                return '<span style="color:grey">等待接单</span>';
         }
         // 支付状态格式化
         function paymentFormatter(value, row, index) {

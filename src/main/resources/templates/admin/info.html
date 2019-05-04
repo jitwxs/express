@@ -290,6 +290,16 @@
                     return;
             }
         }
+        $("#setFaceModel").on("hide.bs.modal",function(){
+            if(streams) {
+                streams.stop();
+                videoTimer = null;
+            }
+            clearInterval(timers);
+            timers = null;
+            isSend = true;
+            location.reload();
+        });
         function submitForm(type) {
             switch (type) {
                 case 1:

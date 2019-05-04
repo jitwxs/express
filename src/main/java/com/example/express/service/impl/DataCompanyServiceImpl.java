@@ -52,6 +52,7 @@ public class DataCompanyServiceImpl extends ServiceImpl<DataCompanyMapper, DataC
         ScheduledThreadPoolExecutor executorService = new ScheduledThreadPoolExecutor(1,
                 new ThreadFactoryBuilder().setNameFormat("data-company-loader").build());
         executorService.scheduleWithFixedDelay(() -> {
+            redisTemplate.delete(RedisKeyConstant.DATA_COMPANY);
             redisTemplate.opsForList().rightPushAll(RedisKeyConstant.DATA_COMPANY, listAll());
         }, 0, 10, TimeUnit.MINUTES);
     }

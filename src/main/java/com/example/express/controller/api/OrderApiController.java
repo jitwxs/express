@@ -131,7 +131,7 @@ public class OrderApiController {
     }
 
     /**
-     * 获取所有状态为等待派送（支付成功）订单
+     * 获取所有状态为等待接单（支付成功）订单
      */
     @GetMapping("/wait-list")
     @PreAuthorize("hasRole('ROLE_COURIER')")

@@ -423,7 +423,6 @@
                 return;
             case 4:
                 startCamera();
-                $("#setFaceModel").modal('show');
                 return;
             case 5:
                 $("#setSchoolModel").modal('show');
@@ -455,6 +454,16 @@
                 return;
         }
     }
+    $("#setFaceModel").on("hide.bs.modal",function(){
+        if(streams) {
+            streams.stop();
+            videoTimer = null;
+        }
+        clearInterval(timers);
+        timers = null;
+        isSend = true;
+        location.reload();
+    });
     function submitForm(type) {
         switch (type) {
             case 1:
@@ -517,6 +526,7 @@
         //video.src = CompatibleURL.createObjectURL(stream);
         video.srcObject = stream;
         video.play();
+        $("#setFaceModel").modal('show');
         sendImg();
     }
 
@@ -525,6 +535,7 @@
     }
 
     function startCamera(){
+
         if (navigator.mediaDevices.getUserMedia || navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia) {
             //调用用户媒体设备, 访问摄像头
             getUserMedia({video : {width: 480, height: 320}}, success, error);

@@ -28,17 +28,16 @@ public class PageController {
                 response.sendRedirect("/completeInfo");
                 return;
             case USER:
-                response.sendRedirect("/user/dashboard");
+                response.sendRedirect("/user/order");
                 return;
             case ADMIN:
-                response.sendRedirect("/admin/dashboard");
+                response.sendRedirect("/admin/order");
                 return;
             case COURIER:
-                response.sendRedirect("/courier/dashboard");
+                response.sendRedirect("/courier/order");
                 return;
             default:
                 response.sendRedirect("/index");
-                return;
         }
     }
 
