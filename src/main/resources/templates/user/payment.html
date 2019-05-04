@@ -36,9 +36,15 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="expressAddress" class="col-sm-2 control-label">配送地址</label>
+                                <label for="expressAddress" class="col-sm-2 control-label">快递寄达地址</label>
                                 <div class="col-sm-10">
-                                    <p class="form-control-static" id="expressAddress" th:text="${order.recAddress}"></p>
+                                    <p class="form-control-static" id="expressAddress" th:text="${order.address}"></p>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="expressRecAddress" class="col-sm-2 control-label">收件地址</label>
+                                <div class="col-sm-10">
+                                    <p class="form-control-static" id="expressRecAddress" th:text="${order.recAddress}"></p>
                                 </div>
                             </div>
                             <div class="form-group">

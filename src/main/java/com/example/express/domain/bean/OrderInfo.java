@@ -39,6 +39,10 @@ public class OrderInfo {
      */
     private String recAddress;
     /**
+     * 快递寄达地址
+     */
+    private String address;
+    /**
      * 备注
      */
     private String remark;

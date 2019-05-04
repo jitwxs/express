@@ -208,13 +208,13 @@
         // 支付状态格式化
         function paymentFormatter(value, row, index) {
             if(value === 1)
-                return '<span style="color:#f5a623">等待付款</span>';
+                return '<span style="color:#f5a623">等待支付</span>';
             else if (value === 2)
-                return '<span style="color:red">交易关闭</span>';
+                return '<span style="color:red">支付关闭</span>';
             else if (value === 3)
-                return '<span style="color:green">交易成功</span>';
+                return '<span style="color:green">支付成功</span>';
             else if (value === 4)
-                return '<span style="color:grey">交易结束</span>';
+                return '<span style="color:grey">支付结束</span>';
         }
         // 回收原因格式化
         function deleteTypeFormatter(value, row, index) {

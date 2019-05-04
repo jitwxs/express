@@ -36,10 +36,10 @@
                             <label for="inputPaymentStatus">支付状态</label>
                             <select id="inputPaymentStatus" class="form-control">
                                 <option value=-1>所有状态</option>
-                                <option value=1>等待付款</option>
-                                <option value=2>交易关闭</option>
-                                <option value=3>交易成功</option>
-                                <option value=4>交易结束</option>
+                                <option value=1>等待支付</option>
+                                <option value=2>支付关闭</option>
+                                <option value=3>支付成功</option>
+                                <option value=4>支付结束</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -69,7 +69,7 @@
                     </div>
                     <div class="alert alert-info alert-dismissible fade in" role="alert">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
-                        <strong>订单分配：</strong> 订单状态需为 【等待接单】，支付状态需为 【交易成功】 或 【交易结束】
+                        <strong>订单分配：</strong> 订单状态需为 【等待接单】，支付状态需为 【支付成功】 或 【支付结束】
                         <strong>完成订单：</strong> 订单状态需为 【派送中】 或 【订单异常】
                         <strong>异常订单：</strong> 订单状态需为 【派送中】
                     </div>
@@ -297,6 +297,9 @@
                         field: 'recTel',
                         title: '收件电话'
                     }, {
+                        field: 'address',
+                        title: '快递寄达地址'
+                    }, {
                         field: 'recAddress',
                         title: '收件地址'
                     }, {
@@ -310,12 +313,6 @@
                         field: 'orderStatus',
                         title: '订单状态',
                         formatter: orderFormatter
-                    }, {
-                        field: 'courier',
-                        title: '配送员'
-                    }, {
-                        field: 'courierRemark',
-                        title: '配送备注'
                     }, {
                         field: 'createDate',
                         title: '下单时间'
@@ -491,13 +488,13 @@
         // 支付状态格式化
         function paymentFormatter(value, row, index) {
             if(value === 1)
-                return '<span style="color:#f5a623">等待付款</span>';
+                return '<span style="color:#f5a623">等待支付</span>';
             else if (value === 2)
-                return '<span style="color:red">交易关闭</span>';
+                return '<span style="color:red">支付关闭</span>';
             else if (value === 3)
-                return '<span style="color:green">交易成功</span>';
+                return '<span style="color:green">支付成功</span>';
             else if (value === 4)
-                return '<span style="color:grey">交易结束</span>';
+                return '<span style="color:grey">支付结束</span>';
         }
 
         function flushTable() {

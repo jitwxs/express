@@ -104,6 +104,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
                 .companyName(dataCompanyService.getByCache(orderInfo.getCompany()).getName())
                 .recName(orderInfo.getRecName())
                 .recTel(orderInfo.getRecTel())
+                .address(orderInfo.getAddress())
                 .recAddress(orderInfo.getRecAddress())
                 .remark(orderInfo.getRemark())
                 .orderStatus(orderInfo.getOrderStatus().getName()).build();
@@ -191,11 +192,8 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
 
         IPage<AdminOrderVO> selectPage = orderInfoMapper.pageAdminOrderVO(page, sql);
 
-        // 设置快递公司、设置courier
         for(AdminOrderVO orderVO : selectPage.getRecords()) {
-            if(StringUtils.isNotBlank(orderVO.getCourier())) {
-                orderVO.setCourier(sysUserService.getFrontName(orderVO.getCourier()));
-            }
+            // 设置快递公司
             if(StringUtils.isNotBlank(orderVO.getCompany())) {
                 orderVO.setCompany(dataCompanyService.getByCache(StringUtils.toInteger(orderVO.getCompany())).getName());
             }
@@ -355,7 +353,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             if(orderInfo.getOrderStatus() != OrderStatusEnum.WAIT_DIST) {
                 continue;
             }
-           // 订单状态为交易成功、交易结束
+           // 订单状态为支付成功、支付结束
             OrderPayment payment = orderPaymentService.getById(orderId);
             if(payment.getPaymentStatus() != PaymentStatusEnum.TRADE_SUCCESS && payment.getPaymentStatus() != PaymentStatusEnum.TRADE_FINISHED) {
                 continue;

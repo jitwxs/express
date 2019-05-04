@@ -58,7 +58,7 @@ public class CourierPageController {
     public String showEvaluate(@AuthenticationPrincipal SysUser sysUser,ModelMap map) {
         map.put("frontName", sysUserService.getFrontName(sysUser));
         map.put("score", userEvaluateService.getScoreFromCache(sysUser.getId()));
-        return "user/evaluate";
+        return "courier/evaluate";
     }
 
     /**

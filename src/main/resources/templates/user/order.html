@@ -47,10 +47,17 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="inputAddress" class="col-sm-1 control-label">收件地址</label>
+                        <label for="inputAddress" class="col-sm-1 control-label">快递寄达地址</label>
                         <div class="col-sm-11">
-                            <textarea class="form-control dis_change_textarea" id="inputAddress" name="recAddress" rows="5"
-                                      placeholder="请输入收件地址"></textarea>
+                            <textarea class="form-control dis_change_textarea" id="inputAddress" name="address" rows="5"
+                                      placeholder="此地址为快递公司的配送地址"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputRecAddress" class="col-sm-1 control-label">收件地址</label>
+                        <div class="col-sm-11">
+                            <textarea class="form-control dis_change_textarea" id="inputRecAddress" name="recAddress" rows="5"
+                                      placeholder="此地址为本平台将为您派送的地址"></textarea>
                         </div>
                     </div>
                     <div class="form-group">
@@ -124,6 +131,10 @@
                         required: true,
                         maxlength: 255
                     },
+                    address: {
+                        required: true,
+                        maxlength: 255
+                    },
                     odd: {
                         required: true,
                         maxlength: 128
@@ -146,8 +157,12 @@
                         minlength: "手机号码不少于11位"
                     },
                     recAddress: {
-                        required: "配送地址不能为空",
-                        maxlength: "配送地址超过限制长度"
+                        required: "收件地址不能为空",
+                        maxlength: "收件地址超过限制长度"
+                    },
+                    address: {
+                        required: "快递寄达地址不能为空",
+                        maxlength: "快递寄达地址超过限制长度"
                     },
                     odd: {
                         required: "快递单号不能为空",

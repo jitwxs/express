@@ -88,9 +88,15 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="inputInfoAddress" class="col-sm-2 control-label">收件地址</label>
+                            <label for="inputInfoAddress" class="col-sm-2 control-label">寄达地址</label>
                             <div class="col-sm-10">
                                 <p class="form-control-static" id="inputInfoAddress"></p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputInfoRecAddress" class="col-sm-2 control-label">收件地址</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static" id="inputInfoRecAddress"></p>
                             </div>
                         </div>
                         <div class="form-group">
@@ -285,6 +291,9 @@
                         field: 'recAddress',
                         title: '收件地址'
                     }, {
+                        field: 'address',
+                        title: '快递寄达地址'
+                    }, {
                         field: 'remark',
                         title: '下单备注'
                     }, {
@@ -368,7 +377,8 @@
                     $("#inputInfoId").text(data.orderId);
                     $("#inputInfoName").text(data.recName);
                     $("#inputInfoTel").text(data.recTel);
-                    $("#inputInfoAddress").text(data.recAddress);
+                    $("#inputInfoAddress").text(data.address);
+                    $("#inputInfoRecAddress").text(data.recAddress);
                     $("#inputInfoOdd").text(data.odd);
                     $("#inputInfoCompany").text(data.companyName);
                     $("#inputInfoRemark").text(data.remark);

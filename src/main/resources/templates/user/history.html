@@ -57,7 +57,7 @@
                     </div>
                     <div class="alert alert-danger alert-dismissible fade in" role="alert">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
-                        <strong>重要！</strong> 由于支付宝沙箱环境的不稳定，您支付后订单可能仍处于 【等待付款】 状态，请务必手动点击订单后的同步按钮。【注：仅有支付成功的订单才会被安排配送】
+                        <strong>重要！</strong> 由于支付宝沙箱环境的不稳定，您支付后订单可能仍处于 【等待支付】 状态，请务必手动点击订单后的同步按钮。【注：仅有支付成功的订单才会被安排配送】
                     </div>
                     <div class="alert alert-warning alert-dismissible fade in" role="alert">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
@@ -99,9 +99,15 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="inputInfoAddress" class="col-sm-2 control-label">收件地址</label>
+                            <label for="inputInfoAddress" class="col-sm-2 control-label">寄达地址</label>
                             <div class="col-sm-10">
                                 <p class="form-control-static" id="inputInfoAddress"></p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputInfoRecAddress" class="col-sm-2 control-label">收件地址</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static" id="inputInfoRecAddress"></p>
                             </div>
                         </div>
                         <div class="form-group">
@@ -423,13 +429,13 @@
         // 支付状态的格式化
         function paymentFormatter(value, row, index) {
             if(value === 1)
-                return '<span style="color:#f5a623">等待付款</span>';
+                return '<span style="color:#f5a623">等待支付</span>';
             else if (value === 2)
-                return '<span style="color:red">交易关闭</span>';
+                return '<span style="color:red">支付关闭</span>';
             else if (value === 3)
-                return '<span style="color:green">交易成功</span>';
+                return '<span style="color:green">支付成功</span>';
             else if (value === 4)
-                return '<span style="color:grey">交易结束</span>';
+                return '<span style="color:grey">支付结束</span>';
         }
 
         function flushTable() {
@@ -464,7 +470,8 @@
                     $("#inputInfoId").text(data.orderId);
                     $("#inputInfoName").text(data.recName);
                     $("#inputInfoTel").text(data.recTel);
-                    $("#inputInfoAddress").text(data.recAddress);
+                    $("#inputInfoAddress").text(data.address);
+                    $("#inputInfoRecAddress").text(data.recAddress);
                     $("#inputInfoOdd").text(data.odd);
                     $("#inputInfoCompany").text(data.companyName);
                     $("#inputInfoRemark").text(data.remark);

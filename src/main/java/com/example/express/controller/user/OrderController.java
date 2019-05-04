@@ -128,7 +128,7 @@ public class OrderController {
                  * WAIT_BUYER_PAY：交易创建，等待买家付款；
                  * TRADE_CLOSED：未付款交易超时关闭，或支付完成后全额退款；
                  * TRADE_SUCCESS：交易支付成功；
-                 * TRADE_FINISHED：交易结束，不可退款
+                 * TRADE_FINISHED：支付结束，不可退款
                  */
                 // 获取支付宝订单号
                 String tradeNo = params.get("trade_no");
@@ -172,7 +172,7 @@ public class OrderController {
         TRADE_FINISHED 	交易完成 	false（不触发通知）
         TRADE_SUCCESS 	支付成功 	true（触发通知）
         WAIT_BUYER_PAY 	交易创建 	false（不触发通知）
-        TRADE_CLOSED 	交易关闭 	false（不触发通知）
+        TRADE_CLOSED 	支付关闭 	false（不触发通知）
         来源：https://docs.open.alipay.com/270/105902/#s2
          */
         // 获取参数

@@ -37,6 +37,10 @@ public class OrderDescVO implements Serializable {
      */
     private String recTel;
     /**
+     * 快递寄达地址
+     */
+    private String address;
+    /**
      * 收货地址
      */
     private String recAddress;

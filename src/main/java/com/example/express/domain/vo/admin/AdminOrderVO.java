@@ -36,6 +36,10 @@ public class AdminOrderVO implements Serializable {
      */
     private String recTel;
     /**
+     * 快递寄达地址
+     */
+    private String address;
+    /**
      * 收货地址
      */
     private String recAddress;
@@ -51,14 +55,6 @@ public class AdminOrderVO implements Serializable {
      * 支付状态
      */
     private Integer paymentStatus;
-    /**
-     * 配送员
-     */
-    private String courier;
-    /**
-     * 配送备注
-     */
-    private String courierRemark;
     /**
      * 下单时间
      */

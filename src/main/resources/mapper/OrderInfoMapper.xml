@@ -28,6 +28,7 @@
             info.company as company,
             info.rec_name AS rec_name,
             info.rec_tel AS rec_tel,
+            info.address AS address,
             info.rec_address AS rec_address,
             info.remark AS remark,
             info.status AS order_status,
@@ -48,12 +49,11 @@
             info.company as company,
             info.rec_name AS rec_name,
             info.rec_tel AS rec_tel,
+            info.address AS address,
             info.rec_address AS rec_address,
             info.remark AS remark,
             info.status AS order_status,
             payment.status AS payment_status,
-            info.courier_id AS courier_id,
-            info.courier_remark AS courier_remark,
             info.create_date
         FROM
             order_payment as payment, order_info as info

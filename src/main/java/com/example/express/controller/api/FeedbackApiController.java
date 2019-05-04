@@ -47,6 +47,7 @@ public class FeedbackApiController {
                                                          @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate,
                                                          @AuthenticationPrincipal SysUser sysUser) {
         Page<UserFeedback> page = new Page<>(current, size);
+        page.setDesc("create_date");
         QueryWrapper<UserFeedback> wrapper = new QueryWrapper<>();
 
         Integer feedStatus = StringUtils.toInteger(status, -1);
@@ -95,6 +96,7 @@ public class FeedbackApiController {
                                                             @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate,
                                                             @AuthenticationPrincipal SysUser sysUser) {
         Page<UserFeedback> page = new Page<>(current, size);
+        page.setDesc("create_date");
         QueryWrapper<UserFeedback> wrapper = new QueryWrapper<>();
 
         Integer feedStatus = StringUtils.toInteger(status, -1);
