@@ -61,10 +61,13 @@
                             <span class="glyphicon glyphicon-asterisk" aria-hidden="true"></span> 订单分配
                         </button>
                         <button id="btn_complete" type="button" class="btn btn-success">
-                            <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> 订单完成
+                            <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> 完成订单
                         </button>
-                        <button id="btn_error" type="button" class="btn btn-danger">
-                            <span class="glyphicon glyphicon-alert" aria-hidden="true"></span> 订单异常
+                        <button id="btn_error" type="button" class="btn btn-warning">
+                            <span class="glyphicon glyphicon-alert" aria-hidden="true"></span> 异常订单
+                        </button>
+                        <button id="btn_delete" type="button" class="btn btn-danger">
+                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> 删除订单
                         </button>
                     </div>
                     <div class="alert alert-info alert-dismissible fade in" role="alert">
@@ -72,6 +75,7 @@
                         <strong>订单分配：</strong> 订单状态需为 【等待接单】，支付状态需为 【支付成功】 或 【支付结束】
                         <strong>完成订单：</strong> 订单状态需为 【派送中】 或 【订单异常】
                         <strong>异常订单：</strong> 订单状态需为 【派送中】
+                        <strong>删除订单：</strong> 订单状态需非 【派送中】
                     </div>
                     <table id="tb_order"></table>
                 </div>
@@ -463,6 +467,36 @@
                         }
                     } else {
                         layer.msg("请先选中订单", {icon: 7});
+                    }
+                });
+                // 删除订单
+                $("#btn_delete").click(function () {
+                    let row = $('#tb_order').bootstrapTable("getSelections");
+                    if(row.length > 0) {
+                        let ids = new Array();
+                        for (let i = 0; i < row.length; i++) {
+                            if (row[i].orderStatus !== 2) {
+                                ids.push(row[i].id);
+                            }
+                        }
+                        if (ids.length === 0) {
+                            layer.msg("选中项不包含可删除的订单",{icon:0});
+                            return false;
+                        } else {
+                            layer.confirm("删除的订单号为：" + ids + "，确认执行？", {
+                                btn: ['确定','取消']
+                            }, function(){
+                                sendArray(HTTP.POST, "/api/v1/order/batch-remove", {"ids": ids}, false, function (res) {
+                                    if(res.code === 0) {
+                                        layer.msg("成功，删除" + res.data.success + "个，失败" + res.data.error + "个",{icon:1});
+                                        flushTable();
+                                    }
+                                }, function () {
+                                    layer.msg("未知错误",{icon:2});
+                                });
+                            }, function(){
+                            });
+                        }
                     }
                 });
             };

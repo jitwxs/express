@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>回收站 - Express</title>
+    <title>订单回收 - Express</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
 
@@ -13,23 +13,33 @@
 <body>
     <div class="container-fluid">
         <!-- 头部 -->
-        <nav th:replace="user/module/nav::html"></nav>
+        <nav th:replace="admin/module/nav::html"></nav>
         <!-- 主体 -->
         <div class="row">
             <!-- 左侧菜单 -->
-            <div th:replace="user/module/sidebar::html"></div>
+            <div th:replace="admin/module/sidebar::html"></div>
             <div class="col-md-10">
                 <!-- 筛选条件 -->
                 <div class="panel-heading">
                     <form class="form-inline">
                         <div class="form-group">
-                            <label for="inputStatus">订单状态</label>
-                            <select id="inputStatus" class="form-control">
+                            <label for="inputOrderStatus">订单状态</label>
+                            <select id="inputOrderStatus" class="form-control">
                                 <option value=-1>所有状态</option>
                                 <option value=1>等待接单</option>
                                 <option value=2>派送中</option>
                                 <option value=3>订单完成</option>
                                 <option value=4>订单异常</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputPaymentStatus">支付状态</label>
+                            <select id="inputPaymentStatus" class="form-control">
+                                <option value=-1>所有状态</option>
+                                <option value=1>等待支付</option>
+                                <option value=2>支付关闭</option>
+                                <option value=3>支付成功</option>
+                                <option value=4>支付结束</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -126,8 +136,20 @@
                         field: 'company',
                         title: '快递公司'
                     }, {
-                        field: 'payment',
-                        title: '支付金额'
+                        field: 'recName',
+                        title: '收件人'
+                    }, {
+                        field: 'recTel',
+                        title: '收件电话'
+                    }, {
+                        field: 'address',
+                        title: '快递寄达地址'
+                    }, {
+                        field: 'recAddress',
+                        title: '收件地址'
+                    }, {
+                        field: 'remark',
+                        title: '下单备注'
                     }, {
                         field: 'paymentStatus',
                         title: '支付状态',
@@ -151,7 +173,8 @@
                     type: 1,
                     // 筛选参数
                     id: $("#inputId").val(),
-                    status: $("#inputStatus").val(),
+                    status: $("#inputOrderStatus").val(),
+                    payment: $("#inputPaymentStatus").val(),
                     startDate: $("#inputStartDate").val(),
                     endDate:$("#inputEndDate").val(),
                 };
@@ -194,7 +217,8 @@
             };
             return oInit;
         };
-        // 订单状态格式化
+
+        // 订单状态的格式化
         function orderFormatter(value, row, index) {
             if(value === 4)
                 return '<span style="color:red">订单异常</span>';
@@ -230,37 +254,6 @@
 
         function flushTable() {
             $("#tb_recycle").bootstrapTable('refresh',{url : '/api/v1/order/list'} );
-        }
-
-        function showDetail(id) {
-            sendJson(HTTP.GET, "/api/v1/order/" + id, null, false, function (res) {
-                if (res.code !== 0) {
-                    layer.msg(res.msg,{icon:2});
-                } else {
-                    // 初始化模态框信息
-                    let data = res.data;
-                    $("#inputInfoId").text(data.orderId);
-                    $("#inputInfoName").text(data.recName);
-                    $("#inputInfoTel").text(data.recTel);
-                    $("#inputInfoAddress").text(data.recAddress);
-                    $("#inputInfoOdd").text(data.odd);
-                    $("#inputInfoCompany").text(data.companyName);
-                    $("#inputInfoRemark").text(data.remark);
-
-                    $("#inputInfoPaymentType").text(data.paymentType);
-                    $("#inputInfoPaymentId").text(data.paymentId);
-                    $("#inputInfoMoney").text(data.payment);
-                    $("#inputInfoPaymentStatus").text(data.paymentStatus);
-
-                    $("#inputInfoOrderStatus").text(data.orderStatus);
-                    $("#inputInfoCourierName").text(data.courierFrontName);
-                    $("#inputInfoCourierRemark").text(data.courierRemark);
-
-                    $("#infoModel").modal("show");
-                }
-            }, function () {
-                layer.msg("未知错误",{icon:2});
-            });
         }
     </script>
 </body>

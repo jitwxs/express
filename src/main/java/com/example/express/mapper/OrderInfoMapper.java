@@ -18,5 +18,5 @@ public interface OrderInfoMapper extends BaseMapper<OrderInfo> {
 
     IPage<CourierOrderVO> pageCourierOrderVO(Page<CourierOrderVO> page, @Param("sql") String sql);
 
-    IPage<AdminOrderVO> pageAdminOrderVO(Page<AdminOrderVO> page, @Param("sql")  String sql);
+    IPage<AdminOrderVO> pageAdminOrderVO(Page<AdminOrderVO> page, @Param("sql")  String sql, @Param("has_delete") int isDelete);
 }

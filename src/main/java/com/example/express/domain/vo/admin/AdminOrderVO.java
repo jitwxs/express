@@ -56,6 +56,10 @@ public class AdminOrderVO implements Serializable {
      */
     private Integer paymentStatus;
     /**
+     * 删除原因
+     */
+    private Integer deleteType;
+    /**
      * 下单时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")

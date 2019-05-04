@@ -187,10 +187,10 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     }
 
     @Override
-    public BootstrapTableVO<AdminOrderVO> pageAdminOrderVO(Page<AdminOrderVO> page, String sql) {
+    public BootstrapTableVO<AdminOrderVO> pageAdminOrderVO(Page<AdminOrderVO> page, String sql, int isDelete) {
         BootstrapTableVO<AdminOrderVO> vo = new BootstrapTableVO<>();
 
-        IPage<AdminOrderVO> selectPage = orderInfoMapper.pageAdminOrderVO(page, sql);
+        IPage<AdminOrderVO> selectPage = orderInfoMapper.pageAdminOrderVO(page, sql, isDelete);
 
         for(AdminOrderVO orderVO : selectPage.getRecords()) {
             // 设置快递公司
@@ -203,6 +203,26 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         vo.setRows(selectPage.getRecords());
 
         return vo;
+    }
+
+    @Override
+    public ResponseResult batchRemoveOrder(String[] ids) {
+        int success = 0;
+        for(String orderId : ids) {
+            OrderInfo orderInfo = orderInfoMapper.selectById(orderId);
+            if (orderInfo.getOrderStatus() == OrderStatusEnum.TRANSPORT) {
+                continue;
+            }
+            if(manualDelete(orderId, 1, OrderDeleteEnum.SYSTEM.getType())) {
+                success++;
+            }
+        }
+
+        Map<String, Integer> map = new HashMap<>();
+        map.put("success", success);
+        map.put("error", ids.length - success);
+
+        return ResponseResult.success(map);
     }
 
     @Override
@@ -220,13 +240,12 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
                 success++;
             }
         }
-        int finalSuccess = success;
-        Map<String, Integer> count = new HashMap<String, Integer>() {{
-           put("success", finalSuccess);
-           put("error", ids.length - finalSuccess);
-        }};
 
-        return ResponseResult.success(count);
+        Map<String, Integer> map = new HashMap<>();
+        map.put("success", success);
+        map.put("error", ids.length - success);
+
+        return ResponseResult.success(map);
     }
 
     @Override
@@ -258,9 +277,11 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         int success = 0;
         for(String orderId : ids) {
             OrderInfo orderInfo = orderInfoMapper.selectByIdIgnoreDelete(orderId);
-            if(!userId.equals(orderInfo.getUserId())) {
+
+            if(userId != null && !userId.equals(orderInfo.getUserId())) {
                 continue;
             }
+
             if(manualDelete(orderId, 0, OrderDeleteEnum.CANCEL.getType())) {
                 success++;
             }
@@ -360,6 +381,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             }
 
             orderInfo.setCourierId(courierId);
+            orderInfo.setOrderStatus(OrderStatusEnum.TRANSPORT);
             if(this.retBool(orderInfoMapper.updateById(orderInfo))) {
                 success++;
             }

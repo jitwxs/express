@@ -125,7 +125,7 @@ public class OrderApiController {
                 sql.append(" AND info.courier_id = '").append(userId).append("'");
                 return orderInfoService.pageCourierOrderVO(userId, page, sql.toString());
             case ADMIN:
-                return orderInfoService.pageAdminOrderVO(page, sql.toString());
+                return orderInfoService.pageAdminOrderVO(page, sql.toString(), isDelete);
             default:
                 return new BootstrapTableVO();
         }
@@ -238,6 +238,19 @@ public class OrderApiController {
     }
 
     /**
+     * 管理员批量删除订单
+     * 相当于普通用户的撤销操作+删除操作
+     */
+    @PostMapping("/batch-remove")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseResult batchRemoveOrder(String[] ids) {
+        if(ids.length == 0) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
+        }
+        return orderInfoService.batchRemoveOrder(ids);
+    }
+
+    /**
      * 管理员批量分配
      */
     @PostMapping("/batch-allot")
@@ -307,13 +320,22 @@ public class OrderApiController {
     }
 
     /**
-     * 用户批量恢复订单，仅能恢复个人订单
+     * 批量恢复订
+     * - 普通用户：恢复个人订单
+     * - 管理员：恢复任何订单
      * @author jitwxs
      * @date 2019/4/26 1:58
      */
     @PostMapping("/batch-rollback")
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     public ResponseResult batchRollback(String[] ids, @AuthenticationPrincipal SysUser sysUser) {
-        return orderInfoService.batchRollback(ids, sysUser.getId());
+        switch (sysUser.getRole()) {
+            case ADMIN:
+                return orderInfoService.batchRollback(ids, null);
+            case USER:
+                return orderInfoService.batchRollback(ids, sysUser.getId());
+            default:
+                return ResponseResult.failure(ResponseErrorCodeEnum.NO_PERMISSION);
+        }
     }
 }

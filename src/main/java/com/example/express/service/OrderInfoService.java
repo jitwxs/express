@@ -62,7 +62,12 @@ public interface OrderInfoService extends IService<OrderInfo> {
      * 分页查询订单
      * 适用：管理员端
      */
-    BootstrapTableVO<AdminOrderVO> pageAdminOrderVO(Page<AdminOrderVO> page, String sql);
+    BootstrapTableVO<AdminOrderVO> pageAdminOrderVO(Page<AdminOrderVO> page, String sql, int isDelete);
+    /**
+     * 系统批量删除订单，无需校验userId
+     * 订单状态：除【派送中】外所有状态
+     */
+    ResponseResult batchRemoveOrder(String[] ids);
     /**
      * 批量删除订单
      */
@@ -73,6 +78,7 @@ public interface OrderInfoService extends IService<OrderInfo> {
     ResponseResult batchCancelOrder(String[] ids, String userId);
     /**
      * 批量恢复订单
+     * @param userId 为null时，不校验订单所属
      */
     ResponseResult batchRollback(String[] ids, String userId);
     /**

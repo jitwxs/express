@@ -54,10 +54,11 @@
             info.remark AS remark,
             info.status AS order_status,
             payment.status AS payment_status,
+            info.delete_type AS delete_type,
             info.create_date
         FROM
             order_payment as payment, order_info as info
         WHERE
-            info.id = payment.order_id ${sql}
+            info.id = payment.order_id AND info.has_delete = #{has_delete} ${sql}
     </select>
 </mapper>

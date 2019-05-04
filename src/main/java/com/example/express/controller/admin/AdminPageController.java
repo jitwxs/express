@@ -41,6 +41,15 @@ public class AdminPageController {
     }
 
     /**
+     * 订单管理页面
+     */
+    @RequestMapping("/recycle")
+    public String showRecyclePage(@AuthenticationPrincipal SysUser sysUser, ModelMap map) {
+        map.put("frontName", sysUserService.getFrontName(sysUser));
+        return "admin/recycle";
+    }
+
+    /**
      * 反馈管理页面
      */
     @RequestMapping("/feedback")
