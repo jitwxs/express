@@ -1,5 +1,6 @@
 package com.example.express.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.express.common.util.StringUtils;
 import com.example.express.domain.ResponseResult;
@@ -221,6 +222,21 @@ public class OrderEvaluateServiceImpl extends ServiceImpl<OrderEvaluateMapper, O
 
         transactionManager.commit(status);
         return ResponseResult.success();
+    }
+
+    @Override
+    public int countEvaluate(String userId, SysRoleEnum roleEnum) {
+        QueryWrapper<OrderEvaluate> wrapper = new QueryWrapper<>();
+
+        if(roleEnum == SysRoleEnum.USER) {
+            wrapper.eq("user_id", userId).isNotNull("courier_evaluate");
+        } else if(roleEnum == SysRoleEnum.COURIER) {
+            wrapper.eq("courier_id", userId).isNotNull("user_evaluate");
+        } else {
+            return -1;
+        }
+
+        return orderEvaluateMapper.selectCount(wrapper);
     }
 
     private boolean isLegalScore(double score) {

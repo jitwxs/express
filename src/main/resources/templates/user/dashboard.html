@@ -18,7 +18,36 @@
             <!-- 左侧菜单 -->
             <div th:replace="user/module/sidebar::html"></div>
             <div class="col-md-10">
-
+                <div class="row">
+                    <div class="col-md-12 column">
+                        <div class="jumbotron">
+                            <h2 th:text="${frontName + '，欢迎登录！'}">欢迎登陆！</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 column">
+                        <h3>订单简览</h3>
+                        <p th:text="${orderDesc}">100+</p>
+                        <p>
+                            <a class="btn" href="/user/history">了解更多 »</a>
+                        </p>
+                    </div>
+                    <div class="col-md-4 column">
+                        <h3>反馈简览</h3>
+                        <p th:text="${feedbackDesc}">100+</p>
+                        <p>
+                            <a class="btn" href="/user/feedback">了解更多 »</a>
+                        </p>
+                    </div>
+                    <div class="col-md-4 column">
+                        <h3>评价简览</h3>
+                        <p th:text="${evaluateDesc}">100+</p>
+                        <p>
+                            <a class="btn" href="/user/evaluate">了解更多 »</a>
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

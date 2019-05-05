@@ -11,6 +11,7 @@ import com.example.express.domain.vo.admin.AdminUserInfoVO;
 import com.example.express.domain.vo.user.UserInfoVO;
 
 import javax.servlet.http.HttpSession;
+import java.util.Map;
 
 public interface SysUserService extends IService<SysUser> {
     /**
@@ -119,4 +120,8 @@ public interface SysUserService extends IService<SysUser> {
      * 绑定或更新人脸数据
      */
     ResponseResult bindOrUpdateFace(String faceToken, String userId);
+    /**
+     * 管理员仪表盘展示数据
+     */
+    Map<String, Integer> getAdminDashboardData();
 }

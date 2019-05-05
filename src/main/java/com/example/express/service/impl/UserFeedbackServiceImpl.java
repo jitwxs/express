@@ -8,14 +8,10 @@ import com.example.express.common.util.CollectionUtils;
 import com.example.express.common.util.RandomUtils;
 import com.example.express.common.util.StringUtils;
 import com.example.express.domain.ResponseResult;
-import com.example.express.domain.bean.OrderInfo;
 import com.example.express.domain.bean.UserFeedback;
 import com.example.express.domain.enums.FeedbackStatusEnum;
 import com.example.express.domain.enums.FeedbackTypeEnum;
-import com.example.express.domain.enums.OrderDeleteEnum;
-import com.example.express.domain.enums.OrderStatusEnum;
 import com.example.express.domain.vo.BootstrapTableVO;
-import com.example.express.domain.vo.UserFeedbackDescVO;
 import com.example.express.domain.vo.UserFeedbackVO;
 import com.example.express.mapper.UserFeedbackMapper;
 import com.example.express.service.OrderInfoService;
@@ -24,6 +20,9 @@ import com.example.express.service.UserFeedbackService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -88,6 +87,43 @@ public class UserFeedbackServiceImpl extends ServiceImpl<UserFeedbackMapper, Use
         }};
 
         return ResponseResult.success(count);
+    }
+
+    @Override
+    public Map<String, Integer> getAdminDashboardData() {
+        Map<String, Integer> map = new HashMap<>();
+        Integer todayCount = userFeedbackMapper.selectCount(new QueryWrapper<UserFeedback>().between("create_date",
+                LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT), LocalDateTime.now()));
+
+        Integer waitCount = userFeedbackMapper.selectCount(new QueryWrapper<UserFeedback>().eq("status", FeedbackStatusEnum.WAIT.getStatus()));
+
+        map.put("today", todayCount);
+        map.put("wait", waitCount);
+        return map;
+    }
+
+    @Override
+    public Map<String, Integer> getUserDashboardData(String userId) {
+        Map<String, Integer> map = new HashMap<>();
+        Integer waitCount = userFeedbackMapper.selectCount(new QueryWrapper<UserFeedback>().eq("status", FeedbackStatusEnum.WAIT.getStatus()));
+        Integer processCount = userFeedbackMapper.selectCount(new QueryWrapper<UserFeedback>().eq("status", FeedbackStatusEnum.PROCESS.getStatus()));
+
+        map.put("wait", waitCount);
+        map.put("process", processCount);
+        return map;
+    }
+
+    @Override
+    public Map<String, Integer> getCourierDashboardData() {
+        Map<String, Integer> map = new HashMap<>();
+        Integer todayCount = userFeedbackMapper.selectCount(new QueryWrapper<UserFeedback>().between("create_date",
+                LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT), LocalDateTime.now()));
+
+        Integer waitCount = userFeedbackMapper.selectCount(new QueryWrapper<UserFeedback>().eq("status", FeedbackStatusEnum.WAIT.getStatus()));
+
+        map.put("today", todayCount);
+        map.put("wait", waitCount);
+        return map;
     }
 
     private List<UserFeedbackVO> convert(List<UserFeedback> userFeedbacks) {

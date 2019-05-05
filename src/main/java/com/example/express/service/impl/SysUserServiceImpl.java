@@ -34,10 +34,14 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import javax.servlet.http.HttpSession;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -513,6 +517,27 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
         transactionManager.commit(status);
         return ResponseResult.success();
+    }
+
+    @Override
+    public Map<String, Integer> getAdminDashboardData() {
+        Map<String, Integer> map = new HashMap<>();
+
+        Integer todayCount = sysUserMapper.selectCount(new QueryWrapper<SysUser>().between("create_date",
+                LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT), LocalDateTime.now()));
+
+        Integer totalCount = sysUserMapper.selectCount(null);
+
+        Integer disEnableCount = sysUserMapper.selectCount(new QueryWrapper<SysUser>().eq("has_enable", 0));
+
+        Integer lockCount = sysUserMapper.selectCount(new QueryWrapper<SysUser>().gt("lock_date", LocalDateTime.now()));
+
+        map.put("today", todayCount);
+        map.put("total", totalCount);
+        map.put("disEnable", disEnableCount);
+        map.put("lock", lockCount);
+
+        return map;
     }
 
     private boolean registryByThirdLogin(String thirdLoginId, ThirdLoginTypeEnum thirdLoginTypeEnum) {

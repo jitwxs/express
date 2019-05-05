@@ -1,11 +1,13 @@
 package com.example.express.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.express.common.cache.CommonDataCache;
 import com.example.express.common.util.DoubleUtils;
 import com.example.express.common.util.StringUtils;
 import com.example.express.domain.bean.OrderInfo;
 import com.example.express.domain.bean.UserEvaluate;
+import com.example.express.domain.enums.OrderStatusEnum;
 import com.example.express.domain.enums.SysRoleEnum;
 import com.example.express.mapper.UserEvaluateMapper;
 import com.example.express.service.OrderInfoService;
@@ -16,6 +18,8 @@ import org.springframework.stereotype.Service;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class UserEvaluateServiceImpl extends ServiceImpl<UserEvaluateMapper, UserEvaluate> implements UserEvaluateService {

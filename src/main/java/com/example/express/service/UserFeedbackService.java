@@ -7,8 +7,9 @@ import com.example.express.domain.ResponseResult;
 import com.example.express.domain.bean.UserFeedback;
 import com.example.express.domain.enums.FeedbackTypeEnum;
 import com.example.express.domain.vo.BootstrapTableVO;
-import com.example.express.domain.vo.UserFeedbackDescVO;
 import com.example.express.domain.vo.UserFeedbackVO;
+
+import java.util.Map;
 
 public interface UserFeedbackService extends IService<UserFeedback> {
     /**
@@ -21,4 +22,10 @@ public interface UserFeedbackService extends IService<UserFeedback> {
     boolean createFeedback(String userId, FeedbackTypeEnum feedbackTypeEnum, String content, String orderId);
 
     ResponseResult batchCancelOrder(String[] ids, String id);
+
+    Map<String, Integer> getAdminDashboardData();
+
+    Map<String, Integer> getUserDashboardData(String userId);
+
+    Map<String, Integer> getCourierDashboardData();
 }

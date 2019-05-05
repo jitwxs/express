@@ -28,13 +28,13 @@ public class PageController {
                 response.sendRedirect("/completeInfo");
                 return;
             case USER:
-                response.sendRedirect("/user/order");
+                response.sendRedirect("/user/dashboard");
                 return;
             case ADMIN:
-                response.sendRedirect("/admin/order");
+                response.sendRedirect("/admin/dashboard");
                 return;
             case COURIER:
-                response.sendRedirect("/courier/order");
+                response.sendRedirect("/courier/dashboard");
                 return;
             default:
                 response.sendRedirect("/index");

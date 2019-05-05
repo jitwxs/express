@@ -3,10 +3,9 @@ package com.example.express.controller.user;
 import com.example.express.common.constant.SessionKeyConstant;
 import com.example.express.domain.bean.OrderInfo;
 import com.example.express.domain.bean.SysUser;
+import com.example.express.domain.enums.SysRoleEnum;
 import com.example.express.domain.vo.user.UserInfoVO;
-import com.example.express.service.DataCompanyService;
-import com.example.express.service.SysUserService;
-import com.example.express.service.UserEvaluateService;
+import com.example.express.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -15,6 +14,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpSession;
+import java.util.Map;
 
 /**
  * 普通用户页面 Controller
@@ -27,7 +27,13 @@ public class UserPageController {
     @Autowired
     private SysUserService sysUserService;
     @Autowired
+    private OrderInfoService orderInfoService;
+    @Autowired
+    private UserFeedbackService feedbackService;
+    @Autowired
     private UserEvaluateService userEvaluateService;
+    @Autowired
+    private OrderEvaluateService orderEvaluateService;
     @Autowired
     private DataCompanyService dataCompanyService;
 
@@ -37,6 +43,24 @@ public class UserPageController {
     @RequestMapping("/dashboard")
     public String showDashboardPage(@AuthenticationPrincipal SysUser sysUser, ModelMap map) {
         map.put("frontName", sysUserService.getFrontName(sysUser));
+
+        String score = userEvaluateService.getScoreFromCache(sysUser.getId());
+        int evaluateCount = orderEvaluateService.countEvaluate(sysUser.getId(), SysRoleEnum.USER);
+
+        String userDesc = "您共收到：" + evaluateCount + "条评价，您的综合评分为：" + score + "分";
+        map.put("evaluateDesc", userDesc);
+
+        Map<String, Integer> data1 = orderInfoService.getUserDashboardData(sysUser.getId());
+        String orderDesc = "未支付订单数：：" + data1.get("waitPayment") +
+                "，等待接单数：：" + data1.get("wait") +
+                "，正在派送数：" + data1.get("transport");
+        map.put("orderDesc", orderDesc);
+
+        Map<String, Integer> data2 = feedbackService.getUserDashboardData(sysUser.getId());
+        String feedbackDesc = "正在处理的反馈数：" + data2.get("process") +
+                "，未处理的反馈数：" + data2.get("wait");
+        map.put("feedbackDesc", feedbackDesc);
+
         return "user/dashboard";
     }
     /**

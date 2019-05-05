@@ -1,15 +1,17 @@
 package com.example.express.controller.courier;
 
 import com.example.express.domain.bean.SysUser;
+import com.example.express.domain.enums.SysRoleEnum;
 import com.example.express.domain.vo.user.UserInfoVO;
-import com.example.express.service.SysUserService;
-import com.example.express.service.UserEvaluateService;
+import com.example.express.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.util.Map;
 
 /**
  * 配送员页面 Controller
@@ -23,6 +25,12 @@ public class CourierPageController {
     @Autowired
     private SysUserService sysUserService;
     @Autowired
+    private OrderInfoService orderInfoService;
+    @Autowired
+    private OrderEvaluateService orderEvaluateService;
+    @Autowired
+    private UserFeedbackService feedbackService;
+    @Autowired
     private UserEvaluateService userEvaluateService;
 
     /**
@@ -31,6 +39,24 @@ public class CourierPageController {
     @RequestMapping("/dashboard")
     public String showDashboardPage(@AuthenticationPrincipal SysUser sysUser, ModelMap map) {
         map.put("frontName", sysUserService.getFrontName(sysUser));
+
+        String score = userEvaluateService.getScoreFromCache(sysUser.getId());
+        int evaluateCount = orderEvaluateService.countEvaluate(sysUser.getId(), SysRoleEnum.COURIER);
+
+        String userDesc = "您共收到：" + evaluateCount + "条评价，您的综合评分为：" + score + "分";
+        map.put("evaluateDesc", userDesc);
+
+
+        Map<String, Integer> data1 = orderInfoService.getCourierDashboardData(sysUser.getId());
+        String orderDesc = "可以接单数：" + data1.get("wait") +
+                "，需要派送订单数：" + data1.get("transport");
+        map.put("orderDesc", orderDesc);
+
+        Map<String, Integer> data2 = feedbackService.getCourierDashboardData();
+        String feedbackDesc = "今日系统新增反馈数：" + data2.get("today") +
+                "，系统等待处理数：" + data2.get("wait");
+        map.put("feedbackDesc", feedbackDesc);
+
         return "courier/dashboard";
     }
     /**

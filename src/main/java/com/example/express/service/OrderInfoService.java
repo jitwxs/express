@@ -7,10 +7,12 @@ import com.example.express.domain.bean.OrderInfo;
 import com.example.express.domain.enums.OrderStatusEnum;
 import com.example.express.domain.enums.SysRoleEnum;
 import com.example.express.domain.vo.BootstrapTableVO;
+import com.example.express.domain.vo.OrderDescVO;
 import com.example.express.domain.vo.admin.AdminOrderVO;
 import com.example.express.domain.vo.courier.CourierOrderVO;
-import com.example.express.domain.vo.OrderDescVO;
 import com.example.express.domain.vo.user.UserOrderVO;
+
+import java.util.Map;
 
 public interface OrderInfoService extends IService<OrderInfo> {
     /**
@@ -93,4 +95,10 @@ public interface OrderInfoService extends IService<OrderInfo> {
      * 批量分配订单
      */
     ResponseResult batchAllotOrder(String[] ids, String courierId);
+
+    Map<String, Integer> getAdminDashboardData();
+
+    Map<String, Integer> getUserDashboardData(String userId);
+
+    Map<String, Integer> getCourierDashboardData(String courierId);
 }
