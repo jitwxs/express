@@ -62,6 +62,20 @@
      ...
    ```
 
+#### 修改启动端口【可选】
+
+修改 `application.yml`文件，编辑 `server.port`：
+
+```yaml
+server:
+  port: 8080
+  # 公网暴露 IP
+  addr: http://127.0.0.1:${server.port}
+```
+
+例如，当你处于本地启动，端口号为 8080 时， `server.port` 和 `server.add` 均无需改动。
+
+
 #### 支付宝支付【必选】
 
 支付宝支付为快递下单的支付方式，因此必须配置，这里采用支付宝的沙箱模式，配置完毕后，修改 `application.yml`文件：
@@ -74,22 +88,15 @@ alipay:
   gateway-url: https://openapi.alipaydev.com/gateway.do # 支付宝网关
   merchant-private-key: # 商户私钥，使用密钥生成工具得到
   alipay-public-key: # 支付宝公钥
-  notify-url: # 支付异步通知URL，需公网能够访问
-  return-url: # 同步通知URL，无需公网访问
+  notify-url: ${server.addr}/order/alipay/notify # 支付异步通知URL，需公网能够访问
+  return-url: ${server.addr}/order/alipay/return # 同步通知URL，无需公网访问
 ```
+
+其中 `notify-url` 和 `return-url`为支付宝的支付同步回调和异步回调，请根据自己需求修改 Url 前缀即可，即 `${server.addr}` 部分。
+
+例如，当你处于本地启动，端口号为 8080 时，`notify-url` 和 `return-url` 保持不变，可以接受到同步回调，但是无法接收异步回调。
 
 > 详细流程请参考文章：[Java Web中接入支付宝支付](<https://blog.csdn.net/yuanlaijike/article/details/80575513>)
-
-#### 启动端口【可选】
-
-修改 `application.yml`文件，编辑 `server` 节点：
-
-```yaml
-server:
-  ip: 127.0.0.1 # 启动IP，无需修改
-  port: 8080 # 修改启动端口，默认为8080
-  addr: http://${server.ip}:${server.port} # 无需修改
-```
 
 #### QQ 登录【可选】
 
@@ -97,19 +104,19 @@ server:
 
 （1）登录[QQ互联管理中心](<https://connect.qq.com/manage.html#/>)，创建 **网站应用**。
 
-（2）网站地址为程序`启动IP地址+端口号`，例如本地启动，且端口号为 8080时，则填写为：
+（2）网站地址为程序配置文件中配置的 `server.add` 属性，例如本地启动，且端口号为 8080 时，则填写为：
 
 ```
 http://127.0.0.1:8080
 ```
 
-（3）网站回调域为`网站地址+/auth/third-login/qqCallback`，本地启动，且端口号为8080时，填写为：
+（3）网站回调域为`${server.addr}/auth/third-login/qqCallback`，当本地启动，且端口号为8080时，填写为：
 
 ```
 http://127.0.0.1:8080/auth/third-login/qqCallback
 ```
 
-（4）点击**创建应用**按钮即可，此时会提示正在审核，或者审核失败。这个请忽略，在本地启动时，无需审核即可使用。
+（4）点击**创建应用**按钮即可。即使提示正在审核，或者审核失败也可以正常使用，仅限申请者的QQ号登录。
 
 （5）修改 `application.yml`文件，将 `app-id` 和 `app-key` 替换为创建应用时得到的即可：
 

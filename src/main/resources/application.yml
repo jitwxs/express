@@ -52,8 +52,8 @@ project:
     gateway-url: https://openapi.alipaydev.com/gateway.do # 支付宝网关
     merchant-private-key: # 商户私钥，使用密钥生成工具得到
     alipay-public-key: # 支付宝公钥
-    notify-url: # 支付异步通知URL，需公网能够访问
-    return-url: # 同步通知URL，无需公网访问
+    notify-url: ${server.addr}/order/alipay/notify # 支付异步通知URL，需公网能够访问
+    return-url: ${server.addr}/order/alipay/return # 同步通知URL，无需公网访问
   # 百度人脸识别
   baidu:
     aip:
@@ -71,6 +71,6 @@ project:
       app-key: # APP_KEY
 # 服务启动IP
 server:
-  ip: 127.0.0.1
   port: 8080
-  addr: http://${server.ip}:${server.port}
+  # 公网暴露 IP
+  addr: http://127.0.0.1:${server.port}
