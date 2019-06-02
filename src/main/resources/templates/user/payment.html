@@ -19,6 +19,12 @@
             <div th:replace="user/module/sidebar::html"></div>
             <!-- 支付主体 -->
             <div class="col-md-10">
+                <div class="alert alert-danger alert-dismissible fade in mt10" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    <strong>请使用支付宝沙箱账号支付，其他账号无法支付！</strong>
+                    APP下载地址：https://sandbox.alipaydev.com/user/downloadApp.htm
+                    账号：uceskd4358@sandbox.com &nbsp;&nbsp; 登录、支付密码：111111<br>
+                </div>
                 <div class="row">
                     <div class="col-sm-6">
                         <h4>订单信息</h4>
@@ -105,6 +111,12 @@
         var total=0;
         $(function () {
             $("#order-sidebar").addClass('active');
+
+            let alipayAlert = 'APP下载：https://sandbox.alipaydev.com/user/downloadApp.htm' + '&nbsp;&nbsp;' +
+                '账号：uceskd4358@sandbox.com &nbsp;&nbsp; 登录、支付密码：111111';
+            layer.confirm(alipayAlert, {title:'务必使用沙箱APP和沙箱账号支付和登录', btn: ['明白了']}, function(){
+                layer.msg('别再问我为啥无法登录了', {icon: 0});
+            });
         });
 
         function addPackage() {
