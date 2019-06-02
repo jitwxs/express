@@ -70,7 +70,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         return count != 0;
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public ResponseResult createOrder(OrderInfo orderInfo, double money, String uid) {
         DefaultTransactionDefinition definition = new DefaultTransactionDefinition();
@@ -326,7 +326,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         return ResponseResult.success(count);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public ResponseResult handleOrder(String orderId, OrderStatusEnum targetStatus, String remark) {
         DefaultTransactionDefinition definition = new DefaultTransactionDefinition();

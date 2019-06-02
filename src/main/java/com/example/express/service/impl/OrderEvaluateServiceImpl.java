@@ -106,6 +106,7 @@ public class OrderEvaluateServiceImpl extends ServiceImpl<OrderEvaluateMapper, O
 
         // 校验评分
         if(!isLegalScore(score)) {
+            transactionManager.rollback(status);
             return ResponseResult.failure(ResponseErrorCodeEnum.EVALUATE_SCORE_ERROR);
         }
 
@@ -113,19 +114,23 @@ public class OrderEvaluateServiceImpl extends ServiceImpl<OrderEvaluateMapper, O
 
         // 未开启评分
         if(!evaluate.getHasOpen()) {
+            transactionManager.rollback(status);
             return ResponseResult.failure(ResponseErrorCodeEnum.ORDER_NOT_OPEN_EVALUATE);
         }
         // 是否有权限
         if(!orderInfoService.isUserOrder(orderId, userId)) {
+            transactionManager.rollback(status);
             return ResponseResult.failure(ResponseErrorCodeEnum.NO_PERMISSION);
         }
         // 已评分
         if(evaluate.getUserScore() != null) {
+            transactionManager.rollback(status);
             return ResponseResult.failure(ResponseErrorCodeEnum.ORDER_ALREADY_EVALUATE);
         }
 
         // text超过最大
         if(StringUtils.isNotBlank(text) && text.length() > 255) {
+            transactionManager.rollback(status);
             return ResponseResult.failure(ResponseErrorCodeEnum.STR_LENGTH_OVER, new Object[]{"评价", 255});
         }
 

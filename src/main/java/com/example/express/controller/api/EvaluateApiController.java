@@ -10,7 +10,6 @@ import com.example.express.domain.bean.OrderEvaluate;
 import com.example.express.domain.bean.SysUser;
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
 import com.example.express.service.OrderEvaluateService;
-import com.example.express.service.UserEvaluateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -31,8 +30,6 @@ import java.util.Map;
 public class EvaluateApiController {
     @Autowired
     private OrderEvaluateService orderEvaluateService;
-    @Autowired
-    private UserEvaluateService userEvaluateService;
 
     /**
      * 订单评分

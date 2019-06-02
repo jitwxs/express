@@ -12,7 +12,6 @@ import com.example.express.domain.enums.PaymentStatusEnum;
 import com.example.express.domain.enums.PaymentTypeEnum;
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
 import com.example.express.exception.CustomException;
-import com.example.express.mapper.OrderInfoMapper;
 import com.example.express.mapper.OrderPaymentMapper;
 import com.example.express.service.OrderPaymentService;
 import lombok.extern.slf4j.Slf4j;
@@ -26,8 +25,6 @@ import java.util.Map;
 @Slf4j
 @Service
 public class OrderPaymentServiceImpl extends ServiceImpl<OrderPaymentMapper, OrderPayment> implements OrderPaymentService {
-    @Autowired
-    private OrderInfoMapper orderInfoMapper;
     @Autowired
     private OrderPaymentMapper orderPaymentMapper;
     @Autowired
@@ -154,6 +151,9 @@ public class OrderPaymentServiceImpl extends ServiceImpl<OrderPaymentMapper, Ord
                 orderPaymentMapper.updateById(payment);
 
                 return ResponseResult.success();
+            } else if ("40004".equals(code)) {
+                // 交易不存在
+                return ResponseResult.failure(ResponseErrorCodeEnum.ORDER_PAYMENT_SYNC_ERROR.getCode(), responseMap.get("sub_msg"));
             } else {
                 String errorMsg = responseMap.get("sub_msg");
                 log.error("【支付宝查询】错误，错误码：{}，错误信息：{}", code, errorMsg);

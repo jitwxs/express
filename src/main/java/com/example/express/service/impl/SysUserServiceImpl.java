@@ -203,7 +203,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public ResponseResult thirdLogin(String thirdLoginId, ThirdLoginTypeEnum thirdLoginTypeEnum) {
         DefaultTransactionDefinition definition = new DefaultTransactionDefinition();
         TransactionStatus status = transactionManager.getTransaction(definition);
@@ -232,7 +232,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public ResponseResult registryByUsername(String username, String password) {
         DefaultTransactionDefinition definition = new DefaultTransactionDefinition();
         TransactionStatus status = transactionManager.getTransaction(definition);
@@ -273,7 +273,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         return ResponseResult.success();
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public ResponseResult registryByFace(String faceToken, String gender) {
         DefaultTransactionDefinition definition = new DefaultTransactionDefinition();

@@ -2,17 +2,18 @@ package com.example.express.security.validate.tradition;
 
 import com.example.express.common.constant.SecurityConstant;
 import com.example.express.security.exception.DefaultAuthException;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  * 传统登录的鉴权过滤器
@@ -61,20 +62,19 @@ public class TraditionAuthenticationFilter extends AbstractAuthenticationProcess
     private boolean validateVerify(String inputVerify) {
         //获取当前线程绑定的request对象
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+
+        HttpSession session = request.getSession();
+
+        Object validateCode = session.getAttribute("validateCode");
+        if(validateCode == null) {
+            return false;
+        }
+
         // 不分区大小写
-        // 这个validateCode是在servlet中存入session的名字
-        String validateCode = ((String) request.getSession().getAttribute("validateCode")).toLowerCase();
-        inputVerify = inputVerify.toLowerCase();
-
-//        log.info("验证码：{}, 用户输入：{}", validateCode, inputVerify);
-        return validateCode.equals(inputVerify);
+        return StringUtils.equalsIgnoreCase((String)validateCode, inputVerify);
     }
 
-    protected void setDetails(HttpServletRequest request, TraditionAuthenticationToken authRequest) {
+    private void setDetails(HttpServletRequest request, TraditionAuthenticationToken authRequest) {
         authRequest.setDetails(authenticationDetailsSource.buildDetails(request));
-    }
-
-    public void setPostOnly(boolean postOnly) {
-        this.postOnly = postOnly;
     }
 }
