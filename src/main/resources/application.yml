@@ -2,10 +2,9 @@ spring:
   # MySQL 配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver # MySQL驱动，无需修改
-    # 数据库连接URL，以下为连接本地的express库的url
     url: jdbc:mysql://localhost:3306/express?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=GMT%2B8
-    username: # 数据库连接名
-    password: # 数据库连接密码
+    username: root # 数据库连接名
+    password: root # 数据库连接密码
   # Redis 配置
   redis:
     host: 127.0.0.1 # Redis地址，本地为127.0.0.1
@@ -20,6 +19,7 @@ spring:
         max-wait: -1 # 最大连接阻塞等待时间 默认-1
   thymeleaf:
     cache: true
+
 # MyBatis-Plus配置
 mybatis-plus:
   mapper-locations: classpath*:mapper/*.xml
@@ -30,8 +30,10 @@ mybatis-plus:
       logic-not-delete-value: 0
     banner: false
   type-enums-package: com.example.express.domain.enums
+  # SQL 执行log，调试时可打开
 #  configuration:
 #    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
 # 项目配置
 project:
   # 腾讯云短信验证码配置
@@ -46,12 +48,14 @@ project:
     valid-min: 5
   # 支付宝支付
   alipay:
-    uid: # 商户UID
-    app-id: # APPID
+    uid: 2088102175634311 # 商户UID
+    app-id: 2016091400511505 # APPID
     sign-type: RSA2
     gateway-url: https://openapi.alipaydev.com/gateway.do # 支付宝网关
-    merchant-private-key: # 商户私钥，使用密钥生成工具得到
-    alipay-public-key: # 支付宝公钥
+    # 商户私钥，使用密钥生成工具得到
+    merchant-private-key: MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCAuc4hlk96+mVQkLNWaLxzwcREuAe5K2KCwzwYlenaEHtVSX+5Kay4uXO0uSjG23kNzmbJ8JBgo1SrusKe55JvexkYxxr4RYCc1RnRuKGoGxDM5+qIvSl6RHPZ1qoRe6tg77wK1XoWFRh/ZRbswgtq+fQ7DoL/SfP2m3CaWu2ob21q88sOJS0TSJVeVnT8ujdCZTI7orUPxLIVBypUk1R6E1fMR/8xWsyVrvGBolfYQ8pFA8F5Dj5XtIw/CnnKR0h3M8ou5hcRyHb2hAJR/cm0q6rXxKAWC7RN6KcvixZz/jdghYsjCP1sQQ+YABqf7xw/AK0o1dqW1tqQ2iujPeRdAgMBAAECggEAUrMMcxeWSHPF01SjYsg3CkdaSKvSimwNBeVYHpNxgd9E3S4zGEpl5OeAJoMuZ1NpGi2Ya/RZTTyhkRKTJnOv6F81aG3CLe65Cgj+ZXYwpUd+K6ZzTxX4J80CgNkgucqx970NGgi8PqOe8XmImOKxYzDib26LSmfAjJagaQox1RuWpRnufNjROWnjssICIqCTWRd8U7GOrvQTW0jiC4/wjo3DbJ1hZ7ibapFT3z+9rV6YFEHERinQ25vkjL9FEd987XUBWWifG1EqAx4zYyiUdXQIAxkRwfrtIWQ3WPI37nwWHIP5AJAODk2ANsVIWnlBTw4Jx8zZB30Qdc0V/ZWuIQKBgQDJ6ssgIYfIabu2BP8Nc0t7upftHpFRRrcM+s0oFi9fD+mVnNPpgrqXGHL6bmMxg+u8Q795z6o91sNvwHlUKRxL1rMA7FR/riI+BHtAcoszknIb7Tj7Gv3BFcCTPby+DsDEW9hE89/ZIZIdN5aZhXj3K9GgBj9VP8iO4n7s+Je+cwKBgQCjNF84uLf2krfwDatUcPMMs/N4Hn3MEc3cp6ZyYkaaUYMZ0qQCMcyyYZO5TAm2IZW/Yg1P1XiuN84KM4nja+0ruwA76ueijYcoI1r4cLcsWbjFZmFL/zWMtJ8yQ/OyVEnTLcQmlp1ax7gNP9Zq+RVsL9Zr5t1WeNMZasJ80GvN7wKBgHoZPweI/yDTvyzMTKcHhyekp+Y9S8aIKnzw1EpfT/n+F1PfZ82WvdpMcIq7YcQ5b72CgjDYwKtwSPI0w6l+ypuZktkGD/q9g/tYnmdUXJStA8+bXY+KvNObob3n4VBUf4C9wUPA7SXRxRdh2/Gt4n4kwzgvTvDwBwlQMUx+7tO9AoGAD8dAbXtuTahhoBOyPLeux8ud/j70aoZOIMcUkHpv2PuIcTasJIosABLu9TsktTcKAza3ksBQqoc6pEHXUuVcSJ4Lp79OJakJKBhC80Hyc5c5BdygC3jg9HmB6ponNVZwzLnf/NsS23Pzl1RUpoLuT0dQs53eSD3mKs7nfqmnwoECgYEAnItAWonpU7H2KjZ0fgDCMsX8cJAQbtoXzBcbmJQI2Pjcdte4Nh6dlbz3fW1wdl6CISObuHOzn0lioac/gSmNxP0uz0r7GQd+ZwuH8Y+i6RfYtj63U0pWnCs1bdtF9h4V8X0EsFDp9q4TjthTCCfGy17nDuzoyV1Y2fD3ss5WVuQ=
+    # 支付宝公钥
+    alipay-public-key: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAu9ZIQuzh2MgNO4pKlwBj2viIerxPgEGlJ5ktdpzutGQY4ZKyCf1RUMZhWesA7SlbM8tsT5hUYtGs+XsuSJ0DJifaVOUv/bc1m6Hfb/Z8sq73WbwK3EnCxLP7CJCelgmFZCAgcwT+luEzbTCe31IA2eHWPOxn2HT/5V/FtucOy2kGdvwEyKjPAD/jNRBSF0ehnVSSaB6bwbns0dGuCewfG9ArebhQbpHKytSY4LKXsDni+SFHmPc+8Ll6P2xuZ0UAvZ18jSuhT0ledikVq9RWjztSjC8D69BW1igBYjFGZgFi/Zh8DHeGU79cDaGxzqb/pOJXYew3nDS16TewwLZ5jQIDAQAB
     notify-url: ${server.addr}/order/alipay/notify # 支付异步通知URL，需公网能够访问
     return-url: ${server.addr}/order/alipay/return # 同步通知URL，无需公网访问
   # 百度人脸识别
@@ -62,15 +66,16 @@ project:
       secret-key: # 应用 Secret Key
       conn-timeout: 2000 # 连接超时ms，默认 2000
       socket-timeout: 60000 # socket超时ms，默认60000
-      # 最低被接受的人脸置信分数[1,100]，分数越高，要求越严格，也越准确。
-      accept-score: 90
+      accept-score: 90 # 最低被接受的人脸置信分数[1,100]，分数越高，要求越严格，也越准确。
   # 三方登陆配置
   third-login:
     qq:
-      app-id: # APP_ID
-      app-key: # APP_KEY
-# 服务启动IP
+      app-id: 101568611
+      app-key: 2a3716583b2355aeab442f1949c9f6e1
+
+# 服务启动
 server:
   port: 8080
   # 公网暴露 IP
   addr: http://127.0.0.1:${server.port}
+  max-http-header-size: 8192
