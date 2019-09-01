@@ -21,7 +21,7 @@
 
 ### 线上环境
 
-在线演示：[快递代拿系统](https://express.jitwxs.cn)
+~~在线演示：[快递代拿系统](https://express.jitwxs.cn)~~
 
 ### 项目运行
 
