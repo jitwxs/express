@@ -6,7 +6,7 @@ import com.example.express.common.constant.RedisKeyConstant;
 import com.example.express.domain.bean.DataCompany;
 import com.example.express.mapper.DataCompanyMapper;
 import com.example.express.service.DataCompanyService;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import io.netty.util.concurrent.DefaultThreadFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
@@ -42,15 +42,14 @@ public class DataCompanyServiceImpl extends ServiceImpl<DataCompanyMapper, DataC
 
     @Override
     public DataCompany getByCache(Integer id) {
-        return CommonDataCache.dataCompanyCache.getUnchecked(id);
+        return CommonDataCache.dataCompanyCache.get(id);
     }
 
     @Override
     public void onApplicationEvent(ApplicationStartedEvent event) {
         log.info("开始加载快递公司数据...");
         // 数据加载线程池
-        ScheduledThreadPoolExecutor executorService = new ScheduledThreadPoolExecutor(1,
-                new ThreadFactoryBuilder().setNameFormat("data-company-loader").build());
+        ScheduledThreadPoolExecutor executorService = new ScheduledThreadPoolExecutor(1, new DefaultThreadFactory("data-company-loader"));
         executorService.scheduleWithFixedDelay(() -> {
             redisTemplate.delete(RedisKeyConstant.DATA_COMPANY);
             redisTemplate.opsForList().rightPushAll(RedisKeyConstant.DATA_COMPANY, listAll());

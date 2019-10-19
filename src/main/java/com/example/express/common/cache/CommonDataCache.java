@@ -8,9 +8,8 @@ import com.example.express.service.DataAreaService;
 import com.example.express.service.DataCompanyService;
 import com.example.express.service.DataSchoolService;
 import com.example.express.service.UserEvaluateService;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -54,45 +53,27 @@ public class CommonDataCache {
 
     @PostConstruct
     private void init() {
-        dataAreaCache = CacheBuilder.newBuilder()
+        dataAreaCache = Caffeine.newBuilder()
                 .maximumSize(35)
                 .expireAfterWrite(5, TimeUnit.MINUTES)
-                .build(new CacheLoader<Integer, List<DataArea>>() {
-                    @Override
-                    public List<DataArea> load(Integer parentId) throws Exception {
-                        return dataAreaService.listByParentId(parentId);
-                    }
-                });
+                .build(parentId -> dataAreaService.listByParentId(parentId));
 
-        dataSchoolCache = CacheBuilder.newBuilder()
+        dataSchoolCache = Caffeine.newBuilder()
                 .maximumSize(35)
                 .expireAfterWrite(1, TimeUnit.SECONDS)
-                .build(new CacheLoader<Integer, List<DataSchool>>() {
-                    @Override
-                    public List<DataSchool> load(Integer provinceId) throws Exception {
-                        return dataSchoolService.listByProvinceId(provinceId);
-                    }
-                });
+                .build(provinceId -> dataSchoolService.listByProvinceId(provinceId));
 
-        dataCompanyCache = CacheBuilder.newBuilder()
+        dataCompanyCache = Caffeine.newBuilder()
                 .maximumSize(35)
                 .expireAfterWrite(1, TimeUnit.SECONDS)
-                .build(new CacheLoader<Integer, DataCompany>() {
-                    @Override
-                    public DataCompany load(Integer id) throws Exception {
-                        return dataCompanyService.getById(id);
-                    }
-                });
+                .build(id -> dataCompanyService.getById(id));
 
-        userScoreCache = CacheBuilder.newBuilder()
+        userScoreCache = Caffeine.newBuilder()
                 .maximumSize(35)
                 .expireAfterWrite(1, TimeUnit.SECONDS)
-                .build(new CacheLoader<String, String>() {
-                    @Override
-                    public String load(String id) throws Exception {
-                        UserEvaluate evaluate = userEvaluateService.getById(id);
-                        return evaluate.getScore().toPlainString();
-                    }
+                .build(id -> {
+                    UserEvaluate evaluate = userEvaluateService.getById(id);
+                    return evaluate.getScore().toPlainString();
                 });
     }
 }

@@ -41,7 +41,7 @@ public class UserEvaluateServiceImpl extends ServiceImpl<UserEvaluateMapper, Use
 
     @Override
     public String getScoreFromCache(String userId) {
-        return CommonDataCache.userScoreCache.getUnchecked(userId);
+        return CommonDataCache.userScoreCache.get(userId);
     }
 
     @Override

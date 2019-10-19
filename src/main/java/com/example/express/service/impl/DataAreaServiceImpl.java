@@ -25,7 +25,7 @@ public class DataAreaServiceImpl extends ServiceImpl<DataAreaMapper, DataArea> i
 
     @Override
     public List<DataAreaVO> listByParentIdByCache(Integer parentId) {
-        List<DataArea> areas = CommonDataCache.dataAreaCache.getUnchecked(parentId);
+        List<DataArea> areas = CommonDataCache.dataAreaCache.get(parentId);
 
         return DataAreaVO.convert(areas);
     }

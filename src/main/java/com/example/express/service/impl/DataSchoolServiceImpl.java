@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.express.common.cache.CommonDataCache;
 import com.example.express.common.constant.RedisKeyConstant;
 import com.example.express.domain.bean.DataSchool;
-import com.example.express.domain.bean.SysUser;
 import com.example.express.mapper.DataSchoolMapper;
 import com.example.express.service.DataSchoolService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +55,6 @@ public class DataSchoolServiceImpl extends ServiceImpl<DataSchoolMapper, DataSch
 
     @Override
     public List<DataSchool> listByProvinceIdByCache(Integer provinceId) {
-        return CommonDataCache.dataSchoolCache.getUnchecked(provinceId);
+        return CommonDataCache.dataSchoolCache.get(provinceId);
     }
 }
