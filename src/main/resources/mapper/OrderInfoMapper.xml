@@ -9,15 +9,14 @@
         SELECT
             info.id,
             info.odd,
-            info.company as company,
+            info.company AS company,
             info.status AS order_status,
             payment.payment AS payment,
             payment.status AS payment_status,
             info.delete_type AS delete_type,
-            info.create_date,
-            "1" AS can_score
+            info.create_date AS create_date
         FROM
-            order_payment as payment, order_info as info
+            order_payment AS payment, order_info AS info
         WHERE
             info.id = payment.order_id AND info.has_delete = #{has_delete} ${sql}
     </select>
@@ -32,10 +31,9 @@
             info.rec_address AS rec_address,
             info.remark AS remark,
             info.status AS order_status,
-            info.create_date,
-            "1" AS can_score
+            info.create_date AS create_date
         FROM
-            order_payment as payment, order_info as info
+            order_payment AS payment, order_info AS info
         WHERE
             info.id = payment.order_id ${sql}
     </select>
@@ -46,7 +44,7 @@
         SELECT
             info.id,
             info.odd,
-            info.company as company,
+            info.company AS company,
             info.rec_name AS rec_name,
             info.rec_tel AS rec_tel,
             info.address AS address,
@@ -57,7 +55,7 @@
             info.delete_type AS delete_type,
             info.create_date
         FROM
-            order_payment as payment, order_info as info
+            order_payment AS payment, order_info AS info
         WHERE
             info.id = payment.order_id AND info.has_delete = #{has_delete} ${sql}
     </select>
