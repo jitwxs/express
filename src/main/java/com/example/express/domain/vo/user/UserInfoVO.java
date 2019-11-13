@@ -14,8 +14,14 @@ import java.io.Serializable;
 @Builder
 public class UserInfoVO implements Serializable {
     private String username;
-
+    /**
+     * 性别
+     */
     private String sex;
+    /**
+     * 性别ID
+     */
+    private String sexId;
 
     private String tel;
     /**

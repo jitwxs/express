@@ -1,5 +1,6 @@
 package com.example.express.security.validate.tradition;
 
+import com.example.express.common.util.DateUtils;
 import com.example.express.domain.bean.SysUser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.*;
@@ -8,8 +9,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-
-import java.time.format.DateTimeFormatter;
 
 /**
  * @author xiangsheng.wu
@@ -61,8 +60,7 @@ public class TraditionAuthenticationProvider implements AuthenticationProvider {
         if (!user.isAccountNonLocked()) {
             log.debug("User account is locked");
 
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-            throw new LockedException("账户已冻结，解冻时间为：" + ((SysUser)user).getLockDate().format(formatter));
+            throw new LockedException("账户已冻结，解冻时间为：" + DateUtils.format(((SysUser)user).getLockDate(), 1));
         }
 
         if (!user.isEnabled()) {

@@ -1,6 +1,7 @@
 package com.example.express.security.validate.mobile;
 
 import com.example.express.common.constant.SecurityConstant;
+import com.example.express.common.util.DateUtils;
 import com.example.express.domain.bean.SysUser;
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
 import com.example.express.security.exception.DefaultAuthException;
@@ -17,7 +18,6 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
-import java.time.format.DateTimeFormatter;
 
 /**
  * 短信登陆鉴权 Provider，要求实现 AuthenticationProvider 接口
@@ -73,8 +73,7 @@ public class SmsCodeAuthenticationProvider implements AuthenticationProvider {
         if (!user.isAccountNonLocked()) {
             log.debug("User account is locked");
 
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-            throw new LockedException("账户已冻结，解冻时间为：" + ((SysUser)user).getLockDate().format(formatter));
+            throw new LockedException("账户已冻结，解冻时间为：" + DateUtils.format(((SysUser)user).getLockDate(), 1));
         }
 
         if (!user.isEnabled()) {

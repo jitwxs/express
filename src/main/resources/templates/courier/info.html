@@ -51,7 +51,8 @@
                         <div class="form-group">
                             <label for="sex" class="col-md-2 control-label">性别</label>
                             <div class="col-md-10">
-                                <p class="form-control-static col-md-7" id="sex" th:text="${info.sex == 1 ? '男' : '女'}"></p>
+                                <p class="form-control-static col-md-7" id="sex" th:text="${info.sex}" th:attr="sex-id=${info.sexId}">保密</p>
+                                <button type="button" class="btn btn-default col-md-3" onclick="showModel(4)">修改性别</button>
                             </div>
                         </div>
                         <div class="form-group">
@@ -60,8 +61,8 @@
                                 <p class="form-control-static col-md-7" id="faceLogin"
                                    th:style="${info.canFace == '0' ? 'color:gray' : ''}"
                                    th:text="${info.canFace == '1' ? '已绑定人脸' : '您未绑定人脸，绑定后可以使用人脸登录'}"></p>
-                                <button type="button" class="btn btn-default col-md-3" th:if="${info.canFace == '1'}" onclick="showModel(4)">更换人脸</button>
-                                <button type="button" class="btn btn-danger col-md-3" th:if="${info.canFace == '0'}" onclick="showModel(4)">绑定人脸</button>
+                                <button type="button" class="btn btn-default col-md-3" th:if="${info.canFace == '1'}" onclick="showModel(5)">更换人脸</button>
+                                <button type="button" class="btn btn-danger col-md-3" th:if="${info.canFace == '0'}" onclick="showModel(5)">绑定人脸</button>
                             </div>
                         </div>
                     </form>
@@ -75,8 +76,8 @@
                                 <p class="form-control-static col-md-7" id="school"
                                    th:style="${info.school == null ? 'color:gray' : ''}"
                                    th:text="${info.school != null ? info.school : '未设置'}"></p>
-                                <button type="button" class="btn btn-default col-md-3" th:if="${info.school != null}" onclick="showModel(5)">更改绑定</button>
-                                <button type="button" class="btn btn-danger col-md-3" th:if="${info.school == null}" onclick="showModel(5)">立即绑定</button>
+                                <button type="button" class="btn btn-default col-md-3" th:if="${info.school != null}" onclick="showModel(6)">更改绑定</button>
+                                <button type="button" class="btn btn-danger col-md-3" th:if="${info.school == null}" onclick="showModel(6)">立即绑定</button>
                             </div>
                         </div>
                         <div class="form-group">
@@ -228,6 +229,38 @@
             </div>
         </div>
     </div>
+    <!-- 设置性别 -->
+    <div class="modal fade" id="setSexModel" tabindex="-1" role="dialog" aria-labelledby="setSexModelLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="setSexModelLabel">设置性别</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal" id="setSexForm">
+                        <div class="form-group">
+                            <label for="inputTel" class="col-md-2 control-label">性别</label>
+                            <div class="col-md-10">
+                                <label class="radio-inline">
+                                    <input type="radio" name="sex" value="1"> 男
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="sex" value="0"> 女
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="sex" value="-1"> 保密
+                                </label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="submitForm(4)">立即设置</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- 设置人脸 -->
     <div class="modal fade" id="setFaceModel" tabindex="-1" role="dialog" aria-labelledby="setFaceModelModelLabel">
         <div class="modal-dialog" role="document">
@@ -277,7 +310,7 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" onclick="submitForm(5)">提交设置</button>
+                    <button type="button" class="btn btn-primary" onclick="submitForm(6)">提交设置</button>
                 </div>
             </div>
         </div>
@@ -387,10 +420,15 @@
                 $("#setTelModel").modal('show');
                 return;
             case 4:
+                var sexId = $("#sex").attr('sex-id');
+                $("input[name='sex'][value='"+sexId+"']").attr("checked",true);
+                $("#setSexModel").modal('show');
+                return;
+            case 5:
                 startCamera();
                 $("#setFaceModel").modal('show');
                 return;
-            case 5:
+            case 6:
                 $("#setSchoolModel").modal('show');
                 return;
         }
@@ -407,9 +445,12 @@
                 $("#setTelModel").modal('hide');
                 return;
             case 4:
-                closeFaceCheck();
+                $("#setSexModel").modal('hide');
                 return;
             case 5:
+                closeFaceCheck();
+                return;
+            case 6:
                 $("#setSchoolModel").modal('hide');
                 return;
         }
@@ -425,7 +466,10 @@
             case 3:
                 $("#setTelForm").submit();
                 return;
-            case 5:
+            case 4:
+                $("#setSexForm").submit();
+                return;
+            case 6:
                 $("#setSchoolForm").submit();
                 return;
         }
@@ -484,10 +528,6 @@
         video.srcObject = stream;
         video.play();
         sendImg();
-    }
-
-    function error(error) {
-        console.log(`访问用户媒体设备失败${error.name}, ${error.message}`);
     }
 
     function startCamera(){
@@ -713,6 +753,32 @@
             }
         });
 
+        $("#setSexForm").validate({
+            rules: {
+                sex: {
+                    required: true
+                }
+            },
+            messages: {
+                sex: {
+                    required: "必须选择性别"
+                }
+            },
+            submitHandler: function (form) {
+                sendJson(HTTP.POST, "/api/v1/setting/sex", $("#setSexForm").serialize(), false, function (res) {
+                    if (res.code === 0) {
+                        layer.msg("设置成功", {icon: 1});
+                        closeModel(4);
+                        location.reload();
+                    } else {
+                        layer.msg(res.msg, {icon: 2});
+                    }
+                }, function () {
+                    layer.msg("未知错误", {icon: 2});
+                });
+            }
+        });
+
         $("#setSchoolForm").validate({
             rules: {
                 school: {
@@ -738,7 +804,8 @@
                 sendJson(HTTP.POST, "/api/v1/setting/school", $("#setSchoolForm").serialize() , false, function (res) {
                     if (res.code === 0) {
                         layer.msg("设置学校信息成功", {icon: 1});
-                        closeModel(4);
+                        closeModel(6);
+                        location.reload();
                     } else {
                         layer.msg(res.msg, {icon: 2});
                     }

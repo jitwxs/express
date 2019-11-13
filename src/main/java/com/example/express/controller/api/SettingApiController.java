@@ -5,6 +5,7 @@ import com.example.express.common.util.StringUtils;
 import com.example.express.domain.ResponseResult;
 import com.example.express.domain.bean.SysUser;
 import com.example.express.domain.enums.ResponseErrorCodeEnum;
+import com.example.express.domain.enums.SexEnum;
 import com.example.express.service.SysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -87,6 +88,19 @@ public class SettingApiController {
         }
 
         return sysUserService.setTel(sysUser, tel, code, session);
+    }
+
+    /**
+     * 设置/修改性别
+     */
+    @PostMapping("/sex")
+    public ResponseResult setSex(Integer sex, @AuthenticationPrincipal SysUser sysUser) {
+        SexEnum sexEnum = SexEnum.getByType(sex);
+        if(sexEnum == null) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.PARAMETER_ERROR);
+        }
+
+        return sysUserService.setSex(sysUser, sexEnum);
     }
 
     /**

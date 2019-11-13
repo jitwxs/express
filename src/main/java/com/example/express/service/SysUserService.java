@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.express.domain.ResponseResult;
 import com.example.express.domain.bean.SysUser;
+import com.example.express.domain.enums.SexEnum;
 import com.example.express.domain.enums.ThirdLoginTypeEnum;
 import com.example.express.domain.vo.BootstrapTableVO;
 import com.example.express.domain.vo.admin.AdminUserInfoVO;
@@ -93,6 +94,10 @@ public interface SysUserService extends IService<SysUser> {
      * 设置/修改手机号码
      */
     ResponseResult setTel(SysUser user, String tel, String code, HttpSession session);
+    /**
+     * 设置/修改性别
+     */
+    ResponseResult setSex(SysUser sysUser, SexEnum sexEnum);
     /**
      * 设置/修改高校信息
      * @param schoolId 学校ID

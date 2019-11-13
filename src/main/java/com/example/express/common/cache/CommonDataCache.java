@@ -60,17 +60,17 @@ public class CommonDataCache {
 
         dataSchoolCache = Caffeine.newBuilder()
                 .maximumSize(35)
-                .expireAfterWrite(1, TimeUnit.SECONDS)
+                .expireAfterWrite(1, TimeUnit.MINUTES)
                 .build(provinceId -> dataSchoolService.listByProvinceId(provinceId));
 
         dataCompanyCache = Caffeine.newBuilder()
                 .maximumSize(35)
-                .expireAfterWrite(1, TimeUnit.SECONDS)
+                .expireAfterWrite(1, TimeUnit.MINUTES)
                 .build(id -> dataCompanyService.getById(id));
 
         userScoreCache = Caffeine.newBuilder()
                 .maximumSize(35)
-                .expireAfterWrite(1, TimeUnit.SECONDS)
+                .expireAfterWrite(1, TimeUnit.MINUTES)
                 .build(id -> {
                     UserEvaluate evaluate = userEvaluateService.getById(id);
                     return evaluate.getScore().toPlainString();

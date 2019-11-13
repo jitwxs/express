@@ -11,10 +11,20 @@ import java.util.Arrays;
  */
 @Getter
 public enum SexEnum implements IEnum<Integer> {
+    /**
+     * 男性
+     */
     MALE(1, "male", "男"),
-    FEMALE(0, "female", "女");
+    /**
+     * 女性
+     */
+    FEMALE(0, "female", "女"),
+    /**
+     * 保密
+     */
+    CONFIDENTIALITY(-1, "confidentiality", "保密");
 
-    private int type;
+    private Integer type;
 
     private String name;
 
@@ -31,8 +41,8 @@ public enum SexEnum implements IEnum<Integer> {
         return this.type;
     }
 
-    public static SexEnum getByType(int type) {
-        return Arrays.stream(values()).filter(e -> e.getType() == type).findFirst().orElse(null);
+    public static SexEnum getByType(Integer type) {
+        return Arrays.stream(values()).filter(e -> e.getType().equals(type)).findFirst().orElse(null);
     }
 
     public static SexEnum getByName(String name) {

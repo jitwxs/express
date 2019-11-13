@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.express.common.constant.RedisKeyConstant;
 import com.example.express.common.util.CollectionUtils;
+import com.example.express.common.util.DateUtils;
 import com.example.express.common.util.IDValidateUtils;
 import com.example.express.common.util.StringUtils;
 import com.example.express.domain.ResponseResult;
@@ -37,11 +38,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -124,7 +121,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
         UserInfoVO vo = UserInfoVO.builder()
                 .username(user.getUsername())
-                .sex(String.valueOf(user.getSex().getType()))
+                .sex(user.getSex().getCname())
+                .sexId(String.valueOf(user.getSex().getType()))
                 .tel(user.getTel())
                 .studentIdCard(user.getStudentIdCard())
                 .role(String.valueOf(userRole.getType()))
@@ -383,6 +381,15 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
+    public ResponseResult setSex(SysUser user, SexEnum sexEnum) {
+        user.setSex(sexEnum);
+        if(!updateById(user)) {
+            return ResponseResult.failure(ResponseErrorCodeEnum.OPERATION_ERROR);
+        }
+        return ResponseResult.success();
+    }
+
+    @Override
     public ResponseResult setSchoolInfo(SysUser user, Integer schoolId, String studentIdCard) {
         DataSchool dataSchool = dataSchoolService.getById(schoolId);
         if(dataSchool == null) {
@@ -553,8 +560,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         if (!user.isAccountNonLocked()) {
             log.debug("User account is locked");
 
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-            return ResponseResult.failure(ResponseErrorCodeEnum.ACCOUNT_LOCKED, new Object[]{user.getLockDate().format(formatter)});
+            return ResponseResult.failure(ResponseErrorCodeEnum.ACCOUNT_LOCKED, new Object[]{DateUtils.format(user.getLockDate(), 1)});
         }
 
         if (!user.isEnabled()) {
