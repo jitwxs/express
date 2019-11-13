@@ -74,14 +74,15 @@ public class SysUser implements UserDetails, CredentialsContainer {
      * 1：启用；0：禁用
      */
     private Integer hasEnable;
+
+    @Version
+    private Integer version;
+
     /**
      * 解冻时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime lockDate;
-
-    @Version
-    private Integer version;
 
     @TableField(fill = FieldFill.INSERT)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
