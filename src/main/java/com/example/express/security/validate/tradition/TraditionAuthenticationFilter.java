@@ -7,6 +7,7 @@ import org.springframework.security.authentication.AuthenticationServiceExceptio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -30,9 +31,12 @@ public class TraditionAuthenticationFilter extends AbstractAuthenticationProcess
 
     private String SPRING_SECURITY_FORM_PASSWORD_KEY = "password";
 
-    public TraditionAuthenticationFilter() {
-        // 短信登录的请求
+    public TraditionAuthenticationFilter(RememberMeServices rememberMeServices) {
+        // 传统登录的请求
         super(new AntPathRequestMatcher(SecurityConstant.LOGIN_PROCESSING_URL_FORM, "POST"));
+
+        // 手动注入rememberService，支持自动登录
+        this.setRememberMeServices(rememberMeServices);
     }
 
     @Override

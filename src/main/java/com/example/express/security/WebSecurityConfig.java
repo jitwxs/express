@@ -17,10 +17,6 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
-import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
-
-import javax.sql.DataSource;
 
 /**
  * Spring Security 核心配置类
@@ -41,8 +37,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private ThidLoginAuthenticationSecurityConfig thidLoginAuthenticationSecurityConfig;
     @Autowired
     private DefaultAuthenticationFailureHandler defaultAuthenticationFailureHandler;
-    @Autowired
-    private DataSource dataSource;
 
     @Bean
     @Override
@@ -53,18 +47,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    /**
-     * token 持久化
-     */
-    @Bean
-    public PersistentTokenRepository persistentTokenRepository(){
-        JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
-        tokenRepository.setDataSource(dataSource);
-        // 如果token表不存在，使用下面语句可以初始化该表；若存在，会报错。
-//        tokenRepository.setCreateTableOnStartup(true);
-        return tokenRepository;
     }
 
     /**
@@ -95,10 +77,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .logoutSuccessUrl(SecurityConstant.UN_AUTHENTICATION_URL)
                     .deleteCookies("JSESSIONID").and()
                 .rememberMe()
-                    .tokenRepository(persistentTokenRepository())
-                    // 有效时间：单位s
-                    .tokenValiditySeconds(60)
-                    .userDetailsService(userDetailService).and()
+                    .key(SecurityConstant.REMEMBER_ME_KEY).and()
                 .authorizeRequests()
                     // 如果有允许匿名的url，填在下面
                     .antMatchers(SecurityConstant.VALIDATE_CODE_URL_PREFIX + "/**").permitAll()

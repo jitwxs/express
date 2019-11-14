@@ -1,7 +1,7 @@
 package com.example.express.common.constant;
 
 /**
- * Security 相关常量
+ * Spring Security 相关常量
  * @since 2019/1/8 23:50
  */
 public class SecurityConstant {
@@ -68,4 +68,16 @@ public class SecurityConstant {
     public static final String VALIDATE_CODE_ERR_URL = VALIDATE_CODE_URL_PREFIX + "/error";
 
     public static final String LAST_EXCEPTION = "SPRING_SECURITY_LAST_EXCEPTION";
+    /**
+     * 自动登录表单字段名
+     */
+    public static final String REMEMBER_ME_PARAMETER = "remember-me";
+    /**
+     * 自动登录过期时间(秒)
+     */
+    public static final Integer REMEMBER_ME_EXPIRE_SECONDS = 3600;
+    /**
+     * 自动登录私钥
+     */
+    public static final String REMEMBER_ME_KEY = "ea31029762233c45732102892c3f45f412af2df703435aa79de9d8d60a535fb8";
 }
