@@ -54,7 +54,14 @@
     CREATE DATABASE IF NOT EXISTS express default charset utf8mb4 COLLATE utf8mb4_general_ci;
     ```
 
-3. 导入项目中 `/src/main/resources/db/express.sql` 到 `express`库
+3. 导入项目中 `/src/main/resources/db/express.sql` 到 `express`库。
+
+    **注：不要使用 Navicat 等图形化导入工具（会导致导入失败），请使用 source 命令！！**
+
+    ```powershell
+    use express; # 选择数据库
+    source /your/path/express.sql; # Source 导入
+    ```
 
 4. 编辑 `application-dev.yaml` 文件，修改数据库连接信息。
 
