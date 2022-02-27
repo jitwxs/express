@@ -1,21 +1,6 @@
-/*
- Navicat Premium Data Transfer
+CREATE DATABASE IF NOT EXISTS express default charset utf8mb4 COLLATE utf8mb4_general_ci;
 
- Source Server         : local
- Source Server Type    : MySQL
- Source Server Version : 50719
- Source Host           : localhost:3306
- Source Schema         : express
-
- Target Server Type    : MySQL
- Target Server Version : 50719
- File Encoding         : 65001
-
- Date: 04/05/2019 15:33:04
-*/
-
-SET NAMES utf8mb4;
-SET FOREIGN_KEY_CHECKS = 0;
+USE express;
 
 -- ----------------------------
 -- Table structure for data_area
@@ -268,7 +253,10 @@ CREATE TABLE `sys_user`  (
 -- Records of sys_user
 -- ----------------------------
 BEGIN;
-INSERT INTO `sys_user` VALUES ('1', 'user1', '$2a$10$lqib8LGGEziYYaJMmnQ4XubOugCjECjtLHb4yJLgZ.0wDwSjh09Yi', 3, NULL, -1, '1', '1', '123', '17623014429', '2032', 0, NULL, 1, NULL, '2019-04-17 23:10:21', '2019-05-04 14:11:24'), ('4139cb9237a7852e694f3569b9030b2c', 'admin1', '$2a$10$lqib8LGGEziYYaJMmnQ4XubOugCjECjtLHb4yJLgZ.0wDwSjh09Yi', 1, NULL, 1, '拉布拉多', '440102198001021230', '777777777', NULL, '1367', 0, NULL, 1, NULL, '2019-05-03 02:03:48', '2019-05-03 15:17:02'), ('6150146f23bfa506b300f4f2c635dcba', NULL, NULL, 3, NULL, NULL, NULL, NULL, NULL, '17326074239', NULL, 1, '830B7B4639CFB1B4FD0018CC810B8EF6', 1, '2019-05-03 23:18:53', '2019-04-20 15:31:50', '2019-05-03 23:18:53'), ('77d014e9455b27c0696eb9f969f87912', 'user2', '$2a$10$lqib8LGGEziYYaJMmnQ4XubOugCjECjtLHb4yJLgZ.0wDwSjh09Yi', 3, NULL, 1, NULL, NULL, '2222', NULL, '1382', 0, NULL, 1, NULL, NULL, '2019-05-03 14:49:25'), ('92602c3ce0b33707d84d1165ac698db2', NULL, NULL, -1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 1, NULL, '2019-04-22 01:48:01', NULL), ('f10960e7392847a2c691ad066e2a87c4', 'courier1', '$2a$10$lqib8LGGEziYYaJMmnQ4XubOugCjECjtLHb4yJLgZ.0wDwSjh09Yi', 2, NULL, 1, 'zhangsan', '12345', '11', NULL, '0', 0, NULL, 1, '0', NULL, '2019-04-22 01:10:24', '2019-05-04 14:12:26');
+INSERT INTO `sys_user`(`id`, `username`, `password`, `role_id`, `face_token`, `sex`, `real_name`, `id_card`, `student_id_card`, `tel`, `school_id`, `third_login_type`, `third_login_id`, `has_enable`, `version`, `lock_date`, `create_date`, `update_date`) VALUES ('1', 'user1', '$2a$10$lqib8LGGEziYYaJMmnQ4XubOugCjECjtLHb4yJLgZ.0wDwSjh09Yi', 3, NULL, 1, 'zhangsan', '12313', '23', '15823457654', '1372', 0, NULL, 1, 3, NULL, '2022-02-27 21:05:51', '2022-02-27 21:13:24');
+INSERT INTO `sys_user`(`id`, `username`, `password`, `role_id`, `face_token`, `sex`, `real_name`, `id_card`, `student_id_card`, `tel`, `school_id`, `third_login_type`, `third_login_id`, `has_enable`, `version`, `lock_date`, `create_date`, `update_date`) VALUES ('6150146f23bfa506b300f4f2c635dcba', 'user2', '$2a$10$lqib8LGGEziYYaJMmnQ4XubOugCjECjtLHb4yJLgZ.0wDwSjh09Yi', 3, NULL, 2, 'lisi', '333', '15', NULL, '1382', 0, NULL, 1, 0, NULL, '2022-02-27 21:05:53', NULL);
+INSERT INTO `sys_user`(`id`, `username`, `password`, `role_id`, `face_token`, `sex`, `real_name`, `id_card`, `student_id_card`, `tel`, `school_id`, `third_login_type`, `third_login_id`, `has_enable`, `version`, `lock_date`, `create_date`, `update_date`) VALUES ('77d014e9455b27c0696eb9f969f87912', 'admin1', '$2a$10$lqib8LGGEziYYaJMmnQ4XubOugCjECjtLHb4yJLgZ.0wDwSjh09Yi', 1, NULL, -1, 'jitwxs', NULL, NULL, NULL, '1395', 0, NULL, 1, 0, NULL, NULL, NULL);
+INSERT INTO `sys_user`(`id`, `username`, `password`, `role_id`, `face_token`, `sex`, `real_name`, `id_card`, `student_id_card`, `tel`, `school_id`, `third_login_type`, `third_login_id`, `has_enable`, `version`, `lock_date`, `create_date`, `update_date`) VALUES ('f10960e7392847a2c691ad066e2a87c4', 'courier1', '$2a$10$lqib8LGGEziYYaJMmnQ4XubOugCjECjtLHb4yJLgZ.0wDwSjh09Yi', 2, NULL, -1, 'wangwu', NULL, NULL, NULL, '1383', 0, NULL, 1, 0, NULL, NULL, NULL);
 COMMIT;
 
 -- ----------------------------
