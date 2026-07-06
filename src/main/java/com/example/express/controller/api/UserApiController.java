@@ -9,6 +9,7 @@ import com.example.express.domain.enums.ResponseErrorCodeEnum;
 import com.example.express.domain.enums.SysRoleEnum;
 import com.example.express.domain.vo.BootstrapTableVO;
 import com.example.express.domain.vo.admin.AdminUserInfoVO;
+import com.example.express.service.OrderInfoService;
 import com.example.express.service.SysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,6 +32,9 @@ import java.util.Map;
 public class UserApiController {
     @Autowired
     private SysUserService sysUserService;
+
+    @Autowired
+    private OrderInfoService orderInfoService;
 
     /**
      * 获取用户列表
@@ -115,6 +119,19 @@ public class UserApiController {
         }
 
         return ResponseResult.success(result);
+    }
+
+    /**
+     * 获取当前用户的订单状态统计
+     * @author maht
+     * @date 2026-07-06
+     */
+    @GetMapping("/order-stats")
+    @PreAuthorize("hasRole('ROLE_USER')") // 必须登录且是普通用户
+    public ResponseResult getOrderStats(@AuthenticationPrincipal SysUser sysUser) {
+        // 调用刚才写的 Service 方法
+        Map<String, Integer> stats = orderInfoService.getOrderStatsByUserId(sysUser.getId());
+        return ResponseResult.success(stats);
     }
 
     /**
