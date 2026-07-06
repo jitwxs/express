@@ -485,4 +485,39 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         }
         return info.getCourierId().equals(courierId);
     }
+
+    // 在 OrderInfoServiceImpl 类中添加
+    @Override
+    public Map<String, Integer> getOrderStatsByUserId(String userId) {
+        // 使用 MyBatis-Plus 的 QueryWrapper 分别统计四种状态
+
+        // 1. 待接单 (WAIT_DIST)
+        int waitCount = count(new QueryWrapper<OrderInfo>()
+                .eq("user_id", userId)
+                .eq("status", OrderStatusEnum.WAIT_DIST.getStatus()));
+
+        // 2. 派送中 (TRANSPORT)
+        int transportCount = count(new QueryWrapper<OrderInfo>()
+                .eq("user_id", userId)
+                .eq("status", OrderStatusEnum.TRANSPORT.getStatus()));
+
+        // 3. 已完成 (COMPLETE)
+        int completeCount = count(new QueryWrapper<OrderInfo>()
+                .eq("user_id", userId)
+                .eq("status", OrderStatusEnum.COMPLETE.getStatus()));
+
+        // 4. 已异常 (ERROR)
+        int errorCount = count(new QueryWrapper<OrderInfo>()
+                .eq("user_id", userId)
+                .eq("status", OrderStatusEnum.ERROR.getStatus()));
+
+        // 封装成 Map 返回
+        Map<String, Integer> stats = new HashMap<>();
+        stats.put("waitDist", waitCount);
+        stats.put("transport", transportCount);
+        stats.put("complete", completeCount);
+        stats.put("error", errorCount);
+
+        return stats;
+    }
 }

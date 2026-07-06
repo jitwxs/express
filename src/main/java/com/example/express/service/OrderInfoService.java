@@ -96,6 +96,13 @@ public interface OrderInfoService extends IService<OrderInfo> {
      */
     ResponseResult batchAllotOrder(String[] ids, String courierId);
 
+    /**
+     * 获取当前用户的订单状态统计
+     * @param userId 用户ID
+     * @return Map<String, Integer> 统计结果
+     */
+    Map<String, Integer> getOrderStatsByUserId(String userId);
+
     Map<String, Integer> getAdminDashboardData();
 
     Map<String, Integer> getUserDashboardData(String userId);

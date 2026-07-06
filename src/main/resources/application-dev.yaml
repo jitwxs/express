@@ -33,6 +33,9 @@ mybatis-plus:
   # SQL 执行log，调试时可打开
 #  configuration:
 #    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+logging:
+  level:
+    org.slf4j: WARN
 
 # 项目配置
 project:
